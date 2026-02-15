@@ -110,14 +110,21 @@ export function generateShareResult(
   solvedWords: Set<string>,
   won: boolean
 ): string {
-  const guessCount = guesses.length;
-  const scoreDisplay = won ? `${guessCount}/6` : "X/6";
+  // Count main-word guesses only for the score display
+  const mainGuessCount = guesses.filter((g) => g.targetId === "main").length;
+  const scoreDisplay = won ? `${mainGuessCount}` : "X";
 
-  // Count solved crossers
+  // Count solved crossers (hints used)
   const crossersSolved = puzzle.crossers.filter((c) =>
     solvedWords.has(c.id)
   ).length;
   const totalCrossers = puzzle.crossers.length;
+
+  // Star display based on hints used
+  const hintsUsed = crossersSolved;
+  const ratio = totalCrossers > 0 ? hintsUsed / totalCrossers : 0;
+  const stars = ratio === 0 ? 3 : ratio <= 0.5 ? 2 : ratio < 1 ? 1 : 0;
+  const starDisplay = "\u2B50".repeat(stars) + "\u2606".repeat(3 - stars);
 
   // Generate the crossword grid visualization
   const gridVisual = generateCrosswordGrid(puzzle, solvedWords, guesses);
@@ -128,7 +135,7 @@ export function generateShareResult(
     "",
     gridVisual,
     "",
-    `Guesses: ${scoreDisplay} | Clues: ${crossersSolved}/${totalCrossers}`,
+    `${starDisplay} | Guesses: ${scoreDisplay} | Hints: ${hintsUsed}/${totalCrossers}`,
     "cluegrid.com",
   ];
 

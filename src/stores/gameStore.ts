@@ -8,8 +8,22 @@ import type {
   GameStatus,
   RevealedLetter,
   KeyStatus,
+  Difficulty,
+  StarRating,
 } from "@/types";
+import { DIFFICULTY_GUESS_LIMITS, calculateStars } from "@/types";
 import { useStatsStore } from "./statsStore";
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const DIFFICULTY_STORAGE_KEY = "cluegrid:difficulty";
+const DEFAULT_DIFFICULTY: Difficulty = "medium";
+
+// ---------------------------------------------------------------------------
+// Word validation
+// ---------------------------------------------------------------------------
 
 // Cache of validated words to avoid repeat API calls
 const validatedWords = new Set<string>();
@@ -52,7 +66,10 @@ function addPuzzleWordsToCache(mainWord: string, crossers: Array<{ word: string 
   }
 }
 
-// Fallback mock puzzle used while loading or if fetch fails
+// ---------------------------------------------------------------------------
+// Mock puzzle (fallback)
+// ---------------------------------------------------------------------------
+
 const MOCK_PUZZLE: PuzzleData = {
   id: "mock-1",
   date: "2024-01-15",
@@ -65,7 +82,7 @@ const MOCK_PUZZLE: PuzzleData = {
       direction: "down",
       startRow: 0,
       startCol: 1,
-      intersectionIndex: 2, // 'E' at index 2 intersects BEACH's 'E' at col 1
+      intersectionIndex: 2,
     },
     {
       id: "c2",
@@ -74,7 +91,7 @@ const MOCK_PUZZLE: PuzzleData = {
       direction: "down",
       startRow: 0,
       startCol: 2,
-      intersectionIndex: 2, // 'A' at index 2 intersects BEACH's 'A' at col 2
+      intersectionIndex: 2,
     },
     {
       id: "c3",
@@ -83,7 +100,7 @@ const MOCK_PUZZLE: PuzzleData = {
       direction: "down",
       startRow: 1,
       startCol: 3,
-      intersectionIndex: 1, // 'C' at index 1 intersects BEACH's 'C' at col 3
+      intersectionIndex: 1,
     },
   ],
   gridSize: { rows: 6, cols: 5 },
@@ -91,7 +108,10 @@ const MOCK_PUZZLE: PuzzleData = {
   themeHint: "Sun, sand, and surf",
 };
 
-// Compute Wordle-style feedback for a guess against an answer
+// ---------------------------------------------------------------------------
+// Feedback computation (Wordle-style)
+// ---------------------------------------------------------------------------
+
 function computeFeedback(guess: string, answer: string): LetterFeedback[] {
   const result: LetterFeedback[] = Array.from(guess, (letter) => ({
     letter,
@@ -121,6 +141,93 @@ function computeFeedback(guess: string, answer: string): LetterFeedback[] {
   return result;
 }
 
+// ---------------------------------------------------------------------------
+// Difficulty persistence
+// ---------------------------------------------------------------------------
+
+function loadDifficulty(): Difficulty {
+  if (typeof window === "undefined") return DEFAULT_DIFFICULTY;
+  try {
+    const stored = localStorage.getItem(DIFFICULTY_STORAGE_KEY);
+    if (stored && ["easy", "medium", "hard", "expert"].includes(stored)) {
+      return stored as Difficulty;
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return DEFAULT_DIFFICULTY;
+}
+
+function saveDifficulty(difficulty: Difficulty): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(DIFFICULTY_STORAGE_KEY, difficulty);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Session persistence
+// ---------------------------------------------------------------------------
+
+function getSessionKey(puzzleId: string): string {
+  return `cluegrid:session:${puzzleId}`;
+}
+
+interface SessionData {
+  puzzleId: string;
+  guesses: Guess[];
+  solvedWords: string[];
+  revealedLetters: RevealedLetter[];
+  status: GameStatus;
+  selectedTarget: string;
+  statsRecorded: boolean;
+  difficulty: Difficulty;
+  hintsUsed: number;
+  mainGuessCount: number;
+}
+
+function loadSession(puzzleId: string): Partial<SessionData> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const key = getSessionKey(puzzleId);
+    const data = localStorage.getItem(key);
+    if (!data) return null;
+    const parsed = JSON.parse(data) as SessionData;
+    if (parsed.puzzleId !== puzzleId) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveSession(state: GameStore): void {
+  if (typeof window === "undefined") return;
+  try {
+    const key = getSessionKey(state.puzzle.id);
+    const data: SessionData = {
+      puzzleId: state.puzzle.id,
+      guesses: state.guesses,
+      solvedWords: Array.from(state.solvedWords),
+      revealedLetters: state.revealedLetters,
+      status: state.status,
+      selectedTarget: state.selectedTarget,
+      statsRecorded: state.statsRecorded,
+      difficulty: state.difficulty,
+      hintsUsed: state.hintsUsed,
+      mainGuessCount: state.mainGuessCount,
+    };
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Store interface
+// ---------------------------------------------------------------------------
+
 interface GameStore {
   // Data
   puzzle: PuzzleData;
@@ -135,20 +242,28 @@ interface GameStore {
   showCompletionModal: boolean;
   statsRecorded: boolean;
 
+  // Hint-based gameplay
+  difficulty: Difficulty;
+  hintsUsed: number;       // Number of crossers solved (each costs a "hint")
+  mainGuessCount: number;  // Guesses spent on the main word only
+
   // Loading state
   isLoading: boolean;
   error: string | null;
   puzzleLoaded: boolean;
 
   // Derived
+  maxGuesses: () => number;
   guessesRemaining: () => number;
   targetWordLength: () => number;
   targetWord: () => string;
   keyStatuses: () => Record<string, KeyStatus>;
   guessesForTarget: (targetId: "main" | string) => Guess[];
+  starRating: () => StarRating;
 
   // Actions
   fetchPuzzle: () => Promise<void>;
+  setDifficulty: (difficulty: Difficulty) => void;
   addLetter: (letter: string) => void;
   removeLetter: () => void;
   submitGuess: () => Promise<void>;
@@ -158,69 +273,24 @@ interface GameStore {
   resetGame: () => void;
 }
 
-// Helper to get current puzzle ID for session storage
-function getSessionKey(puzzleId: string): string {
-  return `cluegrid:session:${puzzleId}`;
-}
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
 
-// Session data structure for localStorage
-interface SessionData {
-  puzzleId: string;
-  guesses: Guess[];
-  solvedWords: string[];
-  revealedLetters: RevealedLetter[];
-  status: GameStatus;
-  selectedTarget: string;
-  statsRecorded: boolean;
-}
-
-// Load session from localStorage
-function loadSession(puzzleId: string): Partial<SessionData> | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const key = getSessionKey(puzzleId);
-    const data = localStorage.getItem(key);
-    if (!data) return null;
-    const parsed = JSON.parse(data) as SessionData;
-    // Validate it's for the same puzzle
-    if (parsed.puzzleId !== puzzleId) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-// Save session to localStorage
-function saveSession(state: GameStore): void {
-  if (typeof window === "undefined") return;
-  try {
-    const key = getSessionKey(state.puzzle.id);
-    const data: SessionData = {
-      puzzleId: state.puzzle.id,
-      guesses: state.guesses,
-      solvedWords: Array.from(state.solvedWords),
-      revealedLetters: state.revealedLetters,
-      status: state.status,
-      selectedTarget: state.selectedTarget,
-      statsRecorded: state.statsRecorded,
-    };
-    localStorage.setItem(key, JSON.stringify(data));
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-// Get today's date in YYYY-MM-DD format
 function getTodayDate(): string {
   return new Date().toISOString().split("T")[0]!;
 }
 
+// ---------------------------------------------------------------------------
+// Store
+// ---------------------------------------------------------------------------
+
 export const useGameStore = create<GameStore>((set, get) => ({
-  // Initial state with mock puzzle
+  // Initial state
   puzzle: MOCK_PUZZLE,
   guesses: [],
   currentGuess: "",
-  selectedTarget: "c1",
+  selectedTarget: "main", // Main word is the primary target now
   solvedWords: new Set<string>(),
   revealedLetters: [],
   status: "playing",
@@ -228,11 +298,27 @@ export const useGameStore = create<GameStore>((set, get) => ({
   toastMessage: null,
   showCompletionModal: false,
   statsRecorded: false,
+
+  // Hint-based gameplay
+  difficulty: loadDifficulty(),
+  hintsUsed: 0,
+  mainGuessCount: 0,
+
+  // Loading state
   isLoading: true,
   error: null,
   puzzleLoaded: false,
 
-  guessesRemaining: () => 6 - get().guesses.length,
+  // -----------------------------------------------------------------------
+  // Derived values
+  // -----------------------------------------------------------------------
+
+  maxGuesses: () => DIFFICULTY_GUESS_LIMITS[get().difficulty],
+
+  guessesRemaining: () => {
+    const state = get();
+    return state.maxGuesses() - state.mainGuessCount;
+  },
 
   targetWordLength: () => {
     const { puzzle, selectedTarget } = get();
@@ -252,10 +338,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const statuses: Record<string, KeyStatus> = {};
     const { guesses } = get();
     for (const guess of guesses) {
+      // Only track key statuses from main-word guesses to avoid confusion
+      if (guess.targetId !== "main") continue;
       for (const fb of guess.feedback) {
         const key = fb.letter;
         const current = statuses[key] ?? "unused";
-        // Priority: correct > present > absent > unused
         if (fb.status === "correct") {
           statuses[key] = "correct";
         } else if (fb.status === "present" && current !== "correct") {
@@ -276,8 +363,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return get().guesses.filter((g) => g.targetId === targetId);
   },
 
+  starRating: () => {
+    const { hintsUsed, puzzle } = get();
+    return calculateStars(hintsUsed, puzzle.crossers.length);
+  },
+
+  // -----------------------------------------------------------------------
+  // Actions
+  // -----------------------------------------------------------------------
+
+  setDifficulty: (difficulty: Difficulty) => {
+    saveDifficulty(difficulty);
+    set({ difficulty });
+  },
+
   fetchPuzzle: async () => {
-    // Don't fetch again if already loaded
     if (get().puzzleLoaded) return;
 
     set({ isLoading: true, error: null });
@@ -293,23 +393,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const data = await response.json();
       const puzzle: PuzzleData = data.puzzle;
 
-      // Add puzzle answers to validation cache (ensures answers are always guessable)
       addPuzzleWordsToCache(puzzle.mainWord.word, puzzle.crossers);
 
-      // Load any saved session for this puzzle
       const session = loadSession(puzzle.id);
-      const firstCrosserId = puzzle.crossers[0]?.id ?? "c1";
 
       if (session) {
         set({
           puzzle,
           guesses: session.guesses ?? [],
           currentGuess: "",
-          selectedTarget: session.selectedTarget ?? firstCrosserId,
+          selectedTarget: session.selectedTarget ?? "main",
           solvedWords: new Set(session.solvedWords ?? []),
           revealedLetters: session.revealedLetters ?? [],
           status: session.status ?? "playing",
           statsRecorded: session.statsRecorded ?? false,
+          difficulty: session.difficulty ?? loadDifficulty(),
+          hintsUsed: session.hintsUsed ?? 0,
+          mainGuessCount: session.mainGuessCount ?? 0,
           isLoading: false,
           puzzleLoaded: true,
         });
@@ -318,33 +418,37 @@ export const useGameStore = create<GameStore>((set, get) => ({
           puzzle,
           guesses: [],
           currentGuess: "",
-          selectedTarget: firstCrosserId,
+          selectedTarget: "main",
           solvedWords: new Set<string>(),
           revealedLetters: [],
           status: "playing",
           statsRecorded: false,
+          difficulty: loadDifficulty(),
+          hintsUsed: 0,
+          mainGuessCount: 0,
           isLoading: false,
           puzzleLoaded: true,
         });
       }
     } catch (err) {
       console.error("Failed to fetch puzzle:", err);
-      // Fall back to mock puzzle
       addPuzzleWordsToCache(MOCK_PUZZLE.mainWord.word, MOCK_PUZZLE.crossers);
 
       const session = loadSession(MOCK_PUZZLE.id);
-      const firstCrosserId = MOCK_PUZZLE.crossers[0]?.id ?? "c1";
 
       if (session) {
         set({
           puzzle: MOCK_PUZZLE,
           guesses: session.guesses ?? [],
           currentGuess: "",
-          selectedTarget: session.selectedTarget ?? firstCrosserId,
+          selectedTarget: session.selectedTarget ?? "main",
           solvedWords: new Set(session.solvedWords ?? []),
           revealedLetters: session.revealedLetters ?? [],
           status: session.status ?? "playing",
           statsRecorded: session.statsRecorded ?? false,
+          difficulty: session.difficulty ?? loadDifficulty(),
+          hintsUsed: session.hintsUsed ?? 0,
+          mainGuessCount: session.mainGuessCount ?? 0,
           isLoading: false,
           error: err instanceof Error ? err.message : "Failed to load puzzle",
           puzzleLoaded: true,
@@ -354,11 +458,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
           puzzle: MOCK_PUZZLE,
           guesses: [],
           currentGuess: "",
-          selectedTarget: firstCrosserId,
+          selectedTarget: "main",
           solvedWords: new Set<string>(),
           revealedLetters: [],
           status: "playing",
           statsRecorded: false,
+          difficulty: loadDifficulty(),
+          hintsUsed: 0,
+          mainGuessCount: 0,
           isLoading: false,
           error: err instanceof Error ? err.message : "Failed to load puzzle",
           puzzleLoaded: true,
@@ -388,7 +495,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const state = get();
     if (state.isLoading) return;
     if (state.status !== "playing") return;
-    if (state.guessesRemaining() <= 0) return;
+
+    const isMainGuess = state.selectedTarget === "main";
+
+    // For main-word guesses, check the guess budget
+    if (isMainGuess && state.guessesRemaining() <= 0) {
+      set({ toastMessage: "No guesses remaining" });
+      return;
+    }
 
     const requiredLength = state.targetWordLength();
     const guess = state.currentGuess.toUpperCase();
@@ -406,7 +520,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    // Check if guess is a valid word (async API call)
+    // Validate word against dictionary
     const isValid = await validateWord(guess);
     if (!isValid) {
       set({ shakeTarget: state.selectedTarget, toastMessage: "Not in word list" });
@@ -414,7 +528,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    // For MVP, compute feedback locally (client has answers)
+    // Compute feedback
     const answer = state.targetWord();
     const feedback = computeFeedback(guess, answer);
     const solved = guess === answer;
@@ -428,12 +542,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const newGuesses = [...state.guesses, newGuess];
     const newSolvedWords = new Set(state.solvedWords);
     const newRevealedLetters = [...state.revealedLetters];
+    let newHintsUsed = state.hintsUsed;
+    let newMainGuessCount = state.mainGuessCount;
+
+    // Track main-word guesses against the budget
+    if (isMainGuess) {
+      newMainGuessCount += 1;
+    }
 
     if (solved) {
       newSolvedWords.add(state.selectedTarget);
 
-      // If a crosser was solved, reveal the intersection letter in the main word
-      if (state.selectedTarget !== "main") {
+      // If a crosser was solved, it counts as using a hint and reveals a letter
+      if (!isMainGuess) {
+        newHintsUsed += 1;
+
         const crosser = state.puzzle.crossers.find(
           (c) => c.id === state.selectedTarget,
         );
@@ -441,33 +564,31 @@ export const useGameStore = create<GameStore>((set, get) => ({
           const mainRow = state.puzzle.mainWord.row;
           const col = crosser.startCol;
           const letter = crosser.word[crosser.intersectionIndex]!;
-          newRevealedLetters.push({ row: mainRow, col, letter });
+          newRevealedLetters.push({ row: mainRow, col, letter, source: crosser.id });
         }
       }
     }
 
     // Determine game status
     let newStatus: GameStatus = "playing";
-    if (state.selectedTarget === "main" && solved) {
+    if (isMainGuess && solved) {
       newStatus = "won";
-    } else if (newGuesses.length >= 6) {
+    } else if (isMainGuess && newMainGuessCount >= state.maxGuesses()) {
+      // Used all main-word guesses without solving
       newStatus = "lost";
     }
 
-    // Determine new target for auto-advance
+    // Auto-advance target after solving a crosser
     let newSelectedTarget = state.selectedTarget;
-    if (solved && state.selectedTarget !== "main" && newStatus === "playing") {
-      // Find next unsolved crosser, then fall back to main
-      const nextCrosser = state.puzzle.crossers.find(
-        (c) => !newSolvedWords.has(c.id),
-      );
-      newSelectedTarget = nextCrosser ? nextCrosser.id : "main";
+    if (solved && !isMainGuess && newStatus === "playing") {
+      // Go back to main word after solving a hint
+      newSelectedTarget = "main";
     }
 
     // Record stats if game is over
     let newStatsRecorded = state.statsRecorded;
     if ((newStatus === "won" || newStatus === "lost") && !state.statsRecorded) {
-      useStatsStore.getState().recordGame(newStatus === "won", newGuesses.length);
+      useStatsStore.getState().recordGame(newStatus === "won", newMainGuessCount);
       newStatsRecorded = true;
     }
 
@@ -479,6 +600,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       status: newStatus,
       selectedTarget: newSelectedTarget,
       statsRecorded: newStatsRecorded,
+      hintsUsed: newHintsUsed,
+      mainGuessCount: newMainGuessCount,
     });
 
     // Save session to localStorage
@@ -512,11 +635,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         // Ignore storage errors
       }
     }
-    const firstCrosserId = puzzle.crossers[0]?.id ?? "c1";
     set({
       guesses: [],
       currentGuess: "",
-      selectedTarget: firstCrosserId,
+      selectedTarget: "main",
       solvedWords: new Set<string>(),
       revealedLetters: [],
       status: "playing",
@@ -524,6 +646,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       toastMessage: null,
       showCompletionModal: false,
       statsRecorded: false,
+      hintsUsed: 0,
+      mainGuessCount: 0,
     });
   },
 }));

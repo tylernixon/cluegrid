@@ -46,6 +46,30 @@ export type KeyStatus = "correct" | "present" | "absent" | "unused";
 
 export type GameStatus = "playing" | "won" | "lost";
 
+// Difficulty levels with guess budgets
+
+export type Difficulty = "easy" | "medium" | "hard" | "expert";
+
+export const DIFFICULTY_GUESS_LIMITS: Record<Difficulty, number> = {
+  easy: 8,
+  medium: 6,
+  hard: 4,
+  expert: 2,
+};
+
+// Star ratings based on hints used (0 = perfect, more hints = fewer stars)
+
+export type StarRating = 0 | 1 | 2 | 3;
+
+export function calculateStars(hintsUsed: number, totalCrossers: number): StarRating {
+  if (totalCrossers === 0) return 3;
+  const ratio = hintsUsed / totalCrossers;
+  if (ratio === 0) return 3;    // No hints: perfect
+  if (ratio <= 0.5) return 2;   // Up to half: great
+  if (ratio < 1) return 1;      // More than half: okay
+  return 0;                      // All hints used: no stars
+}
+
 // Revealed letter from solving a crosser
 
 export interface RevealedLetter {
