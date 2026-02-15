@@ -13,7 +13,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 
 const ibmPlexSerif = IBM_Plex_Serif({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500", "600"],
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-ibm-plex-serif",
@@ -26,10 +26,10 @@ const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex-mono",
 });
 
-const siteUrl = "https://cluegrid.com";
-const siteName = "Cluegrid";
+const siteUrl = "https://gist.ing";
+const siteName = "gist";
 const siteDescription =
-  "A daily word puzzle that combines Wordle-style deduction with crossword clue satisfaction.";
+  "A daily word puzzle where you deduce the main word from crossing clues.";
 
 export const metadata: Metadata = {
   title: {
@@ -45,8 +45,8 @@ export const metadata: Metadata = {
     "word puzzle",
     "brain game",
   ],
-  authors: [{ name: "Cluegrid" }],
-  creator: "Cluegrid",
+  authors: [{ name: "gist" }],
+  creator: "gist",
   metadataBase: new URL(siteUrl),
 
   // Open Graph
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Cluegrid - A daily word puzzle",
+        alt: "gist - A daily word puzzle",
       },
     ],
   },
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     title: siteName,
     description: siteDescription,
     images: ["/og-image.png"],
-    creator: "@cluegrid",
+    creator: "@gaborning",
   },
 
   // Icons

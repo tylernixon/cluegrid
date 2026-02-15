@@ -159,8 +159,8 @@ export default function Home() {
           </svg>
         </button>
 
-        <h1 className="text-heading-3 text-ink dark:text-ink-dark lowercase">
-          cluegrid
+        <h1 className="text-heading-2 font-serif font-light bg-gradient-to-r from-[#2D8B84] via-[#4AADA6] to-[#7DD3C0] bg-clip-text text-transparent">
+          gist
         </h1>
 
         {/* Stats button */}
