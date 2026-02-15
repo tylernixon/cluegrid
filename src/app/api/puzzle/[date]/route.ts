@@ -3,7 +3,7 @@ import { getPuzzleForDate } from '@/lib/puzzle';
 import type { PuzzleData } from '@/types';
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: { date: string } },
 ) {
   // Validate date format
@@ -14,17 +14,23 @@ export async function GET(
     );
   }
 
+  // Check for cache-bust query param
+  const url = new URL(request.url);
+  const bustCache = url.searchParams.has('bust');
+
   // Fetch puzzle from database (falls back to mock if none exists)
   const puzzle: PuzzleData = await getPuzzleForDate(params.date);
+
+  // If bust param is present, don't cache
+  const cacheHeaders = bustCache
+    ? { 'Cache-Control': 'no-store, no-cache, must-revalidate' }
+    : { 'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60' };
 
   return NextResponse.json(
     { puzzle },
     {
       status: 200,
-      headers: {
-        // Cache for 5 minutes, revalidates on publish via revalidatePath
-        'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
-      },
+      headers: cacheHeaders,
     },
   );
 }

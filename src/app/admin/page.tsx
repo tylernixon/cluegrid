@@ -139,12 +139,27 @@ export default function AdminPage() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Cache bust failed");
-      setSaveMessage(data.message || "Cache busted successfully!");
+      setSaveMessage(`${data.message || "Server cache cleared!"} — Open game with ?bust to bypass browser cache`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Cache bust failed");
     } finally {
       setIsBustingCache(false);
     }
+  };
+
+  const handleOpenGameFresh = () => {
+    // Open the game with cache-busting and clear localStorage for today's puzzle
+    const key = `cluegrid:session:`;
+    // Clear all game sessions from localStorage
+    if (typeof window !== "undefined") {
+      Object.keys(localStorage).forEach((k) => {
+        if (k.startsWith(key)) {
+          localStorage.removeItem(k);
+        }
+      });
+    }
+    // Open game with bust param
+    window.open(`/?t=${Date.now()}`, "_blank");
   };
 
   return (
@@ -154,13 +169,21 @@ export default function AdminPage() {
           <h1 className="text-3xl font-bold text-gray-900">
             gist Admin - Puzzle Generator
           </h1>
-          <button
-            onClick={handleBustCache}
-            disabled={isBustingCache}
-            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:bg-orange-300 font-medium text-sm"
-          >
-            {isBustingCache ? "Busting..." : "🔄 Bust Cache"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleBustCache}
+              disabled={isBustingCache}
+              className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:bg-orange-300 font-medium text-sm"
+            >
+              {isBustingCache ? "Busting..." : "🔄 Bust Cache"}
+            </button>
+            <button
+              onClick={handleOpenGameFresh}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 font-medium text-sm"
+            >
+              🎮 Test Game
+            </button>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">

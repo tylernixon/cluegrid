@@ -387,7 +387,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     try {
       const today = getTodayDate();
-      const response = await fetch(`/api/puzzle/${today}`);
+
+      // Check if URL has cache-bust param (e.g., ?t=123)
+      const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const shouldBustCache = urlParams?.has("t") || urlParams?.has("bust");
+      const bustParam = shouldBustCache ? "?bust" : "";
+
+      const response = await fetch(`/api/puzzle/${today}${bustParam}`);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch puzzle: ${response.status}`);
