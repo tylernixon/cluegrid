@@ -6,7 +6,7 @@ import { GridSkeleton } from "@/components/game/GridSkeleton";
 import { Keyboard } from "@/components/game/Keyboard";
 import { CluePanel } from "@/components/game/CluePanel";
 import { CluePanelSkeleton } from "@/components/game/CluePanelSkeleton";
-import { GuessInput } from "@/components/game/GuessInput";
+import { ActiveCluePanel } from "@/components/game/ActiveCluePanel";
 import { GuessHistory } from "@/components/game/GuessHistory";
 import { CompletionModal } from "@/components/game/CompletionModal";
 import { StatsModal } from "@/components/game/StatsModal";
@@ -119,7 +119,6 @@ export default function Home() {
   });
 
   const totalGuesses = 6;
-  const usedGuesses = guesses.length;
 
   return (
     <div className="flex flex-col min-h-screen min-h-dvh bg-canvas dark:bg-canvas-dark">
@@ -177,6 +176,7 @@ export default function Home() {
               revealedLetters={revealedLetters}
               solvedWords={solvedWords}
               selectedTarget={selectedTarget}
+              currentGuess={currentGuess}
               shakeTarget={shakeTarget}
               isVictory={isVictory}
               onSelectTarget={selectTarget}
@@ -184,16 +184,32 @@ export default function Home() {
           )}
         </div>
 
+        {/* Active clue panel - shows selected clue with slot pattern */}
+        {!isLoading && isPlaying && (
+          <ActiveCluePanel
+            selectedTarget={selectedTarget}
+            crossers={puzzle.crossers}
+            currentGuess={currentGuess}
+            targetLength={targetLen}
+            solvedWords={solvedWords}
+            revealedLetters={revealedLetters}
+            mainWordRow={puzzle.mainWord.row}
+            mainWordCol={puzzle.mainWord.col}
+          />
+        )}
+
         {/* Guess history for selected target */}
         {!isLoading && <GuessHistory guesses={guesses} targetId={selectedTarget} />}
 
-        {/* Current guess input */}
-        {!isLoading && isPlaying && (
-          <GuessInput
-            currentGuess={currentGuess}
-            targetLength={targetLen}
-            shake={shakeTarget === selectedTarget}
-          />
+        {/* Guess progress */}
+        {!isLoading && (
+          <div
+            className="text-body-small text-ink-secondary dark:text-ink-secondary-dark"
+            role="status"
+            aria-label={`${remaining} guesses remaining out of ${totalGuesses}`}
+          >
+            Guesses left: {remaining} / {totalGuesses}
+          </div>
         )}
 
         {/* Clue panel */}
@@ -204,32 +220,9 @@ export default function Home() {
             crossers={puzzle.crossers}
             selectedTarget={selectedTarget}
             solvedWords={solvedWords}
+            mainWordLength={puzzle.mainWord.word.length}
             onSelectTarget={selectTarget}
           />
-        )}
-
-        {/* Guess progress */}
-        {!isLoading && (
-          <div
-            className="flex items-center gap-1.5"
-            role="status"
-            aria-label={`${remaining} guesses remaining out of ${totalGuesses}`}
-          >
-            {Array.from({ length: totalGuesses }, (_, i) => (
-              <div
-                key={i}
-                className={`w-3 h-3 rounded-full transition-colors ${
-                  i < usedGuesses
-                    ? "bg-ink dark:bg-ink-dark"
-                    : "bg-border dark:bg-border-dark"
-                }`}
-                aria-hidden="true"
-              />
-            ))}
-            <span className="ml-2 text-caption text-ink-secondary dark:text-ink-secondary-dark">
-              {remaining} remaining
-            </span>
-          </div>
         )}
       </main>
 

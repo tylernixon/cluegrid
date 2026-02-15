@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { ShareButton } from "@/components/ui/ShareButton";
 import { WIN_MESSAGES } from "@/types";
-import { shareResult } from "@/lib/shareResult";
 import { useStatsStore } from "@/stores/statsStore";
 import type { PuzzleData, Guess } from "@/types";
 
@@ -16,6 +16,93 @@ interface CompletionModalProps {
   solvedWords: Set<string>;
 }
 
+// Countdown timer hook - counts down to midnight UTC
+function useCountdown() {
+  const [timeLeft, setTimeLeft] = useState<{
+    hours: number;
+    minutes: number;
+    seconds: number;
+  } | null>(null);
+
+  useEffect(() => {
+    function calculateTimeLeft() {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+      tomorrow.setUTCHours(0, 0, 0, 0);
+
+      const diff = tomorrow.getTime() - now.getTime();
+      if (diff <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+
+      return {
+        hours: Math.floor(diff / (1000 * 60 * 60)),
+        minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((diff % (1000 * 60)) / 1000),
+      };
+    }
+
+    setTimeLeft(calculateTimeLeft());
+    const interval = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return timeLeft;
+}
+
+// Fire icon SVG component
+function FireIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 2C9.24 2 7 4.24 7 7c0 1.33.53 2.53 1.39 3.42C7.53 11.31 7 12.58 7 14c0 3.31 2.69 6 6 6s6-2.69 6-6c0-1.42-.53-2.69-1.39-3.58C18.47 9.53 19 8.33 19 7c0-2.76-2.24-5-5-5z" />
+    </svg>
+  );
+}
+
+// Checkmark icon
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+// Clock icon
+function ClockIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
 export function CompletionModal({
   open,
   onClose,
@@ -24,11 +111,12 @@ export function CompletionModal({
   guesses,
   solvedWords,
 }: CompletionModalProps) {
-  const [shareStatus, setShareStatus] = useState<
-    "idle" | "copied" | "shared" | "error"
-  >("idle");
+  const [hasAnimated, setHasAnimated] = useState(false);
 
   const currentStreak = useStatsStore((s) => s.currentStreak);
+  const streakSavedByGrace = useStatsStore((s) => s.streakSavedByGrace);
+  const countdown = useCountdown();
+
   const guessCount = guesses.length;
   const crossersSolved = puzzle.crossers.filter((c) =>
     solvedWords.has(c.id)
@@ -36,124 +124,153 @@ export function CompletionModal({
   const totalCrossers = puzzle.crossers.length;
   const mainGuesses = guesses.filter((g) => g.targetId === "main");
 
-  const winMessage =
-    status === "won" ? (WIN_MESSAGES[guessCount] ?? "Well done!") : "So close!";
+  // Calculate perfect game - all clues solved in 3 or fewer guesses
+  const isPerfectGame =
+    status === "won" && crossersSolved === totalCrossers && guessCount <= 3;
 
-  const handleShare = useCallback(async () => {
-    try {
-      const result = await shareResult(
-        puzzle,
-        guesses,
-        solvedWords,
-        status === "won"
-      );
-      setShareStatus(result);
-      // Reset after 2 seconds
-      setTimeout(() => setShareStatus("idle"), 2000);
-    } catch (err) {
-      // User cancelled share, don't show error
-      if (err instanceof Error && err.name === "AbortError") {
-        return;
-      }
-      setShareStatus("error");
-      setTimeout(() => setShareStatus("idle"), 2000);
+  const winMessage = useMemo(() => {
+    if (status === "lost") return null;
+    if (isPerfectGame) return "Perfect!";
+    return WIN_MESSAGES[guessCount] ?? "Well done!";
+  }, [status, isPerfectGame, guessCount]);
+
+  // Trigger staggered animation when modal opens
+  useEffect(() => {
+    if (open && !hasAnimated) {
+      const timer = setTimeout(() => setHasAnimated(true), 100);
+      return () => clearTimeout(timer);
     }
-  }, [puzzle, guesses, solvedWords, status]);
-
-  const shareButtonText = () => {
-    switch (shareStatus) {
-      case "copied":
-        return "Copied!";
-      case "shared":
-        return "Shared!";
-      case "error":
-        return "Error";
-      default:
-        return "Share";
+    if (!open) {
+      setHasAnimated(false);
     }
-  };
+  }, [open, hasAnimated]);
 
-  return (
-    <Modal open={open} onClose={onClose} title={winMessage}>
-      <div className="text-center">
-        {/* Result headline */}
-        <p className="text-display text-ink dark:text-ink-dark mb-2">
-          {winMessage}
-        </p>
-
-        {/* Theme reveal */}
-        {puzzle.theme && (
-          <div className="mb-4 px-4 py-2 rounded-lg bg-surface-raised dark:bg-surface-raised-dark">
-            <p className="text-body text-ink-secondary dark:text-ink-secondary-dark">
-              Today&apos;s theme:{" "}
-              <span className="font-semibold text-ink dark:text-ink-dark">
-                {puzzle.theme}
-              </span>
+  // ============================================
+  // SUCCESS STATE - Calm triumph
+  // ============================================
+  if (status === "won") {
+    return (
+      <Modal open={open} onClose={onClose} title={winMessage ?? "Solved!"}>
+        <div className="text-center">
+          {/* Success headline with animation */}
+          <div
+            className={`transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          >
+            <p className="text-heading-1 text-correct dark:text-correct-dark mb-1">
+              {winMessage}
             </p>
+            {isPerfectGame && (
+              <p className="text-body-small text-present dark:text-present-dark animate-gentle-pulse">
+                Flawless victory
+              </p>
+            )}
           </div>
-        )}
 
-        {/* Result details */}
-        {status === "won" ? (
-          <div className="space-y-1 mb-4">
-            <p className="text-body text-ink-secondary dark:text-ink-secondary-dark">
-              Solved in {guessCount} {guessCount === 1 ? "guess" : "guesses"}
-            </p>
-            <p className="text-body-small text-ink-tertiary dark:text-ink-tertiary-dark">
-              {crossersSolved}/{totalCrossers} crossers solved
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-1 mb-4">
-            <p className="text-body text-ink-secondary dark:text-ink-secondary-dark">
-              The word was:{" "}
-              <span className="font-mono font-bold text-ink dark:text-ink-dark">
-                {puzzle.mainWord.word}
-              </span>
-            </p>
-            <p className="text-body-small text-ink-tertiary dark:text-ink-tertiary-dark">
-              You got {crossersSolved}/{totalCrossers} crossers
-            </p>
-          </div>
-        )}
-
-        {/* Streak display */}
-        {currentStreak > 0 && (
-          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-raised dark:bg-surface-raised-dark">
-            <svg
-              className="w-5 h-5 text-present dark:text-present-dark"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
+          {/* Theme reveal */}
+          {puzzle.theme && (
+            <div
+              className={`mt-4 px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-100 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
-              <path d="M12 2C9.24 2 7 4.24 7 7c0 1.33.53 2.53 1.39 3.42C7.53 11.31 7 12.58 7 14c0 3.31 2.69 6 6 6s6-2.69 6-6c0-1.42-.53-2.69-1.39-3.58C18.47 9.53 19 8.33 19 7c0-2.76-2.24-5-5-5z" />
-            </svg>
-            <span className="text-body font-semibold text-ink dark:text-ink-dark">
-              {currentStreak} day streak!
-            </span>
-          </div>
-        )}
+              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
+                Today&apos;s theme
+              </p>
+              <p className="text-heading-3 text-ink dark:text-ink-dark">
+                {puzzle.theme}
+              </p>
+            </div>
+          )}
 
-        {/* Results Summary */}
-        <div className="mb-6 space-y-4">
-          {/* Main word guesses emoji grid */}
-          <div>
-            <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-2 uppercase tracking-wide">
-              Main Word
+          {/* Stats row - guesses, clues, streak */}
+          <div
+            className={`mt-6 flex items-center justify-center gap-6 transition-all duration-500 delay-200 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          >
+            {/* Guess count */}
+            <div className="text-center">
+              <p className="text-stat text-ink dark:text-ink-dark">{guessCount}</p>
+              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
+                {guessCount === 1 ? "Guess" : "Guesses"}
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-12 bg-border dark:bg-border-dark" />
+
+            {/* Crossers / Clues */}
+            <div className="text-center">
+              <p className="text-stat text-ink dark:text-ink-dark">
+                {crossersSolved}/{totalCrossers}
+              </p>
+              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
+                Clues
+              </p>
+            </div>
+
+            {/* Streak (if active) */}
+            {currentStreak > 0 && (
+              <>
+                <div className="w-px h-12 bg-border dark:bg-border-dark" />
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1">
+                    <FireIcon className="w-6 h-6 text-present dark:text-present-dark animate-streak-glow" />
+                    <p className="text-stat text-present dark:text-present-dark">
+                      {currentStreak}
+                    </p>
+                  </div>
+                  <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
+                    Streak
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Streak milestone celebration */}
+          {currentStreak > 0 && currentStreak % 7 === 0 && (
+            <div
+              className={`mt-4 px-4 py-2 rounded-lg bg-present/10 dark:bg-present-dark/10 border border-present/30 dark:border-present-dark/30 inline-block transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+            >
+              <p className="text-body-small text-present dark:text-present-dark font-medium">
+                {currentStreak === 7
+                  ? "One week strong!"
+                  : `${Math.floor(currentStreak / 7)} weeks strong!`}
+              </p>
+            </div>
+          )}
+
+          {/* Grace save indicator */}
+          {streakSavedByGrace && (
+            <div className="mt-3 px-3 py-1.5 rounded-lg bg-accent/10 dark:bg-accent-dark/10 inline-block">
+              <p className="text-caption text-accent dark:text-accent-dark">
+                Streak saved by grace
+              </p>
+            </div>
+          )}
+
+          {/* Visual results grid - main word guesses */}
+          <div
+            className={`mt-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          >
+            <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
+              Your solve
             </p>
             <div className="inline-flex flex-col gap-1">
               {mainGuesses.map((guess, i) => (
-                <div key={i} className="flex gap-1 justify-center">
+                <div
+                  key={i}
+                  className="flex gap-1 justify-center"
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
                   {guess.feedback.map((fb, j) => (
                     <div
                       key={j}
-                      className={`w-6 h-6 rounded-[3px] ${
+                      className={`w-7 h-7 rounded-md transition-all duration-300 ${
                         fb.status === "correct"
                           ? "bg-correct dark:bg-correct-dark"
                           : fb.status === "present"
                             ? "bg-present dark:bg-present-dark"
                             : "bg-absent dark:bg-absent-dark"
                       }`}
+                      style={{ animationDelay: `${i * 80 + j * 40}ms` }}
                     />
                   ))}
                 </div>
@@ -161,109 +278,213 @@ export function CompletionModal({
             </div>
           </div>
 
-          {/* Crossers summary */}
-          <div>
-            <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-2 uppercase tracking-wide">
-              Crossers ({crossersSolved}/{totalCrossers})
-            </p>
+          {/* Crosser summary pills */}
+          <div
+            className={`mt-4 transition-all duration-500 delay-[400ms] ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+          >
             <div className="flex gap-2 justify-center flex-wrap">
               {puzzle.crossers.map((crosser, i) => {
                 const isSolved = solvedWords.has(crosser.id);
-                const crosserGuesses = guesses.filter(
-                  (g) => g.targetId === crosser.id
-                );
                 return (
                   <div
                     key={crosser.id}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-body-small ${
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-body-small transition-all ${
                       isSolved
-                        ? "bg-correct/20 dark:bg-correct-dark/20 text-correct dark:text-correct-dark"
-                        : "bg-border dark:bg-border-dark text-ink-tertiary dark:text-ink-tertiary-dark"
+                        ? "bg-correct/15 dark:bg-correct-dark/15 text-correct dark:text-correct-dark"
+                        : "bg-border/50 dark:bg-border-dark/50 text-ink-tertiary dark:text-ink-tertiary-dark"
                     }`}
+                    style={{ animationDelay: `${400 + i * 50}ms` }}
                   >
-                    <span className="font-mono">{i + 1}</span>
-                    {isSolved && (
-                      <span className="text-caption">
-                        ({crosserGuesses.length})
-                      </span>
-                    )}
+                    <span className="font-mono text-caption">{i + 1}</span>
                     {isSolved ? (
-                      <svg
-                        className="w-3.5 h-3.5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      <CheckIcon className="w-3.5 h-3.5" />
                     ) : (
-                      <svg
-                        className="w-3.5 h-3.5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
+                      <span className="w-3.5 h-3.5 flex items-center justify-center text-caption">
+                        -
+                      </span>
                     )}
                   </div>
                 );
               })}
             </div>
           </div>
+
+          {/* Next puzzle countdown */}
+          {countdown && (
+            <div
+              className={`mt-6 pt-6 border-t border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+            >
+              <div className="flex items-center justify-center gap-2 text-ink-secondary dark:text-ink-secondary-dark">
+                <ClockIcon className="w-4 h-4" />
+                <p className="text-body-small">Next puzzle in</p>
+              </div>
+              <p className="text-heading-2 text-ink dark:text-ink-dark font-mono mt-1 tabular-nums">
+                {String(countdown.hours).padStart(2, "0")}:
+                {String(countdown.minutes).padStart(2, "0")}:
+                {String(countdown.seconds).padStart(2, "0")}
+              </p>
+            </div>
+          )}
+
+          {/* Actions - Share is primary */}
+          <div
+            className={`mt-6 flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          >
+            <ShareButton
+              puzzle={puzzle}
+              guesses={guesses}
+              solvedWords={solvedWords}
+              won={true}
+              size="large"
+              className="flex-1 max-w-[160px] justify-center rounded-xl shadow-md !bg-correct dark:!bg-correct-dark hover:!brightness-110"
+            />
+            <button
+              type="button"
+              className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
+              onClick={onClose}
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
+  // ============================================
+  // FAILURE STATE - Gentle, not punishing
+  // ============================================
+  return (
+    <Modal open={open} onClose={onClose} title="So close!">
+      <div className="text-center">
+        {/* Gentle loss message */}
+        <div
+          className={`transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        >
+          <p className="text-heading-2 text-ink dark:text-ink-dark mb-2">
+            Not quite this time
+          </p>
+          <p className="text-body text-ink-secondary dark:text-ink-secondary-dark">
+            The word was
+          </p>
+          <p className="text-heading-1 font-mono text-ink dark:text-ink-dark mt-1 tracking-wider">
+            {puzzle.mainWord.word}
+          </p>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 justify-center">
-          <button
-            type="button"
-            className="px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-lg font-semibold text-body hover:bg-accent-hover dark:hover:bg-accent-hover-dark transition-colors active:scale-[0.97] flex items-center gap-2"
-            onClick={handleShare}
-            disabled={shareStatus !== "idle"}
+        {/* Theme reveal */}
+        {puzzle.theme && (
+          <div
+            className={`mt-5 px-4 py-3 rounded-xl bg-surface-raised dark:bg-surface-raised-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-100 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
-            {shareStatus === "idle" && (
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                <polyline points="16 6 12 2 8 6" />
-                <line x1="12" y1="2" x2="12" y2="15" />
-              </svg>
-            )}
-            {shareStatus === "copied" && (
-              <svg
-                className="w-5 h-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            )}
-            {shareButtonText()}
-          </button>
+            <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
+              Today&apos;s theme
+            </p>
+            <p className="text-body font-medium text-ink dark:text-ink-dark">
+              {puzzle.theme}
+            </p>
+          </div>
+        )}
+
+        {/* Progress made */}
+        <div
+          className={`mt-6 transition-all duration-500 delay-200 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        >
+          <div className="inline-flex items-center gap-4 px-5 py-3 rounded-xl bg-surface-raised dark:bg-surface-raised-dark">
+            <div className="text-center">
+              <p className="text-heading-3 text-ink dark:text-ink-dark">
+                {crossersSolved}/{totalCrossers}
+              </p>
+              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
+                Clues solved
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Streak status - gentle "paused" messaging, never "broken" */}
+        {currentStreak > 0 && (
+          <div
+            className={`mt-4 px-4 py-2.5 rounded-xl bg-present/10 dark:bg-present-dark/10 border border-present/20 dark:border-present-dark/20 inline-block transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+          >
+            <div className="flex items-center gap-2">
+              <FireIcon className="w-5 h-5 text-present/60 dark:text-present-dark/60" />
+              <p className="text-body-small text-present dark:text-present-dark">
+                Streak paused at {currentStreak}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Visual results grid */}
+        <div
+          className={`mt-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+        >
+          <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
+            Your attempts
+          </p>
+          <div className="inline-flex flex-col gap-1">
+            {mainGuesses.map((guess, i) => (
+              <div key={i} className="flex gap-1 justify-center">
+                {guess.feedback.map((fb, j) => (
+                  <div
+                    key={j}
+                    className={`w-6 h-6 rounded-md ${
+                      fb.status === "correct"
+                        ? "bg-correct dark:bg-correct-dark"
+                        : fb.status === "present"
+                          ? "bg-present dark:bg-present-dark"
+                          : "bg-absent dark:bg-absent-dark"
+                    }`}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Encouragement */}
+        <p
+          className={`mt-6 text-body text-ink-secondary dark:text-ink-secondary-dark transition-all duration-500 delay-[400ms] ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+        >
+          Come back tomorrow for a fresh puzzle
+        </p>
+
+        {/* Next puzzle countdown */}
+        {countdown && (
+          <div
+            className={`mt-4 transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+          >
+            <div className="flex items-center justify-center gap-2 text-ink-tertiary dark:text-ink-tertiary-dark">
+              <ClockIcon className="w-4 h-4" />
+              <p className="text-body-small">Next puzzle in</p>
+            </div>
+            <p className="text-heading-3 text-ink dark:text-ink-dark font-mono mt-1 tabular-nums">
+              {String(countdown.hours).padStart(2, "0")}:
+              {String(countdown.minutes).padStart(2, "0")}:
+              {String(countdown.seconds).padStart(2, "0")}
+            </p>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div
+          className={`mt-6 flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        >
+          <ShareButton
+            puzzle={puzzle}
+            guesses={guesses}
+            solvedWords={solvedWords}
+            won={false}
+            size="large"
+            className="flex-1 max-w-[160px] justify-center rounded-xl shadow-md"
+          />
           <button
             type="button"
-            className="px-6 py-3 bg-surface-elevated dark:bg-surface-elevated-dark text-ink dark:text-ink-dark rounded-lg font-semibold text-body hover:bg-border dark:hover:bg-border-dark transition-colors active:scale-[0.97]"
+            className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
             onClick={onClose}
           >
-            Close
+            Done
           </button>
         </div>
       </div>

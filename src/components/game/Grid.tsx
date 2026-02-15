@@ -1,15 +1,17 @@
 "use client";
 
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Cell } from "./Cell";
 import type { PuzzleData, RevealedLetter } from "@/types";
-import { VICTORY_STAGGER_MS } from "@/lib/motion";
+import { VICTORY_STAGGER_MS, EASE } from "@/lib/motion";
 
 interface GridProps {
   puzzle: PuzzleData;
   revealedLetters: RevealedLetter[];
   solvedWords: Set<string>;
   selectedTarget: "main" | string;
+  currentGuess: string;
   shakeTarget: string | null;
   isVictory?: boolean;
   onSelectTarget: (targetId: "main" | string) => void;
@@ -17,10 +19,16 @@ interface GridProps {
 
 interface CellInfo {
   letter: string;
-  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed";
+  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "typing";
   belongsTo: ("main" | string)[];
   row: number;
   col: number;
+}
+
+// Track recently solved/revealed for animations
+interface AnimationState {
+  recentlySolved: Set<string>;
+  recentlyRevealed: Set<string>; // "row-col" format
 }
 
 export function Grid({
@@ -28,6 +36,7 @@ export function Grid({
   revealedLetters,
   solvedWords,
   selectedTarget,
+  currentGuess,
   shakeTarget,
   isVictory = false,
   onSelectTarget,
@@ -35,13 +44,76 @@ export function Grid({
   const [victoryAnimating, setVictoryAnimating] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const [focusedCell, setFocusedCell] = useState<{ row: number; col: number } | null>(null);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Track animation state for recently changed items
+  const [animState, setAnimState] = useState<AnimationState>({
+    recentlySolved: new Set(),
+    recentlyRevealed: new Set(),
+  });
+
+  // Keep refs to previous values for change detection
+  const prevSolvedWordsRef = useRef<Set<string>>(new Set());
+  const prevRevealedLettersRef = useRef<RevealedLetter[]>([]);
+
+  // Detect newly solved words and revealed letters
+  useEffect(() => {
+    const prevSolved = prevSolvedWordsRef.current;
+    const prevRevealed = prevRevealedLettersRef.current;
+
+    // Find newly solved words
+    const newlySolved = new Set<string>();
+    solvedWords.forEach((word) => {
+      if (!prevSolved.has(word)) {
+        newlySolved.add(word);
+      }
+    });
+
+    // Find newly revealed letters
+    const newlyRevealed = new Set<string>();
+    revealedLetters.forEach((rl) => {
+      const key = `${rl.row}-${rl.col}`;
+      const wasRevealed = prevRevealed.some(
+        (prev) => prev.row === rl.row && prev.col === rl.col
+      );
+      if (!wasRevealed) {
+        newlyRevealed.add(key);
+      }
+    });
+
+    // Update animation state if there are new items
+    if (newlySolved.size > 0 || newlyRevealed.size > 0) {
+      setAnimState({
+        recentlySolved: newlySolved,
+        recentlyRevealed: newlyRevealed,
+      });
+
+      // Clear animation state after animation completes (300ms)
+      const timer = setTimeout(() => {
+        setAnimState({
+          recentlySolved: new Set(),
+          recentlyRevealed: new Set(),
+        });
+      }, 300);
+
+      // Update refs
+      prevSolvedWordsRef.current = new Set(solvedWords);
+      prevRevealedLettersRef.current = [...revealedLetters];
+
+      return () => clearTimeout(timer);
+    }
+
+    // Update refs for next comparison
+    prevSolvedWordsRef.current = new Set(solvedWords);
+    prevRevealedLettersRef.current = [...revealedLetters];
+  }, [solvedWords, revealedLetters]);
 
   // Trigger victory animation when isVictory becomes true
   useEffect(() => {
     if (isVictory && !victoryAnimating) {
       setVictoryAnimating(true);
-      // Reset after animation completes
-      const totalDuration = puzzle.mainWord.length * VICTORY_STAGGER_MS + 400;
+      // Reset after animation completes (gentle glow, shorter duration)
+      const totalDuration = puzzle.mainWord.length * VICTORY_STAGGER_MS + 350;
       const timer = setTimeout(() => {
         setVictoryAnimating(false);
       }, totalDuration);
@@ -59,16 +131,16 @@ export function Grid({
     );
 
     // Place main word cells
-    const { row: mainRow, col: mainCol, word: mainWord } = puzzle.mainWord;
+    const { row: mainRowIdx, col: mainCol, word: mainWord } = puzzle.mainWord;
     for (let i = 0; i < mainWord.length; i++) {
       const col = mainCol + i;
-      if (mainRow >= puzzle.gridSize.rows || col >= puzzle.gridSize.cols) continue;
-      const existing = cells[mainRow]?.[col];
+      if (mainRowIdx >= puzzle.gridSize.rows || col >= puzzle.gridSize.cols) continue;
+      const existing = cells[mainRowIdx]?.[col];
       const belongsTo = existing ? [...existing.belongsTo, "main" as const] : ["main" as const];
 
       // Check if this letter is revealed by a crosser solve
       const revealed = revealedLetters.find(
-        (r) => r.row === mainRow && r.col === col,
+        (r) => r.row === mainRowIdx && r.col === col,
       );
 
       // Check if main word is solved
@@ -83,14 +155,20 @@ export function Grid({
       } else if (revealed) {
         letter = revealed.letter;
         status = "revealed";
+      } else if (selectedTarget === "main" && currentGuess[i]) {
+        // Show current guess letter for main word
+        letter = currentGuess[i]!.toUpperCase();
+        status = "typing";
       }
 
-      cells[mainRow]![col] = { letter, status, belongsTo, row: mainRow, col };
+      cells[mainRowIdx]![col] = { letter, status, belongsTo, row: mainRowIdx, col };
     }
 
     // Place crosser cells
     for (const crosser of puzzle.crossers) {
       const isSolved = solvedWords.has(crosser.id);
+      const isActiveTarget = selectedTarget === crosser.id;
+
       for (let i = 0; i < crosser.word.length; i++) {
         const row = crosser.startRow + i;
         const col = crosser.startCol;
@@ -100,8 +178,8 @@ export function Grid({
           ? [...existing.belongsTo, crosser.id]
           : [crosser.id];
 
-        // If cell already has data (intersection), merge
-        if (existing && existing.letter) {
+        // If cell already has data (intersection with solved letter), merge
+        if (existing && existing.letter && (existing.status === "correct" || existing.status === "revealed")) {
           cells[row]![col] = { ...existing, belongsTo };
           continue;
         }
@@ -112,6 +190,10 @@ export function Grid({
         if (isSolved) {
           letter = crosser.word[i]!;
           status = "correct";
+        } else if (isActiveTarget && currentGuess[i]) {
+          // Show current guess letter for this crosser
+          letter = currentGuess[i]!.toUpperCase();
+          status = "typing";
         }
 
         cells[row]![col] = { letter, status, belongsTo, row, col };
@@ -119,7 +201,7 @@ export function Grid({
     }
 
     return cells;
-  }, [puzzle, revealedLetters, solvedWords]);
+  }, [puzzle, revealedLetters, solvedWords, selectedTarget, currentGuess]);
 
   // Build a flat list of navigable cells for keyboard navigation
   const navigableCells = useMemo(() => {
@@ -238,16 +320,37 @@ export function Grid({
   const mainRow = puzzle.mainWord.row;
   const mainCol = puzzle.mainWord.col;
 
+  // Grid-wide glow animation for final word solve
+  const gridGlowAnimation = victoryAnimating && !prefersReducedMotion
+    ? {
+        boxShadow: [
+          "0 0 0 0 rgba(34, 197, 94, 0)",
+          "0 0 24px 6px rgba(34, 197, 94, 0.25)",
+          "0 0 0 0 rgba(34, 197, 94, 0)",
+        ],
+      }
+    : {};
+
+  const gridGlowTransition = victoryAnimating
+    ? {
+        duration: 0.6,
+        ease: EASE.inOut,
+        delay: (puzzle.mainWord.word.length * VICTORY_STAGGER_MS) / 1000,
+      }
+    : {};
+
   return (
-    <div
+    <motion.div
       ref={gridRef}
-      className="inline-grid gap-[6px]"
+      className="inline-grid gap-[6px] rounded-lg p-1"
       style={{
         gridTemplateColumns: `repeat(${puzzle.gridSize.cols}, 1fr)`,
         gridTemplateRows: `repeat(${puzzle.gridSize.rows}, 1fr)`,
       }}
       role="grid"
       aria-label="Puzzle grid"
+      animate={gridGlowAnimation}
+      transition={gridGlowTransition}
     >
       {grid.map((row, rowIndex) =>
         row.map((cell, colIndex) => {
@@ -286,12 +389,49 @@ export function Grid({
             ? cell.belongsTo.includes(shakeTarget)
             : false;
 
-          // Victory bounce animation for main word cells
-          const shouldBounce =
+          // Victory glow animation for main word cells (gentle, not bouncy)
+          const shouldGlow =
             victoryAnimating && isMainWordRow && cell.belongsTo.includes("main");
-          const bounceDelay = shouldBounce
+          const glowDelay = shouldGlow
             ? (colIndex - mainCol) * (VICTORY_STAGGER_MS / 1000)
             : 0;
+
+          // Check if this cell belongs to a recently solved crosser
+          const isRecentlySolvedCrosser = cell.belongsTo.some(
+            (wordId) => wordId !== "main" && animState.recentlySolved.has(wordId)
+          );
+
+          // Check if this is a recently revealed letter (intersection)
+          const cellKey = `${rowIndex}-${colIndex}`;
+          const isRecentlyRevealed = animState.recentlyRevealed.has(cellKey);
+
+          // Determine animation type with priority
+          let animationType: "shake" | "glow" | "solvedLock" | "reveal" | null = null;
+          let animationDelay = 0;
+
+          if (isShaking) {
+            animationType = "shake";
+          } else if (shouldGlow) {
+            animationType = "glow";
+            animationDelay = glowDelay;
+          } else if (isRecentlyRevealed && !prefersReducedMotion) {
+            // Soft fade-in for revealed intersection letters
+            animationType = "reveal";
+          } else if (isRecentlySolvedCrosser && !prefersReducedMotion) {
+            // Subtle lock animation for solved crosser cells
+            animationType = "solvedLock";
+            // Stagger based on position in the crosser
+            const crosserId = cell.belongsTo.find(
+              (id) => id !== "main" && animState.recentlySolved.has(id)
+            );
+            if (crosserId) {
+              const crosser = puzzle.crossers.find((c) => c.id === crosserId);
+              if (crosser) {
+                const positionInCrosser = rowIndex - crosser.startRow;
+                animationDelay = positionInCrosser * 0.03; // 30ms stagger
+              }
+            }
+          }
 
           // Determine if this cell should be focusable
           const isFirstCell = navigableCells[0]?.row === rowIndex && navigableCells[0]?.col === colIndex;
@@ -305,17 +445,17 @@ export function Grid({
               status={cell.status}
               isSelected={isSelected}
               isMainWordRow={isMainWordRow}
-              animate={
-                isShaking ? "shake" : shouldBounce ? "bounce" : null
-              }
-              animationDelay={bounceDelay}
+              animate={animationType}
+              animationDelay={animationDelay}
               onClick={handleClick}
               tabIndex={tabIndexValue}
               onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
+              row={rowIndex}
+              col={colIndex}
             />
           );
         }),
       )}
-    </div>
+    </motion.div>
   );
 }

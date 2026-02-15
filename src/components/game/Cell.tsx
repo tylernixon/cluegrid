@@ -1,17 +1,20 @@
 "use client";
 
-import { motion, useReducedMotion, type Transition } from "framer-motion";
+import { motion, useReducedMotion, AnimatePresence, type Transition } from "framer-motion";
+import { TIMING, EASE } from "@/lib/motion";
 
 interface CellProps {
   letter: string;
-  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed";
+  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "typing";
   isSelected: boolean;
   isMainWordRow: boolean;
-  animate?: "pop" | "shake" | "bounce" | null;
+  animate?: "pop" | "shake" | "bounce" | "settle" | "glow" | "reveal" | "solvedLock" | null;
   animationDelay?: number;
   onClick?: () => void;
   tabIndex?: number;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  row?: number;
+  col?: number;
 }
 
 const statusClasses: Record<string, string> = {
@@ -24,6 +27,8 @@ const statusClasses: Record<string, string> = {
   absent: "bg-absent dark:bg-absent-dark border-absent dark:border-absent-dark text-white",
   revealed:
     "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark",
+  typing:
+    "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-ink dark:text-ink-dark",
 };
 
 export function Cell({
@@ -36,6 +41,8 @@ export function Cell({
   onClick,
   tabIndex = -1,
   onKeyDown,
+  row,
+  col,
 }: CellProps) {
   const prefersReducedMotion = useReducedMotion();
 
@@ -44,17 +51,13 @@ export function Cell({
 
   const statusClass = statusClasses[status] ?? statusClasses.empty;
 
-  const selectedClass = isSelected
-    ? "ring-2 ring-accent dark:ring-accent-dark ring-offset-1 ring-offset-canvas dark:ring-offset-canvas-dark"
-    : "";
-
   const mainRowClass = isMainWordRow ? "font-bold" : "";
 
   // Focus visible class for keyboard navigation
   const focusClass = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2";
 
   // Determine animation values based on prefersReducedMotion and animate prop
-  let animateValue: Record<string, number[]> | undefined;
+  let animateValue: Record<string, number[] | string[]> | undefined;
   let transitionValue: Transition | undefined;
 
   if (!prefersReducedMotion && animate) {
@@ -68,19 +71,50 @@ export function Cell({
         transitionValue = { duration: 0.2, ease: "linear" };
         break;
       case "bounce":
-        animateValue = { y: [0, -12, 0], scale: [1, 1.05, 1] };
-        transitionValue = { duration: 0.4, ease: "easeOut", delay: animationDelay };
+        // Replaced with gentler glow-style animation
+        animateValue = { scale: [1, 1.02, 1] };
+        transitionValue = { duration: 0.25, ease: EASE.out, delay: animationDelay };
+        break;
+      case "settle":
+        // Subtle scale settle when letter fills slot (180ms)
+        animateValue = { scale: [0.95, 1.02, 1] };
+        transitionValue = { duration: TIMING.settle, ease: EASE.settle };
+        break;
+      case "glow":
+        // Gentle glow pulse for victory (no bounce)
+        animateValue = { scale: [1, 1.02, 1] };
+        transitionValue = { duration: 0.3, ease: EASE.out, delay: animationDelay };
+        break;
+      case "reveal":
+        // Soft fade-in for revealed intersection letters (200ms)
+        animateValue = { scale: [0.95, 1], opacity: [0, 1] };
+        transitionValue = { duration: TIMING.medium, ease: EASE.out };
+        break;
+      case "solvedLock":
+        // Slot locks with subtle pulse when crosser is solved (200ms)
+        animateValue = { scale: [1, 1.015, 1] };
+        transitionValue = { duration: TIMING.medium, ease: EASE.out, delay: animationDelay };
         break;
     }
   }
 
+  // Selection ring animation - separate from cell animation
+  const ringMotionProps = !prefersReducedMotion ? {
+    initial: { opacity: 0, scale: 0.98 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.98 },
+    transition: { duration: TIMING.fast, ease: EASE.out },
+  } : {};
+
   return (
     <motion.button
       type="button"
-      className={`${base} ${statusClass} ${selectedClass} ${mainRowClass} ${focusClass}`}
+      className={`${base} ${statusClass} ${mainRowClass} ${focusClass} relative`}
       onClick={onClick}
       onKeyDown={onKeyDown}
       tabIndex={tabIndex}
+      data-row={row}
+      data-col={col}
       aria-label={
         letter
           ? `${letter}, ${status}`
@@ -89,6 +123,15 @@ export function Cell({
       animate={animateValue}
       transition={transitionValue}
     >
+      {/* Selection ring with smooth fade animation */}
+      <AnimatePresence>
+        {isSelected && (
+          <motion.span
+            className="absolute inset-[-3px] rounded-md ring-2 ring-accent dark:ring-accent-dark pointer-events-none"
+            {...ringMotionProps}
+          />
+        )}
+      </AnimatePresence>
       {letter}
     </motion.button>
   );

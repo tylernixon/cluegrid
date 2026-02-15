@@ -1,14 +1,108 @@
 import type { PuzzleData, Guess } from "@/types";
 
+// Emoji constants
+const EMPTY = "\u2B1B"; // black square (empty space)
+const MAIN_CORRECT = "\u{1F7E9}"; // green square (main word cell - correct)
+const MAIN_PRESENT = "\u{1F7E8}"; // yellow square (main word cell - present)
+const MAIN_ABSENT = "\u2B1C"; // white square (main word cell - absent/unsolved)
+const CROSSER_SOLVED = "\u{1F7E6}"; // blue square (crosser solved)
+const CROSSER_UNSOLVED = "\u2B1B"; // black square (crosser unsolved)
+const POINTER = "\u2190"; // left arrow
+
+/**
+ * Generate a compact crossword-style grid representation
+ * Shows the actual puzzle shape with color-coded cells
+ */
+function generateCrosswordGrid(
+  puzzle: PuzzleData,
+  solvedWords: Set<string>,
+  guesses: Guess[]
+): string {
+  const { rows, cols } = puzzle.gridSize;
+  const mainRow = puzzle.mainWord.row;
+  const mainSolved = solvedWords.has("main");
+
+  // Build a 2D grid of emoji squares
+  const grid: (string | null)[][] = Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () => null)
+  );
+
+  // Place crosser cells first (so main word can override intersections)
+  for (const crosser of puzzle.crossers) {
+    const isSolved = solvedWords.has(crosser.id);
+    for (let i = 0; i < crosser.word.length; i++) {
+      const row = crosser.startRow + i;
+      const col = crosser.startCol;
+      if (row < rows && col < cols && row !== mainRow) {
+        grid[row]![col] = isSolved ? CROSSER_SOLVED : CROSSER_UNSOLVED;
+      }
+    }
+  }
+
+  // Place main word cells
+  const mainGuesses = guesses.filter((g) => g.targetId === "main");
+  const lastMainGuess = mainGuesses[mainGuesses.length - 1];
+
+  for (let i = 0; i < puzzle.mainWord.word.length; i++) {
+    const col = puzzle.mainWord.col + i;
+    if (col < cols) {
+      if (mainSolved && lastMainGuess) {
+        // Show feedback from the winning guess
+        const fb = lastMainGuess.feedback[i];
+        if (fb) {
+          grid[mainRow]![col] =
+            fb.status === "correct"
+              ? MAIN_CORRECT
+              : fb.status === "present"
+                ? MAIN_PRESENT
+                : MAIN_ABSENT;
+        } else {
+          grid[mainRow]![col] = MAIN_CORRECT;
+        }
+      } else if (mainSolved) {
+        grid[mainRow]![col] = MAIN_CORRECT;
+      } else {
+        grid[mainRow]![col] = MAIN_ABSENT;
+      }
+    }
+  }
+
+  // Convert grid to string, trimming empty rows and using compact representation
+  const lines: string[] = [];
+
+  for (let row = 0; row < rows; row++) {
+    const rowCells = grid[row]!;
+    // Only include rows that have at least one cell
+    if (rowCells.some((cell) => cell !== null)) {
+      // Build row string, replacing nulls with spaces
+      // Find bounds of non-null cells
+      const firstCol = rowCells.findIndex((c) => c !== null);
+      let lastCol = rowCells.length - 1;
+      while (lastCol >= 0 && rowCells[lastCol] === null) lastCol--;
+
+      if (firstCol === -1) continue;
+
+      // Build the row with proper spacing
+      let rowStr = "";
+      for (let col = firstCol; col <= lastCol; col++) {
+        rowStr += rowCells[col] ?? EMPTY;
+      }
+
+      // Add arrow indicator for main word row
+      if (row === mainRow) {
+        rowStr += " " + POINTER;
+      }
+
+      lines.push(rowStr);
+    }
+  }
+
+  return lines.join("\n");
+}
+
 /**
  * Generate a shareable text result for the completed game
- * Format:
- *   Cluegrid #123 4/6
- *
- *   [emoji grid for main word guesses]
- *
- *   Crossers: 2/3
- *   cluegrid.com
+ * Distinctive Cluegrid format with crossword-style grid
  */
 export function generateShareResult(
   puzzle: PuzzleData,
@@ -16,28 +110,8 @@ export function generateShareResult(
   solvedWords: Set<string>,
   won: boolean
 ): string {
-  const puzzleNumber = getPuzzleNumber(puzzle.date);
-  const mainGuesses = guesses.filter((g) => g.targetId === "main");
   const guessCount = guesses.length;
   const scoreDisplay = won ? `${guessCount}/6` : "X/6";
-
-  // Generate emoji grid for main word guesses
-  const emojiGrid = mainGuesses
-    .map((guess) =>
-      guess.feedback
-        .map((fb) => {
-          switch (fb.status) {
-            case "correct":
-              return "\u{1F7E9}"; // green square
-            case "present":
-              return "\u{1F7E8}"; // yellow square
-            case "absent":
-              return "\u2B1B"; // black square
-          }
-        })
-        .join("")
-    )
-    .join("\n");
 
   // Count solved crossers
   const crossersSolved = puzzle.crossers.filter((c) =>
@@ -45,13 +119,16 @@ export function generateShareResult(
   ).length;
   const totalCrossers = puzzle.crossers.length;
 
-  // Build the share text
+  // Generate the crossword grid visualization
+  const gridVisual = generateCrosswordGrid(puzzle, solvedWords, guesses);
+
+  // Build the share text with distinctive formatting
   const lines: string[] = [
-    `Cluegrid #${puzzleNumber} ${scoreDisplay}`,
+    `Cluegrid ${puzzle.date}`,
     "",
-    emojiGrid,
+    gridVisual,
     "",
-    `Crossers: ${crossersSolved}/${totalCrossers}`,
+    `Guesses: ${scoreDisplay} | Clues: ${crossersSolved}/${totalCrossers}`,
     "cluegrid.com",
   ];
 
@@ -62,7 +139,7 @@ export function generateShareResult(
  * Calculate the puzzle number based on the date
  * Assumes puzzle #1 started on 2024-01-01
  */
-function getPuzzleNumber(dateStr: string): number {
+export function getPuzzleNumber(dateStr: string): number {
   const startDate = new Date("2024-01-01");
   const puzzleDate = new Date(dateStr);
   const diffTime = puzzleDate.getTime() - startDate.getTime();
