@@ -1,0 +1,853 @@
+[
+  {
+    "date": "2026-03-01",
+    "mainWord": "CRANE",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "CRISP",
+        "clue": "The satisfying snap when you bite into a fresh apple.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "ARROW",
+        "clue": "What a bow launches toward a target.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "DANCE",
+        "clue": "What couples do together on a ballroom floor.",
+        "position": 3,
+        "intersectionIndex": 2
+      }
+    ]
+  },
+  {
+    "date": "2026-03-02",
+    "mainWord": "BLAZE",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "BOLD",
+        "clue": "Daring and confident, like a headline in heavy type.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "CLIP",
+        "clue": "A short section cut from a longer video.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "MAZE",
+        "clue": "A puzzle of winding paths with dead ends.",
+        "position": 2,
+        "intersectionIndex": 1
+      }
+    ]
+  },
+  {
+    "date": "2026-03-03",
+    "mainWord": "SMILE",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "STORM",
+        "clue": "Dark clouds, wind, and heavy rain all at once.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "DIME",
+        "clue": "The smallest coin in a handful of change.",
+        "position": 2,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "FLAME",
+        "clue": "The bright, flickering part of a candle that gives off light.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-04",
+    "mainWord": "LIGHT",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "PLAN",
+        "clue": "A thought-out strategy for getting something done.",
+        "position": 0,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "RING",
+        "clue": "A band of metal worn around a finger.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "HIGH",
+        "clue": "Where the top shelf is if you need a stool to reach it.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-05",
+    "mainWord": "BRAVE",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "CURB",
+        "clue": "The raised edge of a pavement where the road begins.",
+        "position": 1,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "RAIN",
+        "clue": "What falls from grey clouds and soaks you through.",
+        "position": 2,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "DOVE",
+        "clue": "A white bird often seen as a symbol of peace.",
+        "position": 4,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-06",
+    "mainWord": "HORSE",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "CASH",
+        "clue": "Paper money and coins you carry in your wallet.",
+        "position": 0,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "CORE",
+        "clue": "The tough centre of an apple, where the seeds live.",
+        "position": 2,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "DOSE",
+        "clue": "A measured amount of medicine taken at one time.",
+        "position": 4,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-07",
+    "mainWord": "FLAME",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "FLAT",
+        "clue": "Completely level, without any bumps or hills.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "BLADE",
+        "clue": "The sharp cutting edge of a knife or sword.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "FRAME",
+        "clue": "The border that holds a photograph on a wall.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-08",
+    "mainWord": "STONE",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "MIST",
+        "clue": "A thin layer of fog that makes everything look hazy.",
+        "position": 0,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "TOWER",
+        "clue": "A tall, narrow structure you might see in a castle.",
+        "position": 1,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "BONE",
+        "clue": "The hard structure inside your body that supports your muscles.",
+        "position": 3,
+        "intersectionIndex": 2
+      }
+    ]
+  },
+  {
+    "date": "2026-03-09",
+    "mainWord": "DREAM",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "BRIDE",
+        "clue": "The person in white walking down the aisle at a wedding.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "LEAF",
+        "clue": "The flat green part of a tree that falls in autumn.",
+        "position": 2,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "CALM",
+        "clue": "Perfectly still and quiet, like a lake at dawn.",
+        "position": 4,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-10",
+    "mainWord": "BEACH",
+    "difficulty": 2,
+    "crossers": [
+      {
+        "word": "HERB",
+        "clue": "A fragrant leaf used to add flavour when cooking.",
+        "position": 0,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "PEACH",
+        "clue": "A soft, fuzzy fruit with a large pit inside.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "ECHO",
+        "clue": "The sound that bounces back to you in a canyon.",
+        "position": 4,
+        "intersectionIndex": 2
+      }
+    ]
+  },
+  {
+    "date": "2026-03-11",
+    "mainWord": "FROST",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "FROWN",
+        "clue": "The expression your face makes when something disappoints you.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "ORBIT",
+        "clue": "The path a satellite traces around the Earth.",
+        "position": 2,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "MAST",
+        "clue": "The tall pole on a sailing ship that holds the sails.",
+        "position": 4,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-12",
+    "mainWord": "PLUME",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "PULSE",
+        "clue": "The rhythmic beat you feel when you press two fingers to your wrist.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "FLUTE",
+        "clue": "A woodwind instrument played sideways across the lips.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "TRUNK",
+        "clue": "The thick central stem of a tree.",
+        "position": 2,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "THEME",
+        "clue": "The central idea that ties a story or party together.",
+        "position": 4,
+        "intersectionIndex": 2
+      }
+    ]
+  },
+  {
+    "date": "2026-03-13",
+    "mainWord": "GLOBE",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "GLOW",
+        "clue": "The soft, warm light a candle gives off in the dark.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "BELOW",
+        "clue": "The direction you look when standing on a bridge over a river.",
+        "position": 3,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "STONE",
+        "clue": "A small rock you might skip across a lake.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-14",
+    "mainWord": "SHALE",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "CLASH",
+        "clue": "A loud, sudden conflict or the sound of cymbals.",
+        "position": 0,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "WHEAT",
+        "clue": "The golden grain harvested from fields to make flour.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "SCALE",
+        "clue": "What you step onto to check your weight.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-15",
+    "mainWord": "RIDGE",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "PRINT",
+        "clue": "What a finger leaves behind on a glass surface.",
+        "position": 0,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "BRIDE",
+        "clue": "The person in white on their wedding day.",
+        "position": 2,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "LEDGE",
+        "clue": "A narrow, flat surface that sticks out from a cliff or building.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-16",
+    "mainWord": "STOVE",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "WAIST",
+        "clue": "The narrowest part of your torso, where a belt sits.",
+        "position": 0,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "CURVE",
+        "clue": "A smooth, bending line that is not straight.",
+        "position": 3,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "NERVE",
+        "clue": "Courage under pressure, or a fibre that carries signals through your body.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-17",
+    "mainWord": "CIDER",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "SCARF",
+        "clue": "A length of fabric you wrap around your neck when it is cold.",
+        "position": 0,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "RIDGE",
+        "clue": "The long, narrow top of a mountain range.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "ELDER",
+        "clue": "Someone older and usually wiser in a family or community.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-18",
+    "mainWord": "VAPOR",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "VALVE",
+        "clue": "A device that opens or closes to control the flow of water or gas.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "SPARE",
+        "clue": "An extra one kept in reserve in case the first one fails.",
+        "position": 2,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "MAYOR",
+        "clue": "The elected leader of a city or town.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-19",
+    "mainWord": "SWEPT",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "CRISP",
+        "clue": "Clean and sharp, like freshly ironed linen.",
+        "position": 0,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "DRAPE",
+        "clue": "A heavy piece of fabric hung over a window to block the light.",
+        "position": 3,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "ADEPT",
+        "clue": "Highly skilled at something through practice and experience.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-20",
+    "mainWord": "BLOOM",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "TABLE",
+        "clue": "A flat piece of furniture where you sit to eat dinner.",
+        "position": 1,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "FLOOD",
+        "clue": "When water rises and covers land that is normally dry.",
+        "position": 2,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "LOOM",
+        "clue": "A wooden frame used to weave cloth from threads.",
+        "position": 3,
+        "intersectionIndex": 1
+      }
+    ]
+  },
+  {
+    "date": "2026-03-21",
+    "mainWord": "FEAST",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "SHELF",
+        "clue": "A flat board mounted on a wall for storing books.",
+        "position": 0,
+        "intersectionIndex": 4
+      },
+      {
+        "word": "LEASE",
+        "clue": "A contract that lets you use a property for a set period.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "LAST",
+        "clue": "The final one in a line or series.",
+        "position": 3,
+        "intersectionIndex": 2
+      }
+    ]
+  },
+  {
+    "date": "2026-03-22",
+    "mainWord": "CHARM",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "CATCH",
+        "clue": "What a fielder does when a ball flies through the air toward them.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "SHARE",
+        "clue": "To divide something so that others can have a portion too.",
+        "position": 2,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "SWARM",
+        "clue": "A large, buzzing group of bees moving together.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-23",
+    "mainWord": "GRAIN",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "TIGER",
+        "clue": "A large wild cat with bold orange and black stripes.",
+        "position": 1,
+        "intersectionIndex": 4
+      },
+      {
+        "word": "BRAIN",
+        "clue": "The organ inside your skull that controls your thoughts.",
+        "position": 2,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "FINAL",
+        "clue": "The very last game in a tournament that decides the winner.",
+        "position": 3,
+        "intersectionIndex": 1
+      }
+    ]
+  },
+  {
+    "date": "2026-03-24",
+    "mainWord": "QUEST",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "EQUAL",
+        "clue": "Exactly the same in size, amount, or value.",
+        "position": 1,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "GUEST",
+        "clue": "Someone invited to stay in your home or attend your party.",
+        "position": 2,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "CHEST",
+        "clue": "A sturdy box with a lid, or the front of your upper body.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-25",
+    "mainWord": "SWIFT",
+    "difficulty": 3,
+    "crossers": [
+      {
+        "word": "BLAST",
+        "clue": "A sudden, powerful burst of air or an explosion.",
+        "position": 0,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "TWINS",
+        "clue": "Two siblings born on the same day who may look exactly alike.",
+        "position": 2,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "SHIFT",
+        "clue": "A scheduled block of working hours, like the night one at a hospital.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-03-26",
+    "mainWord": "GNASH",
+    "difficulty": 4,
+    "crossers": [
+      {
+        "word": "GLYPH",
+        "clue": "A carved symbol or character, like those found in ancient Egyptian temples.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "SWINE",
+        "clue": "Pigs, especially when you are being old-fashioned or dramatic about it.",
+        "position": 1,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-27",
+    "mainWord": "BRISK",
+    "difficulty": 4,
+    "crossers": [
+      {
+        "word": "FIBER",
+        "clue": "A thin thread found in fabric, food, or the cables that carry internet.",
+        "position": 1,
+        "intersectionIndex": 4
+      },
+      {
+        "word": "WHISK",
+        "clue": "A kitchen tool you spin through eggs to make them fluffy.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-28",
+    "mainWord": "QUIRK",
+    "difficulty": 5,
+    "crossers": [
+      {
+        "word": "SQUID",
+        "clue": "A sea creature with ten arms and a talent for squirting ink.",
+        "position": 0,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "MURKY",
+        "clue": "So cloudy and dark you cannot see to the bottom.",
+        "position": 3,
+        "intersectionIndex": 2
+      }
+    ]
+  },
+  {
+    "date": "2026-03-29",
+    "mainWord": "DWELL",
+    "difficulty": 4,
+    "crossers": [
+      {
+        "word": "TREND",
+        "clue": "A popular direction that fashion or culture moves in for a while.",
+        "position": 0,
+        "intersectionIndex": 4
+      },
+      {
+        "word": "SWELL",
+        "clue": "What a wave does as it grows larger before it breaks.",
+        "position": 2,
+        "intersectionIndex": 2
+      }
+    ]
+  },
+  {
+    "date": "2026-03-30",
+    "mainWord": "VIGOR",
+    "difficulty": 4,
+    "crossers": [
+      {
+        "word": "VIVID",
+        "clue": "So bright and intense it feels almost unreal.",
+        "position": 0,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "RIGOR",
+        "clue": "Strict discipline or thoroughness applied to a task.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-03-31",
+    "mainWord": "TROUT",
+    "difficulty": 2,
+    "crossers": [
+      {
+        "word": "CRUST",
+        "clue": "The golden, baked outer layer of a loaf of bread.",
+        "position": 1,
+        "intersectionIndex": 1
+      },
+      {
+        "word": "SOUTH",
+        "clue": "The direction you face when the compass needle points behind you.",
+        "position": 3,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "STOUT",
+        "clue": "A dark, rich beer with a thick, creamy head.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-04-01",
+    "mainWord": "OCEAN",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "BLOCK",
+        "clue": "A solid, chunky piece of wood, ice, or concrete.",
+        "position": 0,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "RICE",
+        "clue": "Small white grains boiled in water and served alongside curry.",
+        "position": 2,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "CLEAN",
+        "clue": "Free of dirt, stains, and mess.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-04-02",
+    "mainWord": "MAPLE",
+    "difficulty": 2,
+    "crossers": [
+      {
+        "word": "STAMP",
+        "clue": "A small, sticky square you put on a letter before posting it.",
+        "position": 0,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "GRAPE",
+        "clue": "A small, round fruit that grows in bunches on a vine.",
+        "position": 2,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "APPLE",
+        "clue": "A crunchy fruit, red or green, often baked into pies.",
+        "position": 3,
+        "intersectionIndex": 3
+      }
+    ]
+  },
+  {
+    "date": "2026-04-03",
+    "mainWord": "RIVER",
+    "difficulty": 1,
+    "crossers": [
+      {
+        "word": "DRIFT",
+        "clue": "To float slowly along without steering or effort.",
+        "position": 1,
+        "intersectionIndex": 2
+      },
+      {
+        "word": "LIVER",
+        "clue": "An organ that filters your blood, sometimes served with onions.",
+        "position": 3,
+        "intersectionIndex": 3
+      },
+      {
+        "word": "COVER",
+        "clue": "Something placed on top to hide or protect what is underneath.",
+        "position": 4,
+        "intersectionIndex": 4
+      }
+    ]
+  },
+  {
+    "date": "2026-04-04",
+    "mainWord": "LEMON",
+    "difficulty": 2,
+    "crossers": [
+      {
+        "word": "MELON",
+        "clue": "A large, juicy fruit with a thick rind, perfect on a hot day.",
+        "position": 2,
+        "intersectionIndex": 0
+      },
+      {
+        "word": "DEMON",
+        "clue": "A fearsome creature from myth, associated with fire and darkness.",
+        "position": 4,
+        "intersectionIndex": 4
+      },
+      {
+        "word": "OLIVE",
+        "clue": "A small, oval fruit pressed to make cooking oil.",
+        "position": 1,
+        "intersectionIndex": 4
+      }
+    ]
+  }
+]

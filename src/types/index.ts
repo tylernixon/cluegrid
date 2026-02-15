@@ -1,27 +1,34 @@
-// Core puzzle types
+// Puzzle data from server / mock
 
-export interface Puzzle {
+export interface PuzzleData {
   id: string;
-  date: string; // YYYY-MM-DD
-  mainWord: string;
-  crossers: Crosser[];
+  date: string;
+  mainWord: {
+    word: string;
+    row: number;
+    col: number;
+    length: number;
+  };
+  crossers: CrosserData[];
   gridSize: { rows: number; cols: number };
 }
 
-export interface Crosser {
+export interface CrosserData {
   id: string;
   word: string;
   clue: string;
-  direction: "across" | "down";
-  startPosition: { row: number; col: number };
-  intersectionIndex: number;
+  direction: "down";
+  startRow: number;
+  startCol: number;
+  intersectionIndex: number; // index within the crosser where it meets the main word
 }
+
+// Guess and feedback
 
 export interface Guess {
   word: string;
-  targetWord: "main" | string; // 'main' or crosser id
+  targetId: "main" | string;
   feedback: LetterFeedback[];
-  timestamp: number;
 }
 
 export interface LetterFeedback {
@@ -29,85 +36,81 @@ export interface LetterFeedback {
   status: "correct" | "present" | "absent";
 }
 
-// Game state
+// Keyboard letter tracking
 
-export interface GameState {
-  puzzleId: string;
-  guesses: Guess[];
-  solvedWords: string[]; // word ids that are solved
-  status: "playing" | "won" | "lost";
-  startedAt: number;
-  completedAt?: number;
-}
+export type KeyStatus = "correct" | "present" | "absent" | "unused";
 
-// User stats (localStorage)
+// Game status
 
-export interface UserStats {
-  gamesPlayed: number;
-  gamesWon: number;
-  currentStreak: number;
-  maxStreak: number;
-  guessDistribution: Record<number, number>;
-  lastPlayedDate: string;
-  lastCompletedDate: string;
-}
+export type GameStatus = "playing" | "won" | "lost";
 
-// Cell states for rendering
+// Revealed letter from solving a crosser
 
-export const CELL_STATUS = {
-  EMPTY: "empty",
-  FILLED: "filled",
-  CORRECT: "correct",
-  PRESENT: "present",
-  ABSENT: "absent",
-} as const;
-
-export type CellStatus = (typeof CELL_STATUS)[keyof typeof CELL_STATUS];
-
-export interface CellData {
+export interface RevealedLetter {
+  row: number;
+  col: number;
   letter: string;
-  status: CellStatus;
-  isMainWord: boolean;
-  wordId?: string;
+  source?: string; // crosser ID that revealed this letter
 }
 
-// API response types
+// Grid cell for rendering
+
+export interface GridCell {
+  row: number;
+  col: number;
+  letter: string;
+  belongsTo: ("main" | string)[]; // word ids this cell belongs to
+  isRevealed: boolean;
+  isEmpty: boolean;
+}
+
+// Win messages keyed by guess count
+
+export const WIN_MESSAGES: Record<number, string> = {
+  1: "Genius!",
+  2: "Magnificent!",
+  3: "Brilliant!",
+  4: "Excellent!",
+  5: "Nice!",
+  6: "Phew!",
+};
+
+// ---------------------------------------------------------------------------
+// API response types (used by API routes)
+// ---------------------------------------------------------------------------
+
+export interface CrosserPublic {
+  id: string;
+  clue: string;
+  direction: "down";
+  length: number;
+  startRow: number;
+  startCol: number;
+  displayOrder: number;
+}
 
 export interface PuzzleResponse {
   id: string;
   date: string;
   gridSize: { rows: number; cols: number };
-  crossers: {
-    id: string;
-    clue: string;
-    direction: "across" | "down";
-    startPosition: { row: number; col: number };
-    length: number;
-  }[];
   mainWordLength: number;
   mainWordRow: number;
+  mainWordCol: number;
+  crossers: CrosserPublic[];
 }
 
 export interface VerifyResponse {
   valid: boolean;
+  isWord: boolean;
   feedback: LetterFeedback[];
   solved: boolean;
-  revealedLetters: {
-    row: number;
-    col: number;
-    letter: string;
-  }[];
+  revealedLetters: RevealedLetter[];
+  gameOver: boolean;
+  won: boolean;
+  answer?: string; // only included if game is over and lost
 }
 
 export interface ApiError {
   error: string;
   message: string;
-}
-
-// Settings
-
-export interface UserSettings {
-  theme: "light" | "dark" | "system";
-  reducedMotion: boolean;
-  colorBlindMode: boolean;
 }
