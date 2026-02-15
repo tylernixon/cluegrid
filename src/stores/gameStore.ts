@@ -10,6 +10,21 @@ import type {
   KeyStatus,
 } from "@/types";
 
+// Mock puzzle: CRANE at row 2.
+// Each crosser is vertical, intersecting the main word at row 2.
+// intersectionIndex = the index within the crosser word at the intersection row.
+// The crosser's letter at intersectionIndex must match CRANE at that column.
+//
+//        col0  col1  col2  col3  col4
+// row0    O           G     D
+// row1    C           R     A
+// row2   [C]   [R]   [A]   [N]   [E]   <- main word
+// row3    U           P     C
+// row4    R           E     E
+//
+// OCCUR (col 0): O-C-C-U-R, intersectionIndex=2, letter='C' matches CRANE[0]='C'
+// GRAPE (col 2): G-R-A-P-E, intersectionIndex=2, letter='A' matches CRANE[2]='A'
+// DANCE (col 3): D-A-N-C-E, intersectionIndex=2, letter='N' matches CRANE[3]='N'
 const MOCK_PUZZLE: PuzzleData = {
   id: "mock-1",
   date: "2024-01-15",
@@ -17,8 +32,8 @@ const MOCK_PUZZLE: PuzzleData = {
   crossers: [
     {
       id: "c1",
-      word: "CRISP",
-      clue: "The satisfying snap of a fresh apple",
+      word: "OCCUR",
+      clue: "To happen or take place",
       direction: "down",
       startRow: 0,
       startCol: 0,

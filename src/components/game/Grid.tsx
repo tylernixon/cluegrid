@@ -38,6 +38,7 @@ export function Grid({
     const { row: mainRow, col: mainCol, word: mainWord } = puzzle.mainWord;
     for (let i = 0; i < mainWord.length; i++) {
       const col = mainCol + i;
+      if (mainRow >= puzzle.gridSize.rows || col >= puzzle.gridSize.cols) continue;
       const existing = cells[mainRow]?.[col];
       const belongsTo = existing ? [...existing.belongsTo, "main" as const] : ["main" as const];
 
@@ -69,6 +70,7 @@ export function Grid({
       for (let i = 0; i < crosser.word.length; i++) {
         const row = crosser.startRow + i;
         const col = crosser.startCol;
+        if (row >= puzzle.gridSize.rows || col >= puzzle.gridSize.cols) continue;
         const existing = cells[row]?.[col];
         const belongsTo = existing
           ? [...existing.belongsTo, crosser.id]
