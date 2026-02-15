@@ -27,12 +27,17 @@ function SlotLetter({
   color: string;
   delay: number;
 }) {
-  const [currentChar, setCurrentChar] = useState(
-    SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]!
-  );
-  const [isSettled, setIsSettled] = useState(false);
+  // Start with target char to avoid hydration mismatch (server/client must match)
+  const [currentChar, setCurrentChar] = useState(targetChar);
+  const [isSettled, setIsSettled] = useState(true);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
+    // Only run animation on client after mount
+    if (hasStarted) return;
+    setHasStarted(true);
+    setIsSettled(false);
+
     let spinCount = 0;
     const maxSpins = 8 + Math.floor(Math.random() * 4); // 8-11 spins
     const spinInterval = 60; // ms between each character change
@@ -62,7 +67,7 @@ function SlotLetter({
     }, spinInterval);
 
     return () => clearInterval(interval);
-  }, [targetChar, delay]);
+  }, [targetChar, delay, hasStarted]);
 
   return (
     <span

@@ -534,11 +534,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Get the target answer
-    const answer = state.targetWord().toUpperCase();
+    const answer = state.targetWord().toUpperCase().trim();
 
     // If the guess matches the answer, skip dictionary validation
     // (handles words not in dictionary but valid as puzzle answers)
-    if (guess !== answer) {
+    if (guess.trim() !== answer) {
       // Validate word against dictionary
       const isValid = await validateWord(guess);
       if (!isValid) {
