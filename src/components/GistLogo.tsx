@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const LETTERS = [
   { char: "g", color: "#4A8B8D" },
@@ -9,65 +10,94 @@ const LETTERS = [
   { char: "t", color: "#3D5A5E" },
 ];
 
+// Characters to cycle through for the slot-machine effect
+const SLOT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().split("");
+
 interface GistLogoProps {
   className?: string;
 }
 
-export function GistLogo({ className }: GistLogoProps) {
-  const [isAnimating, setIsAnimating] = useState(true);
-  const [shuffleIndices, setShuffleIndices] = useState<number[]>([0, 1, 2, 3]);
+function SlotLetter({
+  targetChar,
+  color,
+  delay
+}: {
+  targetChar: string;
+  color: string;
+  delay: number;
+}) {
+  const [currentChar, setCurrentChar] = useState(
+    SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]!
+  );
+  const [isSettled, setIsSettled] = useState(false);
 
   useEffect(() => {
-    // Generate random shuffle sequence
-    const shuffleSequence = (): number[] => {
-      const indices = [0, 1, 2, 3];
-      for (let i = indices.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const temp = indices[i]!;
-        indices[i] = indices[j]!;
-        indices[j] = temp;
+    let spinCount = 0;
+    const maxSpins = 8 + Math.floor(Math.random() * 4); // 8-11 spins
+    const spinInterval = 60; // ms between each character change
+
+    const startTime = Date.now();
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+
+      if (elapsed < delay) {
+        // Still in delay phase, show random char
+        setCurrentChar(SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]!);
+        return;
       }
-      return indices;
-    };
 
-    // Do a few shuffles before settling
-    let shuffleCount = 0;
-    const maxShuffles = 4;
+      spinCount++;
 
-    const shuffleInterval = setInterval(() => {
-      if (shuffleCount < maxShuffles) {
-        setShuffleIndices(shuffleSequence());
-        shuffleCount++;
+      if (spinCount >= maxSpins) {
+        // Settle on the target character
+        setCurrentChar(targetChar);
+        setIsSettled(true);
+        clearInterval(interval);
       } else {
-        setShuffleIndices([0, 1, 2, 3]);
-        clearInterval(shuffleInterval);
-        setTimeout(() => setIsAnimating(false), 300);
+        // Show a random character with vertical flip
+        setCurrentChar(SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]!);
       }
-    }, 150);
+    }, spinInterval);
 
-    return () => clearInterval(shuffleInterval);
-  }, []);
+    return () => clearInterval(interval);
+  }, [targetChar, delay]);
 
   return (
-    <h1 className={`flex gap-0.5 ${className || ""}`}>
-      {LETTERS.map((letter, index) => {
-        const currentPosition = shuffleIndices.indexOf(index);
-        const offset = (currentPosition - index) * 30; // 30px per position
+    <span
+      className="w-7 h-7 flex items-center justify-center rounded text-white font-sans font-semibold text-lg overflow-hidden"
+      style={{ backgroundColor: color }}
+    >
+      <AnimatePresence mode="popLayout">
+        <motion.span
+          key={currentChar + (isSettled ? "-settled" : "")}
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 20, opacity: 0 }}
+          transition={{
+            duration: isSettled ? 0.15 : 0.06,
+            ease: isSettled ? "easeOut" : "linear"
+          }}
+          className="block"
+        >
+          {currentChar}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
 
-        return (
-          <span
-            key={letter.char}
-            className="w-7 h-7 flex items-center justify-center rounded text-white font-sans font-semibold text-lg transition-all duration-150 ease-out"
-            style={{
-              backgroundColor: letter.color,
-              transform: isAnimating ? `translateX(${offset}px)` : "translateX(0)",
-              opacity: isAnimating ? 0.8 : 1,
-            }}
-          >
-            {letter.char}
-          </span>
-        );
-      })}
+export function GistLogo({ className }: GistLogoProps) {
+  return (
+    <h1 className={`flex gap-0.5 ${className || ""}`}>
+      {LETTERS.map((letter, index) => (
+        <SlotLetter
+          key={letter.char}
+          targetChar={letter.char}
+          color={letter.color}
+          delay={index * 80} // Stagger the start of each letter
+        />
+      ))}
     </h1>
   );
 }

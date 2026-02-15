@@ -13,6 +13,7 @@ import { BadgeNotification } from "@/components/game/BadgeNotification";
 import { Confetti } from "@/components/game/Confetti";
 import { Toast } from "@/components/ui/Toast";
 import { GistLogo } from "@/components/GistLogo";
+import { OnboardingModal } from "@/components/game/OnboardingModal";
 import { useGameStore } from "@/stores/gameStore";
 import { useStatsStore } from "@/stores/statsStore";
 import { useKeyboard } from "@/hooks/useKeyboard";
@@ -20,6 +21,15 @@ import { useKeyboard } from "@/hooks/useKeyboard";
 export default function Home() {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if user has seen onboarding
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem("gist-onboarding-seen");
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
 
   const puzzle = useGameStore((s) => s.puzzle);
   const guesses = useGameStore((s) => s.guesses);
@@ -302,6 +312,12 @@ export default function Home() {
       <SettingsModal
         open={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
+      />
+
+      {/* Onboarding modal */}
+      <OnboardingModal
+        open={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
       />
     </div>
   );
