@@ -230,7 +230,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
 
       setOriginalStatus(newStatus);
       setStatus(newStatus);
-      setIsEditable(newStatus === 'draft' || newStatus === 'scheduled');
+      setIsEditable(newStatus === 'draft');
       setSuccess(`Puzzle ${newStatus === 'published' ? 'published' : 'unpublished'} successfully!`);
     } catch (err) {
       setError('Network error. Please try again.');
