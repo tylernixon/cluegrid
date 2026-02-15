@@ -124,18 +124,23 @@ export function Grid({
 
   // Build the grid cell data
   const grid = useMemo(() => {
+    // Safety check for valid dimensions
+    const safeRows = Math.max(1, puzzle.gridSize?.rows || 5);
+    const safeCols = Math.max(1, puzzle.gridSize?.cols || 5);
+
     const cells: (CellInfo | null)[][] = Array.from(
-      { length: puzzle.gridSize.rows },
+      { length: safeRows },
       () =>
-        Array.from({ length: puzzle.gridSize.cols }, () => null),
+        Array.from({ length: safeCols }, () => null),
     );
 
     // Place main word cells
     const { row: mainRowIdx, col: mainCol, word: mainWord } = puzzle.mainWord;
     for (let i = 0; i < mainWord.length; i++) {
       const col = mainCol + i;
-      if (mainRowIdx >= puzzle.gridSize.rows || col >= puzzle.gridSize.cols) continue;
-      const existing = cells[mainRowIdx]?.[col];
+      if (mainRowIdx < 0 || mainRowIdx >= safeRows || col < 0 || col >= safeCols) continue;
+      if (!cells[mainRowIdx]) continue;
+      const existing = cells[mainRowIdx][col];
       const belongsTo = existing ? [...existing.belongsTo, "main" as const] : ["main" as const];
 
       // Check if this letter is revealed by a crosser solve
@@ -161,7 +166,7 @@ export function Grid({
         status = "typing";
       }
 
-      cells[mainRowIdx]![col] = { letter, status, belongsTo, row: mainRowIdx, col };
+      cells[mainRowIdx][col] = { letter, status, belongsTo, row: mainRowIdx, col };
     }
 
     // Place crosser cells
@@ -172,15 +177,16 @@ export function Grid({
       for (let i = 0; i < crosser.word.length; i++) {
         const row = crosser.startRow + i;
         const col = crosser.startCol;
-        if (row >= puzzle.gridSize.rows || col >= puzzle.gridSize.cols) continue;
-        const existing = cells[row]?.[col];
+        if (row < 0 || row >= safeRows || col < 0 || col >= safeCols) continue;
+        if (!cells[row]) continue;
+        const existing = cells[row][col];
         const belongsTo = existing
           ? [...existing.belongsTo, crosser.id]
           : [crosser.id];
 
         // If cell already has data (intersection with solved letter), merge
         if (existing && existing.letter && (existing.status === "correct" || existing.status === "revealed")) {
-          cells[row]![col] = { ...existing, belongsTo };
+          cells[row][col] = { ...existing, belongsTo };
           continue;
         }
 
@@ -196,7 +202,7 @@ export function Grid({
           status = "typing";
         }
 
-        cells[row]![col] = { letter, status, belongsTo, row, col };
+        cells[row][col] = { letter, status, belongsTo, row, col };
       }
     }
 
