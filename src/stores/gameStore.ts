@@ -533,8 +533,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    // Get the target answer
-    const answer = state.targetWord().toUpperCase().trim();
+    // Get the target answer directly from captured state (avoid calling get() again)
+    const answer = (
+      state.selectedTarget === "main"
+        ? state.puzzle.mainWord.word
+        : state.puzzle.crossers.find((c) => c.id === state.selectedTarget)?.word ?? ""
+    ).toUpperCase().trim();
+
+    // Debug: log comparison (remove after fixing)
+    console.log("Guess comparison:", { guess: guess.trim(), answer, match: guess.trim() === answer });
 
     // If the guess matches the answer, skip dictionary validation
     // (handles words not in dictionary but valid as puzzle answers)
@@ -547,8 +554,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return;
       }
     }
-    const feedback = computeFeedback(guess, answer);
-    const solved = guess === answer;
+    const feedback = computeFeedback(guess.trim(), answer);
+    const solved = guess.trim() === answer;
 
     const newGuess: Guess = {
       word: guess,
