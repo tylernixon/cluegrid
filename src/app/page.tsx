@@ -160,10 +160,10 @@ export default function Home() {
         </button>
 
         <h1 className="flex gap-0.5">
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#4A8B8D] text-white font-serif font-medium text-lg">g</span>
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#D97B5D] text-white font-serif font-medium text-lg">i</span>
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#E8B84A] text-white font-serif font-medium text-lg">s</span>
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#3D5A5E] text-white font-serif font-medium text-lg">t</span>
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#4A8B8D] text-white font-sans font-semibold text-lg">g</span>
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#D97B5D] text-white font-sans font-semibold text-lg">i</span>
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#E8B84A] text-white font-sans font-semibold text-lg">s</span>
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#3D5A5E] text-white font-sans font-semibold text-lg">t</span>
         </h1>
 
         {/* Stats button */}
