@@ -65,20 +65,20 @@ export function DifficultySelector({ selected, onChange }: DifficultySelectorPro
             role="radio"
             aria-checked={isSelected}
             onClick={() => onChange(option.value)}
-            className={`relative flex items-start gap-3 px-4 py-3 rounded-lg border-2 transition-all duration-150 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2 ${
+            className={`relative flex items-start gap-3 px-4 py-3 rounded-lg border-2 transition-all duration-150 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-correct dark:focus-visible:ring-correct-dark focus-visible:ring-offset-2 ${
               isSelected
-                ? "bg-accent/10 dark:bg-accent-dark/10 border-accent dark:border-accent-dark"
+                ? "bg-correct/10 dark:bg-correct-dark/10 border-correct dark:border-correct-dark"
                 : "border-border dark:border-border-dark hover:border-border-active dark:hover:border-border-active-dark bg-surface dark:bg-surface-dark"
             }`}
           >
             {/* Icon */}
-            <span className={`mt-0.5 ${isSelected ? "text-accent dark:text-accent-dark" : "text-ink-tertiary dark:text-ink-tertiary-dark"}`}>
+            <span className={`mt-0.5 ${isSelected ? "text-correct dark:text-correct-dark" : "text-ink-tertiary dark:text-ink-tertiary-dark"}`}>
               {DifficultyIcons[option.value]}
             </span>
 
             {/* Text content */}
             <div className="flex-1 min-w-0">
-              <span className={`text-body font-semibold block ${isSelected ? "text-accent dark:text-accent-dark" : "text-ink dark:text-ink-dark"}`}>
+              <span className={`text-body font-semibold block ${isSelected ? "text-correct dark:text-correct-dark" : "text-ink dark:text-ink-dark"}`}>
                 {option.label}
               </span>
               <span className="text-caption text-ink-secondary dark:text-ink-secondary-dark block">
@@ -88,7 +88,7 @@ export function DifficultySelector({ selected, onChange }: DifficultySelectorPro
 
             {/* Check mark for selected */}
             {isSelected && (
-              <span className="absolute top-2 right-2 text-accent dark:text-accent-dark">
+              <span className="absolute top-2 right-2 text-correct dark:text-correct-dark">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>

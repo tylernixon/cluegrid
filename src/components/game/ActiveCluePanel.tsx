@@ -217,13 +217,13 @@ export function ActiveCluePanel({
           </div>
 
           {/* Clue text */}
-          <p className="text-body font-serif text-ink dark:text-ink-dark text-center italic">
+          <p className="text-body font-serif text-ink dark:text-ink-dark text-center">
             {clueInfo.clue}
           </p>
 
           {/* Hint note */}
           {clueInfo.hintNote && (
-            <p className="text-caption text-present dark:text-present-dark text-center mt-1 italic">
+            <p className="text-xs text-present dark:text-present-dark text-center mt-1">
               {clueInfo.hintNote}
             </p>
           )}

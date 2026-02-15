@@ -117,7 +117,7 @@ export function StatsModal({ open, onClose }: StatsModalProps) {
         {/* Close button */}
         <button
           type="button"
-          className="w-full px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-lg font-semibold text-body hover:bg-accent-hover dark:hover:bg-accent-hover-dark transition-colors active:scale-[0.98]"
+          className="w-full px-6 py-3 bg-correct dark:bg-correct-dark text-white rounded-lg font-semibold text-body hover:opacity-90 transition-colors active:scale-[0.98]"
           onClick={onClose}
           aria-label="Close statistics"
         >
@@ -136,8 +136,8 @@ interface StatItemProps {
 function StatItem({ value, label }: StatItemProps) {
   return (
     <div className="flex flex-col items-center">
-      <span className="text-stat text-ink dark:text-ink-dark">{value}</span>
-      <span className="text-caption text-ink-secondary dark:text-ink-secondary-dark leading-tight">
+      <span className="text-stat font-serif text-ink dark:text-ink-dark">{value}</span>
+      <span className="text-xs text-ink-secondary dark:text-ink-secondary-dark leading-tight">
         {label}
       </span>
     </div>

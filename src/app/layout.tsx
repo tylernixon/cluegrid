@@ -14,6 +14,7 @@ const ibmPlexSans = IBM_Plex_Sans({
 const ibmPlexSerif = IBM_Plex_Serif({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
   display: "swap",
   variable: "--font-ibm-plex-serif",
 });

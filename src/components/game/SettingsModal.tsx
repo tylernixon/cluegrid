@@ -56,7 +56,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
         <button
           type="button"
           onClick={handleNewGame}
-          className="w-full px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-lg font-semibold text-body hover:bg-accent-hover dark:hover:bg-accent-hover-dark transition-colors active:scale-[0.97]"
+          className="w-full px-6 py-3 bg-correct dark:bg-correct-dark text-white rounded-lg font-semibold text-body hover:opacity-90 transition-colors active:scale-[0.97]"
         >
           {hasChanged ? "Start New Game" : mainGuessCount > 0 ? "Restart Game" : "Close"}
         </button>
