@@ -33,6 +33,37 @@ export interface GenerateOptions {
   date?: string;
 }
 
+// ---------------------------------------------------------------------------
+// New "mode-based" API types (used by /api/admin/puzzles/generate)
+// ---------------------------------------------------------------------------
+
+export interface AIGenerateRequest {
+  mode: 'crossers' | 'full';
+  mainWord?: string;
+  theme?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  crosserCount?: number;
+}
+
+export interface AIGeneratedCrosser {
+  word: string;
+  clue: string;
+  intersectionIndex: number;
+  mainWordLetterIndex: number;
+  startRow: number;
+  startCol: number;
+}
+
+export interface AIGeneratedPuzzle {
+  mainWord: string;
+  mainWordRow: number;
+  mainWordCol: number;
+  gridRows: number;
+  gridCols: number;
+  crossers: AIGeneratedCrosser[];
+  theme?: string;
+}
+
 interface CrosserCandidate {
   word: string;
   mainWordPosition: number;
@@ -422,5 +453,241 @@ export async function generatePuzzle(
     crossers: puzzleCrossers,
     theme: options.theme,
     themeHint,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// New single-call AI generation (used by /api/admin/puzzles/generate)
+// ---------------------------------------------------------------------------
+
+export async function generatePuzzleWithAI(request: AIGenerateRequest): Promise<AIGeneratedPuzzle> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY environment variable is not configured');
+  }
+
+  const client = new Anthropic({ apiKey });
+  const crosserCount = Math.min(Math.max(request.crosserCount ?? 4, 3), 5);
+  const difficulty = request.difficulty ?? 'medium';
+
+  const difficultyGuidance: Record<string, string> = {
+    easy: 'Write straightforward, definitional clues. Use common words (4-6 letters) that most people would know.',
+    medium: 'Write clever wordplay clues in the style of NYT Monday/Tuesday crosswords. Use moderately common words (4-7 letters). Include some misdirection.',
+    hard: 'Write challenging, cryptic-style clues. Use less common but still valid words (4-8 letters). Employ double meanings, puns, or oblique references.',
+  };
+
+  let prompt: string;
+
+  if (request.mode === 'crossers' && request.mainWord) {
+    prompt = buildCrossersPrompt(request.mainWord, crosserCount, difficulty, difficultyGuidance[difficulty] ?? '');
+  } else if (request.mode === 'full' && request.theme) {
+    prompt = buildFullPuzzlePrompt(request.theme, crosserCount, difficulty, difficultyGuidance[difficulty] ?? '');
+  } else {
+    throw new Error(
+      request.mode === 'crossers'
+        ? 'mainWord is required for crossers mode'
+        : 'theme is required for full mode',
+    );
+  }
+
+  const message = await client.messages.create({
+    model: 'claude-sonnet-4-5-20250929',
+    max_tokens: 1024,
+    messages: [{ role: 'user', content: prompt }],
+  });
+
+  const textBlock = message.content.find((b) => b.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') {
+    throw new Error('No text response from AI');
+  }
+
+  return parseAIResponse(textBlock.text, request);
+}
+
+// ---------------------------------------------------------------------------
+// Prompt builders for single-call generation
+// ---------------------------------------------------------------------------
+
+function buildCrossersPrompt(
+  mainWord: string,
+  crosserCount: number,
+  difficulty: string,
+  guidance: string,
+): string {
+  const upper = mainWord.toUpperCase();
+  const letterList = upper.split('').map((l, i) => `  Position ${i}: "${l}"`).join('\n');
+
+  return `You are a crossword puzzle designer for a word game called Cluegrid.
+
+The main word is "${upper}" which is placed HORIZONTALLY on the grid. It has these letters:
+${letterList}
+
+Generate exactly ${crosserCount} crosser words that go VERTICALLY through the main word. Each crosser must:
+1. Share exactly one letter with the main word at a specific position
+2. Be a real, common English word (no proper nouns, no abbreviations)
+3. Be between 4 and 8 letters long
+4. Each crosser must intersect the main word at a DIFFERENT position (column)
+
+Difficulty level: ${difficulty}
+${guidance}
+
+IMPORTANT RULES:
+- Each crosser intersects the main word at a different letter position
+- The shared letter must appear in the crosser word at the "intersectionIndex" position
+- Spread crossers across different positions in the main word for visual balance
+
+Respond ONLY with a JSON object in this exact format (no markdown, no explanation):
+{
+  "crossers": [
+    {
+      "word": "EXAMPLE",
+      "clue": "A clever crossword-style clue",
+      "intersectionIndex": 2,
+      "mainWordLetterIndex": 0
+    }
+  ]
+}
+
+Where:
+- "word" is the crosser word in uppercase
+- "clue" is the clue for this word
+- "intersectionIndex" is the 0-based index within the crosser word where it intersects the main word
+- "mainWordLetterIndex" is the 0-based index within "${upper}" where this crosser intersects
+
+Double-check that for each crosser: "${upper}"[mainWordLetterIndex] === crosser.word[intersectionIndex]`;
+}
+
+function buildFullPuzzlePrompt(
+  theme: string,
+  crosserCount: number,
+  difficulty: string,
+  guidance: string,
+): string {
+  return `You are a crossword puzzle designer for a word game called Cluegrid.
+
+Create a complete puzzle with the theme: "${theme}"
+
+Requirements:
+1. Choose a main word (4-7 letters) related to the theme. It goes HORIZONTALLY.
+2. Generate exactly ${crosserCount} crosser words that go VERTICALLY through the main word.
+3. Each crosser shares exactly one letter with the main word at a specific position.
+4. All words must be real, common English words (no proper nouns, no abbreviations).
+5. Crosser words should be 4-8 letters long.
+6. Each crosser must intersect the main word at a DIFFERENT position.
+7. Crosser words should loosely relate to the theme when possible.
+
+Difficulty level: ${difficulty}
+${guidance}
+
+Respond ONLY with a JSON object in this exact format (no markdown, no explanation):
+{
+  "mainWord": "HEART",
+  "crossers": [
+    {
+      "word": "EXAMPLE",
+      "clue": "A clever crossword-style clue",
+      "intersectionIndex": 2,
+      "mainWordLetterIndex": 0
+    }
+  ]
+}
+
+Where:
+- "mainWord" is the main horizontal word in uppercase
+- For each crosser:
+  - "word" is the crosser word in uppercase
+  - "clue" is the clue for this word
+  - "intersectionIndex" is the 0-based index within the crosser word where it intersects the main word
+  - "mainWordLetterIndex" is the 0-based index within the main word where this crosser intersects
+
+Double-check that for each crosser: mainWord[mainWordLetterIndex] === crosser.word[intersectionIndex]`;
+}
+
+// ---------------------------------------------------------------------------
+// AI response parser
+// ---------------------------------------------------------------------------
+
+interface AICrosserRaw {
+  word: string;
+  clue: string;
+  intersectionIndex: number;
+  mainWordLetterIndex: number;
+}
+
+interface AIResponseRaw {
+  mainWord?: string;
+  crossers: AICrosserRaw[];
+}
+
+function parseAIResponse(text: string, request: AIGenerateRequest): AIGeneratedPuzzle {
+  let jsonStr = text.trim();
+  const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (jsonMatch?.[1]) {
+    jsonStr = jsonMatch[1].trim();
+  }
+
+  let parsed: AIResponseRaw;
+  try {
+    parsed = JSON.parse(jsonStr) as AIResponseRaw;
+  } catch {
+    throw new Error('Failed to parse AI response as JSON');
+  }
+
+  const mainWord = (request.mode === 'crossers' ? request.mainWord! : parsed.mainWord ?? '').toUpperCase();
+  if (!mainWord || mainWord.length < 3) {
+    throw new Error('Invalid main word in AI response');
+  }
+
+  if (!Array.isArray(parsed.crossers) || parsed.crossers.length === 0) {
+    throw new Error('No crossers in AI response');
+  }
+
+  const mainWordRow = 2;
+  const mainWordCol = 0;
+
+  let maxRow = mainWordRow;
+  let maxCol = mainWordCol + mainWord.length - 1;
+
+  const crossers: AIGeneratedCrosser[] = [];
+
+  for (const raw of parsed.crossers) {
+    const word = raw.word.toUpperCase();
+    const mainIdx = raw.mainWordLetterIndex;
+    const crossIdx = raw.intersectionIndex;
+
+    if (mainIdx < 0 || mainIdx >= mainWord.length) continue;
+    if (crossIdx < 0 || crossIdx >= word.length) continue;
+    if (mainWord[mainIdx] !== word[crossIdx]) continue;
+
+    const startCol = mainWordCol + mainIdx;
+    const startRow = mainWordRow - crossIdx;
+    const endRow = startRow + word.length - 1;
+    if (startRow < 0) continue;
+
+    maxRow = Math.max(maxRow, endRow);
+    maxCol = Math.max(maxCol, startCol);
+
+    crossers.push({
+      word,
+      clue: raw.clue,
+      intersectionIndex: crossIdx,
+      mainWordLetterIndex: mainIdx,
+      startRow,
+      startCol,
+    });
+  }
+
+  if (crossers.length === 0) {
+    throw new Error('No valid crossers could be placed after validation');
+  }
+
+  return {
+    mainWord,
+    mainWordRow,
+    mainWordCol,
+    gridRows: maxRow + 1,
+    gridCols: maxCol + 1,
+    crossers,
+    ...(request.theme ? { theme: request.theme } : {}),
   };
 }

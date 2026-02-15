@@ -180,7 +180,7 @@ export function CluePanel({
                     : "text-ink dark:text-ink-dark"
               }`}
             >
-              <span className="sr-only">Clue {i + 1}: </span>
+              <span className="sr-only">Hint {i + 1}: </span>
               {crosser.clue}
               {isSolved && (
                 <>
@@ -248,7 +248,7 @@ export function CluePanel({
             </div>
             <span className="text-body-small italic text-ink-secondary dark:text-ink-secondary-dark">
               <span className="sr-only">Main word: </span>
-              Main word - deduce from crossing clues
+              Main word - deduce from crossing hints
             </span>
           </div>
         </motion.button>
@@ -259,11 +259,11 @@ export function CluePanel({
   return (
     <nav
       className="w-full max-w-[480px] mx-auto px-4 py-3"
-      aria-label="Clue navigation"
+      aria-label="Hint navigation"
     >
       {/* Onboarding hint */}
       <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark text-center mb-3">
-        Solve the clues to reveal the main word.
+        Use hints to reveal letters in the main word.
       </p>
 
       {/* Mobile: Show expand toggle only (active clue is shown in ActiveCluePanel) */}
@@ -273,7 +273,7 @@ export function CluePanel({
           onClick={() => setIsExpanded(true)}
           className={`w-full text-center text-caption text-accent dark:text-accent-dark py-2 hover:bg-surface-raised dark:hover:bg-surface-raised-dark rounded-lg transition-colors ${focusClass}`}
         >
-          Show all clues
+          Show hints
         </button>
       )}
 
@@ -285,7 +285,7 @@ export function CluePanel({
               id="clues-heading"
               className="text-caption text-ink-secondary dark:text-ink-secondary-dark uppercase tracking-wider"
             >
-              Clues
+              Available Hints
             </h2>
             {isMobile && isExpanded && (
               <button
@@ -293,7 +293,7 @@ export function CluePanel({
                 onClick={() => setIsExpanded(false)}
                 className={`text-caption text-accent dark:text-accent-dark hover:underline ${focusClass}`}
               >
-                Hide clues
+                Hide hints
               </button>
             )}
           </div>

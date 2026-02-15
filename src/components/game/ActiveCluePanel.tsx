@@ -97,10 +97,12 @@ export function ActiveCluePanel({
     if (selectedTarget === "main") {
       return {
         number: "*",
-        clue: "Main word - deduce from crossing clues",
+        label: "Main Word",
+        clue: "Deduce from crossing hints",
         direction: "Across",
         length: targetLength,
         word: null as string | null,
+        hintNote: null as string | null,
       };
     }
     const crosser = crossers.find((c) => c.id === selectedTarget);
@@ -108,10 +110,12 @@ export function ActiveCluePanel({
     const index = crossers.findIndex((c) => c.id === selectedTarget) + 1;
     return {
       number: index.toString(),
+      label: `Hint ${index}`,
       clue: crosser.clue,
       direction: "Down",
       length: crosser.word.length,
       word: isSolved ? crosser.word : null,
+      hintNote: isSolved ? null : "Solving this will reveal a letter in the main word",
     };
   };
 
@@ -241,10 +245,14 @@ export function ActiveCluePanel({
           exit="exit"
           transition={{ duration: TIMING.fast, ease: EASE.out }}
         >
-          {/* Header row with number, direction, length */}
+          {/* Header row with label, direction, length */}
           <div className="flex items-center justify-center gap-3 mb-2">
-            <span className="font-mono text-heading-3 text-accent dark:text-accent-dark font-bold">
-              {clueInfo.number}
+            <span className={`text-caption font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
+              selectedTarget !== "main"
+                ? "bg-present/15 dark:bg-present-dark/15 text-present dark:text-present-dark"
+                : "bg-accent/15 dark:bg-accent-dark/15 text-accent dark:text-accent-dark"
+            }`}>
+              {clueInfo.label}
             </span>
             <span className="text-caption text-ink-secondary dark:text-ink-secondary-dark uppercase tracking-wider">
               {clueInfo.direction}
@@ -255,9 +263,17 @@ export function ActiveCluePanel({
           </div>
 
           {/* Clue text */}
-          <p className="text-body text-ink dark:text-ink-dark mb-4 text-center">
+          <p className="text-body text-ink dark:text-ink-dark mb-1 text-center">
             {clueInfo.clue}
           </p>
+
+          {/* Hint note */}
+          {clueInfo.hintNote && (
+            <p className="text-caption text-present dark:text-present-dark text-center mb-3 italic">
+              {clueInfo.hintNote}
+            </p>
+          )}
+          {!clueInfo.hintNote && <div className="mb-3" />}
 
           {/* Slot pattern display */}
           <div className="flex items-center justify-center gap-2" role="group" aria-label="Letter slots">

@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { validatePuzzleIntersections } from '@/lib/puzzle';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,6 +47,7 @@ interface GridCell {
 export default function EditPuzzlePage({ params }: { params: { id: string } }) {
   const puzzleId = params.id;
   const router = useRouter();
+  const { authFetch } = useAdminAuth();
 
   // Form state
   const [date, setDate] = useState('');
@@ -69,6 +71,13 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isEditable, setIsEditable] = useState(true);
+
+  // AI generation state
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiDifficulty, setAIDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+  const [aiCrosserCount, setAICrosserCount] = useState(4);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiError, setAIError] = useState<string | null>(null);
 
   // Fetch puzzle data
   useEffect(() => {
@@ -213,6 +222,64 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     [],
   );
 
+  const handleAIRegenerate = async () => {
+    setAIError(null);
+
+    if (!mainWord) {
+      setAIError('Main word is required to regenerate crossers');
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const res = await authFetch('/api/admin/puzzles/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'crossers',
+          mainWord: mainWord.toUpperCase(),
+          difficulty: aiDifficulty,
+          crosserCount: aiCrosserCount,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAIError(data.message || 'Generation failed');
+        return;
+      }
+
+      const puzzle = data.puzzle;
+
+      if (puzzle.mainWordRow !== undefined) setMainWordRow(puzzle.mainWordRow);
+      if (puzzle.mainWordCol !== undefined) setMainWordCol(puzzle.mainWordCol);
+      if (puzzle.gridRows) setGridRows(puzzle.gridRows);
+      if (puzzle.gridCols) setGridCols(puzzle.gridCols);
+
+      if (Array.isArray(puzzle.crossers)) {
+        setCrossers(
+          puzzle.crossers.map((c: { word: string; clue: string; startRow: number; startCol: number; intersectionIndex: number }) => ({
+            word: c.word,
+            clue: c.clue,
+            startRow: c.startRow,
+            startCol: c.startCol,
+            intersectionIndex: c.intersectionIndex,
+          })),
+        );
+      }
+
+      setShowAIModal(false);
+      setSuccess('Crossers regenerated with AI! Review and save.');
+    } catch (err) {
+      setAIError('Network error. Please try again.');
+      console.error(err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleStatusChange = async (newStatus: 'draft' | 'published') => {
     setError(null);
     setSuccess(null);
@@ -355,12 +422,26 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     <div className="max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Edit Puzzle</h1>
-        <Link
-          href="/admin/puzzles/list"
-          className="text-sm text-gray-600 hover:text-gray-900"
-        >
-          Back to List
-        </Link>
+        <div className="flex items-center gap-3">
+          {isEditable && (
+            <button
+              type="button"
+              onClick={() => setShowAIModal(true)}
+              className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+              </svg>
+              Regenerate with AI
+            </button>
+          )}
+          <Link
+            href="/admin/puzzles/list"
+            className="text-sm text-gray-600 hover:text-gray-900"
+          >
+            Back to List
+          </Link>
+        </div>
       </div>
 
       {!isEditable && (
@@ -856,6 +937,96 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
                 className="flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors"
               >
                 {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Regeneration Modal */}
+      {showAIModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-lg mx-4 shadow-xl w-full">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Regenerate Crossers with AI</h3>
+
+            {aiError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 mb-4">
+                {aiError}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              {/* Current main word display */}
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <span className="text-sm text-blue-700">
+                  Main word: <strong className="font-mono">{mainWord}</strong>
+                </span>
+                <p className="text-xs text-blue-600 mt-1">
+                  AI will generate new crosser words that intersect this main word.
+                </p>
+              </div>
+
+              {/* Difficulty */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Clue Difficulty</label>
+                <select
+                  value={aiDifficulty}
+                  onChange={(e) => setAIDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                >
+                  <option value="easy">Easy - straightforward clues</option>
+                  <option value="medium">Medium - clever wordplay</option>
+                  <option value="hard">Hard - cryptic style</option>
+                </select>
+              </div>
+
+              {/* Crosser count */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Number of Crossers
+                </label>
+                <input
+                  type="range"
+                  min={3}
+                  max={5}
+                  value={aiCrosserCount}
+                  onChange={(e) => setAICrosserCount(parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>3</span>
+                  <span className="font-medium text-gray-700">{aiCrosserCount}</span>
+                  <span>5</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => { setShowAIModal(false); setAIError(null); }}
+                disabled={isGenerating}
+                className="flex-1 py-2 px-4 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAIRegenerate}
+                disabled={isGenerating}
+                className="flex-1 py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Generating...
+                  </>
+                ) : (
+                  'Regenerate Crossers'
+                )}
               </button>
             </div>
           </div>

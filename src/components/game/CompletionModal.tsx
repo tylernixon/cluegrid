@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { ShareButton } from "@/components/ui/ShareButton";
-import { WIN_MESSAGES } from "@/types";
+import { WIN_MESSAGES, calculateStars } from "@/types";
+import type { StarRating } from "@/types";
 import { useStatsStore } from "@/stores/statsStore";
 import type { PuzzleData, Guess } from "@/types";
 
@@ -14,6 +15,7 @@ interface CompletionModalProps {
   puzzle: PuzzleData;
   guesses: Guess[];
   solvedWords: Set<string>;
+  hintsUsed: number;
 }
 
 // Countdown timer hook - counts down to midnight UTC
@@ -103,6 +105,20 @@ function ClockIcon({ className }: { className?: string }) {
   );
 }
 
+// Star display component
+function StarDisplay({ rating, className }: { rating: StarRating; className?: string }) {
+  const stars = Array.from({ length: 3 }, (_, i) => i < rating);
+  return (
+    <div className={`flex items-center gap-1 ${className ?? ""}`} aria-label={`${rating} out of 3 stars`}>
+      {stars.map((filled, i) => (
+        <span key={i} className="text-2xl" aria-hidden="true">
+          {filled ? "\u2B50" : "\u2606"}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function CompletionModal({
   open,
   onClose,
@@ -110,6 +126,7 @@ export function CompletionModal({
   puzzle,
   guesses,
   solvedWords,
+  hintsUsed,
 }: CompletionModalProps) {
   const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -117,22 +134,23 @@ export function CompletionModal({
   const streakSavedByGrace = useStatsStore((s) => s.streakSavedByGrace);
   const countdown = useCountdown();
 
-  const guessCount = guesses.length;
-  const crossersSolved = puzzle.crossers.filter((c) =>
-    solvedWords.has(c.id)
-  ).length;
   const totalCrossers = puzzle.crossers.length;
   const mainGuesses = guesses.filter((g) => g.targetId === "main");
 
-  // Calculate perfect game - all clues solved in 3 or fewer guesses
+  // Star rating based on hints used
+  const starRating = calculateStars(hintsUsed, totalCrossers);
+
+  // Calculate perfect game - no hints used and solved quickly
   const isPerfectGame =
-    status === "won" && crossersSolved === totalCrossers && guessCount <= 3;
+    status === "won" && hintsUsed === 0 && mainGuesses.length <= 3;
 
   const winMessage = useMemo(() => {
     if (status === "lost") return null;
     if (isPerfectGame) return "Perfect!";
-    return WIN_MESSAGES[guessCount] ?? "Well done!";
-  }, [status, isPerfectGame, guessCount]);
+    if (starRating === 3) return "Brilliant!";
+    if (starRating === 2) return "Great job!";
+    return WIN_MESSAGES[mainGuesses.length] ?? "Well done!";
+  }, [status, isPerfectGame, starRating, mainGuesses.length]);
 
   // Trigger staggered animation when modal opens
   useEffect(() => {
@@ -152,10 +170,11 @@ export function CompletionModal({
     return (
       <Modal open={open} onClose={onClose} title={winMessage ?? "Solved!"}>
         <div className="text-center">
-          {/* Success headline with animation */}
+          {/* Success headline with star rating */}
           <div
             className={`transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
+            <StarDisplay rating={starRating} className="justify-center mb-2" />
             <p className="text-heading-1 text-correct dark:text-correct-dark mb-1">
               {winMessage}
             </p>
@@ -186,22 +205,22 @@ export function CompletionModal({
           >
             {/* Guess count */}
             <div className="text-center">
-              <p className="text-stat text-ink dark:text-ink-dark">{guessCount}</p>
+              <p className="text-stat text-ink dark:text-ink-dark">{guesses.length}</p>
               <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
-                {guessCount === 1 ? "Guess" : "Guesses"}
+                {guesses.length === 1 ? "Guess" : "Guesses"}
               </p>
             </div>
 
             {/* Divider */}
             <div className="w-px h-12 bg-border dark:bg-border-dark" />
 
-            {/* Crossers / Clues */}
+            {/* Hints used */}
             <div className="text-center">
               <p className="text-stat text-ink dark:text-ink-dark">
-                {crossersSolved}/{totalCrossers}
+                {hintsUsed}/{totalCrossers}
               </p>
               <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
-                Clues
+                Hints
               </p>
             </div>
 
@@ -393,10 +412,10 @@ export function CompletionModal({
           <div className="inline-flex items-center gap-4 px-5 py-3 rounded-xl bg-surface-raised dark:bg-surface-raised-dark">
             <div className="text-center">
               <p className="text-heading-3 text-ink dark:text-ink-dark">
-                {crossersSolved}/{totalCrossers}
+                {hintsUsed}/{totalCrossers}
               </p>
               <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
-                Clues solved
+                Hints used
               </p>
             </div>
           </div>
