@@ -12,6 +12,7 @@ import { SettingsModal } from "@/components/game/SettingsModal";
 import { BadgeNotification } from "@/components/game/BadgeNotification";
 import { Confetti } from "@/components/game/Confetti";
 import { Toast } from "@/components/ui/Toast";
+import { GistLogo } from "@/components/GistLogo";
 import { useGameStore } from "@/stores/gameStore";
 import { useStatsStore } from "@/stores/statsStore";
 import { useKeyboard } from "@/hooks/useKeyboard";
@@ -159,12 +160,7 @@ export default function Home() {
           </svg>
         </button>
 
-        <h1 className="flex gap-0.5">
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#4A8B8D] text-white font-sans font-semibold text-lg">g</span>
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#D97B5D] text-white font-sans font-semibold text-lg">i</span>
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#E8B84A] text-white font-sans font-semibold text-lg">s</span>
-          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#3D5A5E] text-white font-sans font-semibold text-lg">t</span>
-        </h1>
+        <GistLogo />
 
         {/* Stats button */}
         <button
