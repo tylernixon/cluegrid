@@ -10,7 +10,47 @@ import type {
   KeyStatus,
 } from "@/types";
 import { useStatsStore } from "./statsStore";
-import { isValidWord, addValidWords } from "@/lib/words";
+
+// Cache of validated words to avoid repeat API calls
+const validatedWords = new Set<string>();
+
+// Validate word against Supabase dictionary
+async function validateWord(word: string): Promise<boolean> {
+  const normalized = word.toUpperCase();
+
+  // Check cache first
+  if (validatedWords.has(normalized)) {
+    return true;
+  }
+
+  try {
+    const response = await fetch('/api/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ word: normalized }),
+    });
+
+    const data = await response.json();
+
+    if (data.valid) {
+      validatedWords.add(normalized);
+    }
+
+    return data.valid;
+  } catch {
+    // On network error, allow the word (fail open for UX)
+    console.warn('Word validation failed, allowing word');
+    return true;
+  }
+}
+
+// Pre-add puzzle answers to validation cache
+function addPuzzleWordsToCache(mainWord: string, crossers: Array<{ word: string }>) {
+  validatedWords.add(mainWord.toUpperCase());
+  for (const c of crossers) {
+    validatedWords.add(c.word.toUpperCase());
+  }
+}
 
 // Fallback mock puzzle used while loading or if fetch fails
 const MOCK_PUZZLE: PuzzleData = {
@@ -111,7 +151,7 @@ interface GameStore {
   fetchPuzzle: () => Promise<void>;
   addLetter: (letter: string) => void;
   removeLetter: () => void;
-  submitGuess: () => void;
+  submitGuess: () => Promise<void>;
   selectTarget: (targetId: "main" | string) => void;
   clearToast: () => void;
   setShowCompletionModal: (show: boolean) => void;
@@ -253,9 +293,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const data = await response.json();
       const puzzle: PuzzleData = data.puzzle;
 
-      // Add puzzle answers to valid word list (ensures answers are always guessable)
-      const puzzleWords = [puzzle.mainWord.word, ...puzzle.crossers.map(c => c.word)];
-      addValidWords(puzzleWords);
+      // Add puzzle answers to validation cache (ensures answers are always guessable)
+      addPuzzleWordsToCache(puzzle.mainWord.word, puzzle.crossers);
 
       // Load any saved session for this puzzle
       const session = loadSession(puzzle.id);
@@ -291,8 +330,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     } catch (err) {
       console.error("Failed to fetch puzzle:", err);
       // Fall back to mock puzzle
-      const mockWords = [MOCK_PUZZLE.mainWord.word, ...MOCK_PUZZLE.crossers.map(c => c.word)];
-      addValidWords(mockWords);
+      addPuzzleWordsToCache(MOCK_PUZZLE.mainWord.word, MOCK_PUZZLE.crossers);
 
       const session = loadSession(MOCK_PUZZLE.id);
       const firstCrosserId = MOCK_PUZZLE.crossers[0]?.id ?? "c1";
@@ -346,7 +384,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ currentGuess: currentGuess.slice(0, -1) });
   },
 
-  submitGuess: () => {
+  submitGuess: async () => {
     const state = get();
     if (state.isLoading) return;
     if (state.status !== "playing") return;
@@ -368,8 +406,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    // Check if guess is a valid word
-    if (!isValidWord(guess)) {
+    // Check if guess is a valid word (async API call)
+    const isValid = await validateWord(guess);
+    if (!isValid) {
       set({ shakeTarget: state.selectedTarget, toastMessage: "Not in word list" });
       setTimeout(() => set({ shakeTarget: null }), 300);
       return;
