@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/admin-auth';
+
+// Use service role for admin operations
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error('Missing Supabase credentials');
+  }
+
+  return createClient(url, key);
+}
 
 // PATCH /api/admin/puzzles/[id]/status -- Update puzzle status (publish/unpublish)
 export async function PATCH(
@@ -28,6 +40,8 @@ export async function PATCH(
       { status: 400 },
     );
   }
+
+  const supabase = getServiceClient();
 
   // Verify puzzle exists
   const { data: existing, error: fetchError } = await supabase

@@ -76,8 +76,12 @@ export default function PuzzleEditorPage() {
 
   // Grid preview
   const gridPreview = useMemo((): GridCell[][] => {
-    const grid: GridCell[][] = Array.from({ length: gridRows }, () =>
-      Array.from({ length: gridCols }, () => ({
+    // Safety check for valid dimensions
+    const safeRows = Math.max(1, gridRows || 5);
+    const safeCols = Math.max(1, gridCols || 5);
+
+    const grid: GridCell[][] = Array.from({ length: safeRows }, () =>
+      Array.from({ length: safeCols }, () => ({
         letter: '',
         isMainWord: false,
         isCrosser: false,
@@ -89,8 +93,8 @@ export default function PuzzleEditorPage() {
     const upperMain = mainWord.toUpperCase();
     for (let i = 0; i < upperMain.length; i++) {
       const col = mainWordCol + i;
-      if (mainWordRow >= 0 && mainWordRow < gridRows && col >= 0 && col < gridCols) {
-        grid[mainWordRow]![col] = {
+      if (mainWordRow >= 0 && mainWordRow < safeRows && col >= 0 && col < safeCols && grid[mainWordRow]) {
+        grid[mainWordRow][col] = {
           letter: upperMain[i] ?? '',
           isMainWord: true,
           isCrosser: false,
@@ -105,11 +109,11 @@ export default function PuzzleEditorPage() {
       for (let i = 0; i < upperWord.length; i++) {
         const row = crosser.startRow + i;
         const col = crosser.startCol;
-        if (row >= 0 && row < gridRows && col >= 0 && col < gridCols) {
-          const existing = grid[row]![col]!;
-          grid[row]![col] = {
+        if (row >= 0 && row < safeRows && col >= 0 && col < safeCols && grid[row]) {
+          const existing = grid[row][col];
+          grid[row][col] = {
             letter: upperWord[i] ?? '',
-            isMainWord: existing.isMainWord,
+            isMainWord: existing?.isMainWord ?? false,
             isCrosser: true,
             crosserIndex,
           };
