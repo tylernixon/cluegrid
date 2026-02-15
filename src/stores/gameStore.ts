@@ -325,7 +325,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   targetWordLength: () => {
     const { puzzle, selectedTarget } = get();
-    if (selectedTarget === "main") return puzzle.mainWord.length;
+    if (selectedTarget === "main") return puzzle.mainWord.word.length;
     const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
     return crosser ? crosser.word.length : 5;
   },
