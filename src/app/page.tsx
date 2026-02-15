@@ -233,6 +233,8 @@ export default function Home() {
               solvedWords={solvedWords}
               onSelectTarget={selectTarget}
               mainGuessCount={guesses.filter((g) => g.targetId === "main").length}
+              theme={puzzle.theme}
+              themeHint={puzzle.themeHint}
             />
           </div>
         )}

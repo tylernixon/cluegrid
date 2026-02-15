@@ -11,6 +11,8 @@ interface ActiveCluePanelProps {
   solvedWords: Set<string>;
   onSelectTarget: (targetId: "main" | string) => void;
   mainGuessCount: number;
+  theme?: string;
+  themeHint?: string;
 }
 
 export function ActiveCluePanel({
@@ -19,6 +21,8 @@ export function ActiveCluePanel({
   solvedWords,
   onSelectTarget,
   mainGuessCount,
+  theme,
+  themeHint,
 }: ActiveCluePanelProps) {
   const isSolved = solvedWords.has(selectedTarget);
   const prefersReducedMotion = useReducedMotion();
@@ -91,23 +95,21 @@ export function ActiveCluePanel({
   // Get the active clue info
   const getClueInfo = () => {
     if (selectedTarget === "main") {
-      // Dynamic message based on game state
-      let clue: string;
-      if (mainGuessCount === 0 && solvedHintCount === 0) {
-        clue = "Guess now or swipe for hints";
-      } else if (mainGuessCount === 0 && solvedHintCount > 0 && unsolvedHintCount > 0) {
-        clue = "Use the revealed letters to guess, or swipe for the next hint";
-      } else if (mainGuessCount === 0 && solvedHintCount > 0) {
-        clue = "Use the revealed letters to guess";
-      } else if (unsolvedHintCount > 0) {
-        clue = "Keep guessing or swipe for hints";
-      } else {
-        clue = "All hints revealed — make your guess";
+      // Use theme as the main word clue, with themeHint as additional context
+      const mainClue = themeHint || theme || "Solve the hints to reveal letters";
+
+      // Add a hint note based on game state
+      let hintNote: string | null = null;
+      if (solvedHintCount === 0 && unsolvedHintCount > 0) {
+        hintNote = "Swipe for hints that reveal letters";
+      } else if (solvedHintCount > 0 && unsolvedHintCount > 0) {
+        hintNote = "Swipe for more hints";
       }
+
       return {
-        label: "Main Word",
-        clue,
-        hintNote: null as string | null,
+        label: theme ? `Theme: ${theme}` : "Main Word",
+        clue: mainClue,
+        hintNote,
       };
     }
     const crosser = crossers.find((c) => c.id === selectedTarget);
