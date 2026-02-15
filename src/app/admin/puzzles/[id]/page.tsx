@@ -145,8 +145,12 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
 
   // Grid preview
   const gridPreview = useMemo((): GridCell[][] => {
-    const grid: GridCell[][] = Array.from({ length: gridRows }, () =>
-      Array.from({ length: gridCols }, () => ({
+    // Safety check for valid dimensions
+    const safeRows = Math.max(1, gridRows || 5);
+    const safeCols = Math.max(1, gridCols || 5);
+
+    const grid: GridCell[][] = Array.from({ length: safeRows }, () =>
+      Array.from({ length: safeCols }, () => ({
         letter: '',
         isMainWord: false,
         isCrosser: false,
@@ -157,8 +161,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     const upperMain = mainWord.toUpperCase();
     for (let i = 0; i < upperMain.length; i++) {
       const col = mainWordCol + i;
-      if (mainWordRow >= 0 && mainWordRow < gridRows && col >= 0 && col < gridCols) {
-        grid[mainWordRow]![col] = {
+      if (mainWordRow >= 0 && mainWordRow < safeRows && col >= 0 && col < safeCols && grid[mainWordRow]) {
+        grid[mainWordRow][col] = {
           letter: upperMain[i] ?? '',
           isMainWord: true,
           isCrosser: false,
@@ -172,11 +176,11 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
       for (let i = 0; i < upperWord.length; i++) {
         const row = crosser.startRow + i;
         const col = crosser.startCol;
-        if (row >= 0 && row < gridRows && col >= 0 && col < gridCols) {
-          const existing = grid[row]![col]!;
-          grid[row]![col] = {
+        if (row >= 0 && row < safeRows && col >= 0 && col < safeCols && grid[row]) {
+          const existing = grid[row][col];
+          grid[row][col] = {
             letter: upperWord[i] ?? '',
-            isMainWord: existing.isMainWord,
+            isMainWord: existing?.isMainWord ?? false,
             isCrosser: true,
             crosserIndex,
           };
@@ -240,8 +244,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setError(null);
     setSuccess(null);
 
@@ -680,83 +684,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          {/* Submit */}
-          {isEditable && (
-            <div className="space-y-3">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
-              </button>
-              {originalStatus === 'draft' && (
-                <button
-                  type="button"
-                  onClick={() => handleStatusChange('published')}
-                  disabled={isSubmitting || !validation.valid}
-                  className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isSubmitting ? 'Publishing...' : 'Publish Puzzle'}
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Unpublish button for published puzzles */}
-          {!isEditable && originalStatus === 'published' && (
-            <button
-              type="button"
-              onClick={() => handleStatusChange('draft')}
-              disabled={isSubmitting}
-              className="w-full py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isSubmitting ? 'Unpublishing...' : 'Unpublish (Move to Draft)'}
-            </button>
-          )}
-
-          {/* Delete button - only for draft puzzles */}
-          {originalStatus === 'draft' && (
-            <div className="pt-4 border-t border-gray-200 mt-6">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={isSubmitting || isDeleting}
-                className="w-full py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                Delete Puzzle
-              </button>
-            </div>
-          )}
         </form>
-
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Puzzle?</h3>
-              <p className="text-gray-600 mb-4">
-                Are you sure you want to delete this puzzle ({mainWord})? This action cannot be undone.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={isDeleting}
-                  className="flex-1 py-2 px-4 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors"
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Preview */}
         <div className="space-y-6">
@@ -853,8 +781,86 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
               </div>
             )}
           </div>
+
+          {/* Action Buttons */}
+          <div className="bg-white p-6 rounded-lg border border-gray-200 space-y-3">
+            <h2 className="font-semibold text-gray-900 mb-4">Actions</h2>
+
+            {isEditable && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </button>
+                {originalStatus === 'draft' && (
+                  <button
+                    type="button"
+                    onClick={() => handleStatusChange('published')}
+                    disabled={isSubmitting || !validation.valid}
+                    className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isSubmitting ? 'Publishing...' : 'Publish Puzzle'}
+                  </button>
+                )}
+              </>
+            )}
+
+            {!isEditable && originalStatus === 'published' && (
+              <button
+                type="button"
+                onClick={() => handleStatusChange('draft')}
+                disabled={isSubmitting}
+                className="w-full py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isSubmitting ? 'Unpublishing...' : 'Unpublish (Move to Draft)'}
+              </button>
+            )}
+
+            {originalStatus === 'draft' && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isSubmitting || isDeleting}
+                className="w-full py-3 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-red-200"
+              >
+                Delete Puzzle
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Puzzle?</h3>
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to delete this puzzle ({mainWord})? This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 py-2 px-4 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
