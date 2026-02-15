@@ -14,6 +14,7 @@ import { Confetti } from "@/components/game/Confetti";
 import { Toast } from "@/components/ui/Toast";
 import { HeaderFeedback } from "@/components/game/HeaderFeedback";
 import { OnboardingModal } from "@/components/game/OnboardingModal";
+import { PresentLettersHint } from "@/components/game/PresentLettersHint";
 import { useGameStore } from "@/stores/gameStore";
 import { useStatsStore } from "@/stores/statsStore";
 import { useKeyboard } from "@/hooks/useKeyboard";
@@ -61,10 +62,12 @@ export default function Home() {
   const hintsUsed = useGameStore((s) => s.hintsUsed);
   const keyStatuses = useGameStore((s) => s.keyStatuses);
   const isSubmitting = useGameStore((s) => s.isSubmitting);
+  const presentLettersForTarget = useGameStore((s) => s.presentLettersForTarget);
 
   const remaining = guessesRemaining();
   const maxGuessesValue = maxGuesses();
   const keys = keyStatuses();
+  const presentLetters = presentLettersForTarget();
 
   const newBadges = useStatsStore((s) => s.newBadges);
   const clearNewBadges = useStatsStore((s) => s.clearNewBadges);
@@ -213,6 +216,7 @@ export default function Home() {
               currentGuess={currentGuess}
               shakeTarget={shakeTarget}
               isVictory={isVictory}
+              guesses={guesses}
               onSelectTarget={selectTarget}
             />
           )}
@@ -250,6 +254,9 @@ export default function Home() {
             <span>{hintsUsed}/{puzzle.crossers.length} hints</span>
           </div>
         )}
+
+        {/* Present letters hint - shows letters in word but wrong position */}
+        {!isLoading && isPlaying && <PresentLettersHint letters={presentLetters} />}
 
         {/* Keyboard */}
         <div className="pb-2 pb-[env(safe-area-inset-bottom)]">

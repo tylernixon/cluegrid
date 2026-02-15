@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Cell } from "./Cell";
-import type { PuzzleData, RevealedLetter } from "@/types";
+import type { PuzzleData, RevealedLetter, Guess } from "@/types";
 import { VICTORY_STAGGER_MS, EASE } from "@/lib/motion";
 
 interface GridProps {
@@ -14,12 +14,13 @@ interface GridProps {
   currentGuess: string;
   shakeTarget: string | null;
   isVictory?: boolean;
+  guesses: Guess[];
   onSelectTarget: (targetId: "main" | string) => void;
 }
 
 interface CellInfo {
   letter: string;
-  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "typing";
+  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "lockedCorrect" | "typing";
   belongsTo: ("main" | string)[];
   row: number;
   col: number;
@@ -39,6 +40,7 @@ export function Grid({
   currentGuess,
   shakeTarget,
   isVictory = false,
+  guesses,
   onSelectTarget,
 }: GridProps) {
   const [victoryAnimating, setVictoryAnimating] = useState(false);
@@ -134,8 +136,27 @@ export function Grid({
         Array.from({ length: safeCols }, () => null),
     );
 
+    // Build a map of locked correct positions from previous guesses
+    // (letters that got "correct" feedback but word not solved yet)
+    const lockedCorrectPositions = new Map<string, Map<number, string>>(); // targetId -> position -> letter
+    for (const guess of guesses) {
+      if (solvedWords.has(guess.targetId)) continue; // Skip if already solved
+      if (!lockedCorrectPositions.has(guess.targetId)) {
+        lockedCorrectPositions.set(guess.targetId, new Map());
+      }
+      const targetMap = lockedCorrectPositions.get(guess.targetId)!;
+      for (let i = 0; i < guess.feedback.length; i++) {
+        const fb = guess.feedback[i];
+        if (fb && fb.status === "correct") {
+          targetMap.set(i, fb.letter.toUpperCase());
+        }
+      }
+    }
+
     // Place main word cells
     const { row: mainRowIdx, col: mainCol, word: mainWord } = puzzle.mainWord;
+    const mainLockedCorrect = lockedCorrectPositions.get("main") ?? new Map();
+
     for (let i = 0; i < mainWord.length; i++) {
       const col = mainCol + i;
       if (mainRowIdx < 0 || mainRowIdx >= safeRows || col < 0 || col >= safeCols) continue;
@@ -143,10 +164,13 @@ export function Grid({
       const existing = cells[mainRowIdx][col];
       const belongsTo = existing ? [...existing.belongsTo, "main" as const] : ["main" as const];
 
-      // Check if this letter is revealed by a crosser solve
+      // Check if this letter is revealed by a crosser solve (intersection hint)
       const revealed = revealedLetters.find(
         (r) => r.row === mainRowIdx && r.col === col,
       );
+
+      // Check if this position is locked from a correct guess
+      const lockedFromGuess = mainLockedCorrect.get(i);
 
       // Check if main word is solved
       const mainSolved = solvedWords.has("main");
@@ -159,7 +183,10 @@ export function Grid({
         status = "correct";
       } else if (revealed) {
         letter = revealed.letter;
-        status = "revealed";
+        status = "revealed"; // Teal - hint from intersection
+      } else if (lockedFromGuess) {
+        letter = lockedFromGuess;
+        status = "lockedCorrect"; // Green - earned from your guess
       } else if (selectedTarget === "main" && currentGuess[i] && currentGuess[i] !== " ") {
         // Show current guess letter for main word (skip spaces which indicate unfilled)
         letter = currentGuess[i]!.toUpperCase();
@@ -173,6 +200,7 @@ export function Grid({
     for (const crosser of puzzle.crossers) {
       const isSolved = solvedWords.has(crosser.id);
       const isActiveTarget = selectedTarget === crosser.id;
+      const crosserLockedCorrect = lockedCorrectPositions.get(crosser.id) ?? new Map();
 
       for (let i = 0; i < crosser.word.length; i++) {
         const row = crosser.startRow + i;
@@ -184,11 +212,14 @@ export function Grid({
           ? [...existing.belongsTo, crosser.id]
           : [crosser.id];
 
-        // If cell already has data (intersection with solved/revealed/typing letter), preserve it
-        if (existing && existing.letter && (existing.status === "correct" || existing.status === "revealed" || existing.status === "typing")) {
+        // If cell already has data (intersection with solved/revealed/lockedCorrect/typing letter), preserve it
+        if (existing && existing.letter && (existing.status === "correct" || existing.status === "revealed" || existing.status === "lockedCorrect" || existing.status === "typing")) {
           cells[row][col] = { ...existing, belongsTo };
           continue;
         }
+
+        // Check if this position is locked from a correct guess
+        const lockedFromGuess = crosserLockedCorrect.get(i);
 
         let letter = "";
         let status: CellInfo["status"] = "empty";
@@ -196,6 +227,9 @@ export function Grid({
         if (isSolved) {
           letter = crosser.word[i]!;
           status = "correct";
+        } else if (lockedFromGuess) {
+          letter = lockedFromGuess;
+          status = "lockedCorrect"; // Green - earned from your guess
         } else if (isActiveTarget && currentGuess[i] && currentGuess[i] !== " ") {
           // Show current guess letter for this crosser (skip spaces which indicate unfilled)
           letter = currentGuess[i]!.toUpperCase();
@@ -207,7 +241,7 @@ export function Grid({
     }
 
     return cells;
-  }, [puzzle, revealedLetters, solvedWords, selectedTarget, currentGuess]);
+  }, [puzzle, revealedLetters, solvedWords, selectedTarget, currentGuess, guesses]);
 
   // Build a flat list of navigable cells for keyboard navigation
   const navigableCells = useMemo(() => {

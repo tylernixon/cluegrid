@@ -5,7 +5,7 @@ import { TIMING, EASE } from "@/lib/motion";
 
 interface CellProps {
   letter: string;
-  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "typing";
+  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "lockedCorrect" | "typing";
   isSelected: boolean;
   isMainWordRow: boolean;
   animate?: "pop" | "shake" | "bounce" | "settle" | "glow" | "reveal" | "solvedLock" | null;
@@ -25,7 +25,11 @@ const statusClasses: Record<string, string> = {
   correct: "bg-correct dark:bg-correct-dark border-correct dark:border-correct-dark text-white",
   present: "bg-present dark:bg-present-dark border-present dark:border-present-dark text-white",
   absent: "bg-absent dark:bg-absent-dark border-absent dark:border-absent-dark text-white",
+  // Revealed letters from intersections - teal shade to indicate "given as hint"
   revealed:
+    "bg-revealed dark:bg-revealed-dark border-revealed dark:border-revealed-dark text-white",
+  // Locked correct - letters you got right from your own guesses (same as correct, they earned it)
+  lockedCorrect:
     "bg-correct dark:bg-correct-dark border-correct dark:border-correct-dark text-white",
   typing:
     "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-ink dark:text-ink-dark",

@@ -279,6 +279,7 @@ interface GameStore {
   guessesForTarget: (targetId: "main" | string) => Guess[];
   starRating: () => StarRating;
   lockedPositions: () => Map<number, string>; // position -> letter for current target
+  presentLettersForTarget: () => string[]; // letters in word but wrong position (yellow)
 
   // Actions
   fetchPuzzle: () => Promise<void>;
@@ -390,7 +391,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   lockedPositions: () => {
-    const { puzzle, selectedTarget, revealedLetters } = get();
+    const { puzzle, selectedTarget, revealedLetters, guesses } = get();
     const locked = new Map<number, string>();
 
     if (selectedTarget === "main") {
@@ -420,7 +421,44 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
+    // Also lock positions from previous guesses that got "correct" feedback
+    const targetGuesses = guesses.filter((g) => g.targetId === selectedTarget);
+    for (const guess of targetGuesses) {
+      for (let i = 0; i < guess.feedback.length; i++) {
+        const fb = guess.feedback[i];
+        if (fb && fb.status === "correct") {
+          locked.set(i, fb.letter.toUpperCase());
+        }
+      }
+    }
+
     return locked;
+  },
+
+  // Get letters that are in the word but in wrong position (yellow/present)
+  presentLettersForTarget: () => {
+    const { selectedTarget, guesses } = get();
+    const present = new Set<string>();
+    const correctLetters = new Set<string>();
+
+    const targetGuesses = guesses.filter((g) => g.targetId === selectedTarget);
+    for (const guess of targetGuesses) {
+      for (const fb of guess.feedback) {
+        if (fb.status === "present") {
+          present.add(fb.letter.toUpperCase());
+        }
+        if (fb.status === "correct") {
+          correctLetters.add(fb.letter.toUpperCase());
+        }
+      }
+    }
+
+    // Remove letters that have been found in correct positions
+    // (unless they appear multiple times in the answer)
+    // For simplicity, we keep showing present letters even if one instance is correct
+    // This helps when a letter appears multiple times
+
+    return Array.from(present).sort();
   },
 
   // -----------------------------------------------------------------------
@@ -459,9 +497,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const session = loadSession(puzzle.id);
 
       if (session) {
-        // Compute pre-filled currentGuess with locked letters from revealed letters
+        // Compute pre-filled currentGuess with locked letters from revealed letters AND correct feedback
         const selectedTarget = session.selectedTarget ?? "main";
         const revealedLetters = session.revealedLetters ?? [];
+        const sessionGuesses = session.guesses ?? [];
         const locked = new Map<number, string>();
         let targetLength = 5;
 
@@ -492,6 +531,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
           }
         }
 
+        // Also lock positions from previous guesses that got "correct" feedback
+        const targetGuesses = sessionGuesses.filter((g) => g.targetId === selectedTarget);
+        for (const guess of targetGuesses) {
+          for (let i = 0; i < guess.feedback.length; i++) {
+            const fb = guess.feedback[i];
+            if (fb && fb.status === "correct") {
+              locked.set(i, fb.letter.toUpperCase());
+            }
+          }
+        }
+
         // Build initial guess with locked letters pre-filled
         const initialGuess = Array.from({ length: targetLength }, (_, i) =>
           locked.has(i) ? locked.get(i)! : " "
@@ -499,7 +549,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         set({
           puzzle,
-          guesses: session.guesses ?? [],
+          guesses: sessionGuesses,
           currentGuess: initialGuess,
           selectedTarget,
           solvedWords: new Set(session.solvedWords ?? []),
@@ -536,9 +586,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const session = loadSession(MOCK_PUZZLE.id);
 
       if (session) {
-        // Compute pre-filled currentGuess with locked letters from revealed letters
+        // Compute pre-filled currentGuess with locked letters from revealed letters AND correct feedback
         const selectedTarget = session.selectedTarget ?? "main";
         const revealedLetters = session.revealedLetters ?? [];
+        const sessionGuesses = session.guesses ?? [];
         const locked = new Map<number, string>();
         let targetLength = 5;
 
@@ -569,6 +620,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
           }
         }
 
+        // Also lock positions from previous guesses that got "correct" feedback
+        const targetGuesses = sessionGuesses.filter((g) => g.targetId === selectedTarget);
+        for (const guess of targetGuesses) {
+          for (let i = 0; i < guess.feedback.length; i++) {
+            const fb = guess.feedback[i];
+            if (fb && fb.status === "correct") {
+              locked.set(i, fb.letter.toUpperCase());
+            }
+          }
+        }
+
         // Build initial guess with locked letters pre-filled
         const initialGuess = Array.from({ length: targetLength }, (_, i) =>
           locked.has(i) ? locked.get(i)! : " "
@@ -576,7 +638,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         set({
           puzzle: MOCK_PUZZLE,
-          guesses: session.guesses ?? [],
+          guesses: sessionGuesses,
           currentGuess: initialGuess,
           selectedTarget,
           solvedWords: new Set(session.solvedWords ?? []),
@@ -895,7 +957,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newSelectedTarget = "main";
     }
 
-    // Compute pre-filled guess for the new target (with locked letters from revealed)
+    // Compute pre-filled guess for the new target (with locked letters from revealed + correct feedback)
     let newCurrentGuess = "";
     if (newStatus === "playing") {
       const locked = new Map<number, string>();
@@ -924,6 +986,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 locked.set(position, rl.letter.toUpperCase());
               }
             }
+          }
+        }
+      }
+
+      // Also lock positions from previous guesses (including the one just submitted) that got "correct" feedback
+      const targetGuesses = newGuesses.filter((g) => g.targetId === newSelectedTarget);
+      for (const g of targetGuesses) {
+        for (let i = 0; i < g.feedback.length; i++) {
+          const fb = g.feedback[i];
+          if (fb && fb.status === "correct") {
+            locked.set(i, fb.letter.toUpperCase());
           }
         }
       }
@@ -976,14 +1049,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   selectTarget: (targetId: "main" | string) => {
-    const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters } = get();
+    const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters, guesses } = get();
 
     if (isLoading) return;
     if (status !== "playing") return;
     if (solvedWords.has(targetId)) return;
     if (targetId === selectedTarget) return;
 
-    // Compute locked positions for the new target
+    // Compute locked positions for the new target (revealed letters + correct feedback)
     const locked = new Map<number, string>();
     let targetLength = 5;
 
@@ -1010,6 +1083,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
               locked.set(position, rl.letter.toUpperCase());
             }
           }
+        }
+      }
+    }
+
+    // Also lock positions from previous guesses that got "correct" feedback
+    const targetGuesses = guesses.filter((g) => g.targetId === targetId);
+    for (const guess of targetGuesses) {
+      for (let i = 0; i < guess.feedback.length; i++) {
+        const fb = guess.feedback[i];
+        if (fb && fb.status === "correct") {
+          locked.set(i, fb.letter.toUpperCase());
         }
       }
     }
