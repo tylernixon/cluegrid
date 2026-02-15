@@ -22,8 +22,8 @@ export async function GET(
     {
       status: 200,
       headers: {
-        // Cache for 24 hours since puzzles are daily
-        'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600',
+        // Cache for 5 minutes, revalidates on publish via revalidatePath
+        'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60',
       },
     },
   );

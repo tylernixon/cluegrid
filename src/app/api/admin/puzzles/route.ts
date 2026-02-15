@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
 // Use service role for admin operations
 function getServiceClient() {
@@ -118,6 +119,13 @@ export async function POST(request: Request) {
       .insert(crossersToInsert);
 
     if (crossersError) throw crossersError;
+
+    // Revalidate cache for this puzzle date so it appears immediately
+    if (status === "published") {
+      revalidatePath(`/api/puzzle/${puzzle.date}`);
+      revalidatePath("/api/puzzle/today");
+      revalidatePath("/");
+    }
 
     return NextResponse.json({
       success: true,
