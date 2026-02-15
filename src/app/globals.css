@@ -131,6 +131,15 @@
 }
 
 @layer utilities {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Minimum touch target size (44x44px per WCAG 2.5.8) */
   .touch-target {
     min-width: 44px;

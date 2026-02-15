@@ -27,14 +27,20 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
-          "var(--font-dm-sans)",
+          "var(--font-ibm-plex-sans)",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",
           "sans-serif",
         ],
+        serif: [
+          "var(--font-ibm-plex-serif)",
+          "Georgia",
+          "Times New Roman",
+          "serif",
+        ],
         mono: [
-          "var(--font-dm-mono)",
+          "var(--font-ibm-plex-mono)",
           "SF Mono",
           "Cascadia Code",
           "monospace",

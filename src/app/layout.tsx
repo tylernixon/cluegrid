@@ -1,20 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, DM_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Serif, IBM_Plex_Mono } from "next/font/google";
 import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import "./globals.css";
 
-const dmSans = DM_Sans({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-dm-sans",
+  variable: "--font-ibm-plex-sans",
 });
 
-const dmMono = DM_Mono({
+const ibmPlexSerif = IBM_Plex_Serif({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "600"],
   display: "swap",
-  variable: "--font-dm-mono",
+  variable: "--font-ibm-plex-serif",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-ibm-plex-mono",
 });
 
 const siteUrl = "https://cluegrid.com";
@@ -110,7 +118,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${ibmPlexSans.variable} ${ibmPlexSerif.variable} ${ibmPlexMono.variable}`}>
       <body className="font-sans">
         <AnalyticsProvider>
           {children}

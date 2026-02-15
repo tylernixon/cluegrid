@@ -217,7 +217,7 @@ export function ActiveCluePanel({
           </div>
 
           {/* Clue text */}
-          <p className="text-body text-ink dark:text-ink-dark text-center">
+          <p className="text-body font-serif text-ink dark:text-ink-dark text-center italic">
             {clueInfo.clue}
           </p>
 

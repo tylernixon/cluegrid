@@ -89,7 +89,7 @@ export function BadgeDisplay({ earnedBadges }: BadgeDisplayProps) {
   const earnedMap = new Map(earnedBadges.map((b) => [b.id, b]));
 
   return (
-    <div className="overflow-x-auto -mx-4 px-4 pb-2">
+    <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
       <div className="flex gap-3" style={{ minWidth: "max-content" }}>
         {ALL_BADGE_IDS.map((id) => {
           const def = BADGE_DEFINITIONS[id];
