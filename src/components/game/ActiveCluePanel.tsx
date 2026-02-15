@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence, type PanInfo } from "framer-motion";
 import type { CrosserData } from "@/types";
 import { TIMING, EASE } from "@/lib/motion";
@@ -21,13 +21,6 @@ export function ActiveCluePanel({
   const isSolved = solvedWords.has(selectedTarget);
   const prefersReducedMotion = useReducedMotion();
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
-  const [showSwipeHint, setShowSwipeHint] = useState(true);
-
-  // Hide swipe hint after 3.5 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSwipeHint(false), 3500);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Build list of all navigable targets (crossers + main)
   const allTargets: ("main" | string)[] = [...crossers.map((c) => c.id), "main"];
@@ -132,29 +125,6 @@ export function ActiveCluePanel({
       dragElastic={0.2}
       onDragEnd={handleDragEnd}
     >
-      {/* Swipe hint - centered pill with blur, fades out after 3.5s */}
-      <AnimatePresence>
-        {showSwipeHint && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
-          >
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-ink/10 dark:bg-white/10 backdrop-blur-md text-ink-secondary dark:text-ink-secondary-dark">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-              <span className="text-sm font-medium">swipe</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Card content with animation */}
       <AnimatePresence mode="wait" custom={swipeDirection}>
         <motion.div
