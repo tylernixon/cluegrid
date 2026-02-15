@@ -126,8 +126,18 @@ export async function POST(request: Request) {
     }
 
     // Calculate grid size based on puzzle
-    const maxCrosserLength = Math.max(...puzzle.crossers.map((c: { word: string }) => c.word.length));
-    const gridRows = maxCrosserLength + 2;
+    // Need to account for crossers extending ABOVE and BELOW the main word row
+    const crossersWithMetrics = puzzle.crossers.map((c: { word: string; intersectionIndex: number }) => ({
+      lettersAbove: c.intersectionIndex,  // letters above main word
+      lettersBelow: c.word.length - c.intersectionIndex - 1,  // letters below main word
+    }));
+
+    const maxAbove = Math.max(...crossersWithMetrics.map((c: { lettersAbove: number }) => c.lettersAbove));
+    const maxBelow = Math.max(...crossersWithMetrics.map((c: { lettersBelow: number }) => c.lettersBelow));
+
+    // Grid needs: rows above + main word row + rows below + padding
+    const gridRows = maxAbove + 1 + maxBelow + 2;  // +2 for padding
+    const mainWordRow = maxAbove + 1;  // Position main word so all crossers fit above
     const gridCols = puzzle.mainWord.length;
 
     // Insert puzzle
@@ -136,7 +146,7 @@ export async function POST(request: Request) {
       .insert({
         puzzle_date: puzzle.date,
         main_word: puzzle.mainWord,
-        main_word_row: Math.floor(gridRows / 2),
+        main_word_row: mainWordRow,
         main_word_col: 0,
         grid_rows: gridRows,
         grid_cols: gridCols,
@@ -160,7 +170,7 @@ export async function POST(request: Request) {
       word: crosser.word,
       clue: crosser.clue,
       direction: "down",
-      start_row: Math.floor(gridRows / 2) - crosser.intersectionIndex,
+      start_row: mainWordRow - crosser.intersectionIndex,
       start_col: crosser.position,
       intersection_index: crosser.intersectionIndex,
       display_order: index + 1,

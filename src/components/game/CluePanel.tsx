@@ -273,55 +273,15 @@ export function CluePanel({
         Solve the clues to reveal the main word.
       </p>
 
-      {/* Mobile: Show active clue only with expand toggle */}
+      {/* Mobile: Show expand toggle only (active clue is shown in ActiveCluePanel) */}
       {isMobile && !isExpanded && (
-        <div className="space-y-2">
-          {/* Active clue display */}
-          <div className="bg-surface-raised dark:bg-surface-raised-dark rounded-lg px-3 py-2 border-l-2 border-accent dark:border-accent-dark">
-            {isMainSelected ? (
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-mono text-caption text-accent dark:text-accent-dark">*</span>
-                  <span className="text-[10px] uppercase tracking-wider text-ink-tertiary dark:text-ink-tertiary-dark font-medium">
-                    Across
-                  </span>
-                  <span className="text-[10px] text-ink-tertiary dark:text-ink-tertiary-dark">
-                    ({mainWordLength})
-                  </span>
-                </div>
-                <p className="text-body-small italic text-ink-secondary dark:text-ink-secondary-dark">
-                  Main word - deduce from crossing clues
-                </p>
-              </div>
-            ) : activeClue ? (
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-mono text-caption text-accent dark:text-accent-dark">
-                    {activeClueIndex + 1}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-wider text-ink-tertiary dark:text-ink-tertiary-dark font-medium">
-                    Down
-                  </span>
-                  <span className="text-[10px] text-ink-tertiary dark:text-ink-tertiary-dark">
-                    ({activeClue.word.length})
-                  </span>
-                </div>
-                <p className="text-body-small text-ink dark:text-ink-dark font-medium">
-                  {activeClue.clue}
-                </p>
-              </div>
-            ) : null}
-          </div>
-
-          {/* Expand toggle */}
-          <button
-            type="button"
-            onClick={() => setIsExpanded(true)}
-            className={`w-full text-center text-caption text-accent dark:text-accent-dark py-2 hover:bg-surface-raised dark:hover:bg-surface-raised-dark rounded-lg transition-colors ${focusClass}`}
-          >
-            Show all clues
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setIsExpanded(true)}
+          className={`w-full text-center text-caption text-accent dark:text-accent-dark py-2 hover:bg-surface-raised dark:hover:bg-surface-raised-dark rounded-lg transition-colors ${focusClass}`}
+        >
+          Show all clues
+        </button>
       )}
 
       {/* Desktop or expanded mobile: Show all clues */}
