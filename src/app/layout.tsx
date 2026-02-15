@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   creator: "gist",
   metadataBase: new URL(siteUrl),
 
-  // Open Graph
+  // Open Graph (images auto-generated via opengraph-image.tsx)
   openGraph: {
     title: siteName,
     description: siteDescription,
@@ -57,22 +57,13 @@ export const metadata: Metadata = {
     siteName: siteName,
     locale: "en_US",
     type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "gist - A daily word puzzle",
-      },
-    ],
   },
 
-  // Twitter Card
+  // Twitter Card (images auto-generated via twitter-image.tsx)
   twitter: {
     card: "summary_large_image",
     title: siteName,
     description: siteDescription,
-    images: ["/og-image.png"],
     creator: "@gaborning",
   },
 
