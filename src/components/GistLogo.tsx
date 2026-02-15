@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Using game feedback colors: green (correct), yellow (present), gray (absent)
 const LETTERS = [
-  { char: "g", color: "#4A8B8D" },
-  { char: "i", color: "#D97B5D" },
-  { char: "s", color: "#E8B84A" },
-  { char: "t", color: "#3D5A5E" },
+  { char: "g", color: "#4A8B6E" },  // correct (green)
+  { char: "i", color: "#C4944A" },  // present (yellow)
+  { char: "s", color: "#B8B0A6" },  // absent (gray)
+  { char: "t", color: "#4A8B6E" },  // correct (green)
 ];
 
 // Characters to cycle through for the slot-machine effect

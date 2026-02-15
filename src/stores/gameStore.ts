@@ -339,10 +339,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   keyStatuses: () => {
     const statuses: Record<string, KeyStatus> = {};
-    const { guesses } = get();
+    const { guesses, selectedTarget } = get();
     for (const guess of guesses) {
-      // Only track key statuses from main-word guesses to avoid confusion
-      if (guess.targetId !== "main") continue;
+      // Show key statuses for the currently selected target
+      // This makes keyboard feedback contextual (crosser vs main word)
+      if (guess.targetId !== selectedTarget) continue;
       for (const fb of guess.feedback) {
         const key = fb.letter;
         const current = statuses[key] ?? "unused";

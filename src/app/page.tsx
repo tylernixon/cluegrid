@@ -12,7 +12,7 @@ import { SettingsModal } from "@/components/game/SettingsModal";
 import { BadgeNotification } from "@/components/game/BadgeNotification";
 import { Confetti } from "@/components/game/Confetti";
 import { Toast } from "@/components/ui/Toast";
-import { GistLogo } from "@/components/GistLogo";
+import { HeaderFeedback } from "@/components/game/HeaderFeedback";
 import { OnboardingModal } from "@/components/game/OnboardingModal";
 import { useGameStore } from "@/stores/gameStore";
 import { useStatsStore } from "@/stores/statsStore";
@@ -171,7 +171,7 @@ export default function Home() {
           </svg>
         </button>
 
-        <GistLogo />
+        <HeaderFeedback guesses={guesses} selectedTarget={selectedTarget} />
 
         {/* Stats button */}
         <button
