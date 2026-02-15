@@ -31,7 +31,7 @@ const validatedWords = new Set<string>();
 
 // Validate word against Supabase dictionary
 async function validateWord(word: string): Promise<boolean> {
-  const normalized = word.toUpperCase();
+  const normalized = word.trim().toUpperCase();
 
   // Check cache first
   if (validatedWords.has(normalized)) {
@@ -61,9 +61,9 @@ async function validateWord(word: string): Promise<boolean> {
 
 // Pre-add puzzle answers to validation cache
 function addPuzzleWordsToCache(mainWord: string, crossers: Array<{ word: string }>) {
-  validatedWords.add(mainWord.toUpperCase());
+  validatedWords.add(mainWord.trim().toUpperCase());
   for (const c of crossers) {
-    validatedWords.add(c.word.toUpperCase());
+    validatedWords.add(c.word.trim().toUpperCase());
   }
 }
 
@@ -518,7 +518,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const requiredLength = state.targetWordLength();
-    const guess = state.currentGuess.toUpperCase();
+    // Trim and uppercase guess immediately - use this clean value throughout
+    const guess = state.currentGuess.trim().toUpperCase();
 
     // Check length
     if (guess.length < requiredLength) {
@@ -533,19 +534,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    // Get the target answer directly from captured state (avoid calling get() again)
+    // Get the target answer directly from captured state
     const answer = (
       state.selectedTarget === "main"
         ? state.puzzle.mainWord.word
         : state.puzzle.crossers.find((c) => c.id === state.selectedTarget)?.word ?? ""
-    ).toUpperCase().trim();
+    ).trim().toUpperCase();
 
     // Debug: log comparison (remove after fixing)
-    console.log("Guess comparison:", { guess: guess.trim(), answer, match: guess.trim() === answer });
+    console.log("Guess comparison:", { guess, answer, match: guess === answer });
 
     // If the guess matches the answer, skip dictionary validation
     // (handles words not in dictionary but valid as puzzle answers)
-    if (guess.trim() !== answer) {
+    if (guess !== answer) {
       // Validate word against dictionary
       const isValid = await validateWord(guess);
       if (!isValid) {
@@ -554,8 +555,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         return;
       }
     }
-    const feedback = computeFeedback(guess.trim(), answer);
-    const solved = guess.trim() === answer;
+    const feedback = computeFeedback(guess, answer);
+    const solved = guess === answer;
 
     const newGuess: Guess = {
       word: guess,
