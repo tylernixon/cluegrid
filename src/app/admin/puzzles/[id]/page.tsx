@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { validatePuzzleIntersections } from '@/lib/puzzle';
 
 // ---------------------------------------------------------------------------
@@ -44,6 +45,7 @@ interface GridCell {
 // ---------------------------------------------------------------------------
 export default function EditPuzzlePage({ params }: { params: { id: string } }) {
   const puzzleId = params.id;
+  const router = useRouter();
 
   // Form state
   const [date, setDate] = useState('');
@@ -62,6 +64,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
   // UI state
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isEditable, setIsEditable] = useState(true);
@@ -306,6 +310,34 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
       console.error(err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setError(null);
+    setIsDeleting(true);
+
+    try {
+      const res = await fetch(`/api/admin/puzzles/${puzzleId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Failed to delete puzzle');
+        setShowDeleteConfirm(false);
+        return;
+      }
+
+      // Redirect to list after successful deletion
+      router.push('/admin/puzzles/list');
+    } catch (err) {
+      setError('Network error. Please try again.');
+      console.error(err);
+      setShowDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -682,7 +714,49 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
               {isSubmitting ? 'Unpublishing...' : 'Unpublish (Move to Draft)'}
             </button>
           )}
+
+          {/* Delete button - only for draft puzzles */}
+          {originalStatus === 'draft' && (
+            <div className="pt-4 border-t border-gray-200 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={isSubmitting || isDeleting}
+                className="w-full py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Delete Puzzle
+              </button>
+            </div>
+          )}
         </form>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Puzzle?</h3>
+              <p className="text-gray-600 mb-4">
+                Are you sure you want to delete this puzzle ({mainWord})? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="flex-1 py-2 px-4 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="flex-1 py-2 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 transition-colors"
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Preview */}
         <div className="space-y-6">
