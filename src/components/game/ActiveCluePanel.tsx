@@ -163,22 +163,17 @@ export function ActiveCluePanel({
     "w-10 h-10 flex items-center justify-center rounded-full text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface dark:hover:bg-surface-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark";
 
   // Animation variants for card content
-  const contentVariants = prefersReducedMotion
-    ? {}
-    : {
-        initial: (direction: "left" | "right" | null) => ({
-          opacity: 0,
-          x: direction === "left" ? 30 : direction === "right" ? -30 : 0,
-        }),
-        animate: {
-          opacity: 1,
-          x: 0,
-        },
-        exit: (direction: "left" | "right" | null) => ({
-          opacity: 0,
-          x: direction === "left" ? -30 : direction === "right" ? 30 : 0,
-        }),
-      };
+  const contentVariants = {
+    initial: (direction: "left" | "right" | null) =>
+      prefersReducedMotion
+        ? { opacity: 1, x: 0 }
+        : { opacity: 0, x: direction === "left" ? 30 : direction === "right" ? -30 : 0 },
+    animate: { opacity: 1, x: 0 },
+    exit: (direction: "left" | "right" | null) =>
+      prefersReducedMotion
+        ? { opacity: 1, x: 0 }
+        : { opacity: 0, x: direction === "left" ? -30 : direction === "right" ? 30 : 0 },
+  };
 
   return (
     <motion.div
