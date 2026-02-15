@@ -28,7 +28,7 @@ export function requireAdmin(request: Request): NextResponse | null {
       { error: 'UNAUTHORIZED', message: 'Missing or invalid Authorization header' },
       {
         status: 401,
-        headers: { 'WWW-Authenticate': 'Basic realm="Cluegrid Admin"' },
+        headers: { 'WWW-Authenticate': 'Basic realm="gist Admin"' },
       },
     );
   }

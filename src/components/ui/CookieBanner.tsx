@@ -79,7 +79,7 @@ export function CookieBanner() {
               id="cookie-banner-description"
               className="text-body-small text-ink dark:text-ink-dark mb-4"
             >
-              We use analytics to understand how players enjoy Cluegrid and
+              We use analytics to understand how players enjoy gist and
               improve the experience. No personal data is collected.
             </p>
 

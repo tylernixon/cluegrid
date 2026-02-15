@@ -32,7 +32,7 @@ export function middleware(request: NextRequest) {
     return new NextResponse('Authentication required', {
       status: 401,
       headers: {
-        'WWW-Authenticate': 'Basic realm="Cluegrid Admin"',
+        'WWW-Authenticate': 'Basic realm="gist Admin"',
       },
     });
   }
@@ -46,7 +46,7 @@ export function middleware(request: NextRequest) {
     return new NextResponse('Invalid credentials encoding', {
       status: 401,
       headers: {
-        'WWW-Authenticate': 'Basic realm="Cluegrid Admin"',
+        'WWW-Authenticate': 'Basic realm="gist Admin"',
       },
     });
   }
@@ -56,7 +56,7 @@ export function middleware(request: NextRequest) {
     return new NextResponse('Invalid credentials format', {
       status: 401,
       headers: {
-        'WWW-Authenticate': 'Basic realm="Cluegrid Admin"',
+        'WWW-Authenticate': 'Basic realm="gist Admin"',
       },
     });
   }
@@ -68,7 +68,7 @@ export function middleware(request: NextRequest) {
     return new NextResponse('Invalid credentials', {
       status: 401,
       headers: {
-        'WWW-Authenticate': 'Basic realm="Cluegrid Admin"',
+        'WWW-Authenticate': 'Basic realm="gist Admin"',
       },
     });
   }

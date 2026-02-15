@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Admin | Cluegrid',
-  description: 'Cluegrid puzzle administration',
+  title: 'Admin | gist',
+  description: 'gist puzzle administration',
   robots: 'noindex, nofollow',
 };
 
@@ -23,7 +23,7 @@ export default function AdminLayout({
                 href="/admin"
                 className="text-lg font-semibold text-gray-900"
               >
-                Cluegrid Admin
+                gist Admin
               </Link>
               <nav className="hidden sm:flex items-center gap-4">
                 <Link

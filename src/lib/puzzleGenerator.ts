@@ -1,6 +1,6 @@
 /**
  * AI-powered puzzle generator using Claude API
- * Generates complete Cluegrid puzzles with themed crossers and clever clues
+ * Generates complete gist puzzles with themed crossers and clever clues
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -305,7 +305,7 @@ async function generateClues(
         ? "Be direct and evocative. Use vivid sensory language."
         : "Balance directness with a small creative leap.";
 
-  const prompt = `You are a puzzle clue writer for Cluegrid, a word puzzle game.
+  const prompt = `You are a puzzle clue writer for gist, a word puzzle game.
 
 MAIN WORD: ${mainWord}
 THEME: ${theme}
@@ -517,7 +517,7 @@ function buildCrossersPrompt(
   const upper = mainWord.toUpperCase();
   const letterList = upper.split('').map((l, i) => `  Position ${i}: "${l}"`).join('\n');
 
-  return `You are a crossword puzzle designer for a word game called Cluegrid.
+  return `You are a crossword puzzle designer for a word game called gist.
 
 The main word is "${upper}" which is placed HORIZONTALLY on the grid. It has these letters:
 ${letterList}
@@ -563,7 +563,7 @@ function buildFullPuzzlePrompt(
   difficulty: string,
   guidance: string,
 ): string {
-  return `You are a crossword puzzle designer for a word game called Cluegrid.
+  return `You are a crossword puzzle designer for a word game called gist.
 
 Create a complete puzzle with the theme: "${theme}"
 

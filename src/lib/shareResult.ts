@@ -102,7 +102,7 @@ function generateCrosswordGrid(
 
 /**
  * Generate a shareable text result for the completed game
- * Distinctive Cluegrid format with crossword-style grid
+ * Distinctive gist format with crossword-style grid
  */
 export function generateShareResult(
   puzzle: PuzzleData,
@@ -131,12 +131,12 @@ export function generateShareResult(
 
   // Build the share text with distinctive formatting
   const lines: string[] = [
-    `Cluegrid ${puzzle.date}`,
+    `gist ${puzzle.date}`,
     "",
     gridVisual,
     "",
     `${starDisplay} | Guesses: ${scoreDisplay} | Hints: ${hintsUsed}/${totalCrossers}`,
-    "cluegrid.com",
+    "gist.ing",
   ];
 
   return lines.join("\n");
