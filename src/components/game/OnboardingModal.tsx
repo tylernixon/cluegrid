@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
+import { GistLogo } from "@/components/GistLogo";
 
 interface OnboardingModalProps {
   open: boolean;
@@ -153,11 +154,8 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
               {/* Slide 0: Welcome */}
               {currentSlide === 0 && (
                 <div className="text-center">
-                  <div className="flex gap-1 justify-center mb-6">
-                    <DemoCell letter="g" status="correct" />
-                    <DemoCell letter="i" status="present" />
-                    <DemoCell letter="s" status="present" />
-                    <DemoCell letter="t" status="correct" />
+                  <div className="flex justify-center mb-6 scale-150">
+                    <GistLogo />
                   </div>
                   <h2 className="text-heading-2 text-ink dark:text-ink-dark mb-2">
                     {slides[0]?.title}
@@ -247,8 +245,10 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
               {/* Slide 3: Ready to play */}
               {currentSlide === 3 && (
                 <div className="text-center">
-                  <div className="mb-6 text-6xl">
-                    🎯
+                  <div className="flex gap-1 justify-center mb-6">
+                    <DemoCell letter="C" status="correct" />
+                    <DemoCell letter="A" status="correct" />
+                    <DemoCell letter="T" status="correct" />
                   </div>
                   <h2 className="text-heading-2 text-ink dark:text-ink-dark mb-2">
                     {slides[3]?.title}
@@ -287,7 +287,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                 onClick={() => goToSlide(i)}
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
                   i === currentSlide
-                    ? "bg-accent dark:bg-accent-dark w-4"
+                    ? "bg-correct dark:bg-correct-dark w-4"
                     : "bg-border-active dark:bg-border-active-dark hover:bg-ink-tertiary dark:hover:bg-ink-tertiary-dark"
                 }`}
                 aria-label={`Go to slide ${i + 1}`}
@@ -299,7 +299,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
           <button
             type="button"
             onClick={currentSlide === slides.length - 1 ? handleComplete : () => goToSlide(currentSlide + 1)}
-            className="w-full py-3 bg-accent dark:bg-accent-dark text-white rounded-lg font-semibold text-body hover:opacity-90 transition-opacity active:scale-[0.98]"
+            className="w-full py-3 bg-correct dark:bg-correct-dark text-white rounded-lg font-semibold text-body hover:opacity-90 transition-opacity active:scale-[0.98]"
           >
             {currentSlide === slides.length - 1 ? "Let's Play" : "Next"}
           </button>
