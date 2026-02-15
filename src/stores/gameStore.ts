@@ -459,13 +459,51 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const session = loadSession(puzzle.id);
 
       if (session) {
+        // Compute pre-filled currentGuess with locked letters from revealed letters
+        const selectedTarget = session.selectedTarget ?? "main";
+        const revealedLetters = session.revealedLetters ?? [];
+        const locked = new Map<number, string>();
+        let targetLength = 5;
+
+        if (selectedTarget === "main") {
+          targetLength = puzzle.mainWord.word.length;
+          const mainRow = puzzle.mainWord.row;
+          const mainCol = puzzle.mainWord.col;
+          for (const rl of revealedLetters) {
+            if (rl.row === mainRow) {
+              const position = rl.col - mainCol;
+              if (position >= 0 && position < targetLength) {
+                locked.set(position, rl.letter.toUpperCase());
+              }
+            }
+          }
+        } else {
+          const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
+          if (crosser) {
+            targetLength = crosser.word.length;
+            for (const rl of revealedLetters) {
+              if (rl.col === crosser.startCol) {
+                const position = rl.row - crosser.startRow;
+                if (position >= 0 && position < targetLength) {
+                  locked.set(position, rl.letter.toUpperCase());
+                }
+              }
+            }
+          }
+        }
+
+        // Build initial guess with locked letters pre-filled
+        const initialGuess = Array.from({ length: targetLength }, (_, i) =>
+          locked.has(i) ? locked.get(i)! : " "
+        ).join("");
+
         set({
           puzzle,
           guesses: session.guesses ?? [],
-          currentGuess: "",
-          selectedTarget: session.selectedTarget ?? "main",
+          currentGuess: initialGuess,
+          selectedTarget,
           solvedWords: new Set(session.solvedWords ?? []),
-          revealedLetters: session.revealedLetters ?? [],
+          revealedLetters,
           status: session.status ?? "playing",
           statsRecorded: session.statsRecorded ?? false,
           difficulty: session.difficulty ?? loadDifficulty(),
@@ -498,13 +536,51 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const session = loadSession(MOCK_PUZZLE.id);
 
       if (session) {
+        // Compute pre-filled currentGuess with locked letters from revealed letters
+        const selectedTarget = session.selectedTarget ?? "main";
+        const revealedLetters = session.revealedLetters ?? [];
+        const locked = new Map<number, string>();
+        let targetLength = 5;
+
+        if (selectedTarget === "main") {
+          targetLength = MOCK_PUZZLE.mainWord.word.length;
+          const mainRow = MOCK_PUZZLE.mainWord.row;
+          const mainCol = MOCK_PUZZLE.mainWord.col;
+          for (const rl of revealedLetters) {
+            if (rl.row === mainRow) {
+              const position = rl.col - mainCol;
+              if (position >= 0 && position < targetLength) {
+                locked.set(position, rl.letter.toUpperCase());
+              }
+            }
+          }
+        } else {
+          const crosser = MOCK_PUZZLE.crossers.find((c) => c.id === selectedTarget);
+          if (crosser) {
+            targetLength = crosser.word.length;
+            for (const rl of revealedLetters) {
+              if (rl.col === crosser.startCol) {
+                const position = rl.row - crosser.startRow;
+                if (position >= 0 && position < targetLength) {
+                  locked.set(position, rl.letter.toUpperCase());
+                }
+              }
+            }
+          }
+        }
+
+        // Build initial guess with locked letters pre-filled
+        const initialGuess = Array.from({ length: targetLength }, (_, i) =>
+          locked.has(i) ? locked.get(i)! : " "
+        ).join("");
+
         set({
           puzzle: MOCK_PUZZLE,
           guesses: session.guesses ?? [],
-          currentGuess: "",
-          selectedTarget: session.selectedTarget ?? "main",
+          currentGuess: initialGuess,
+          selectedTarget,
           solvedWords: new Set(session.solvedWords ?? []),
-          revealedLetters: session.revealedLetters ?? [],
+          revealedLetters,
           status: session.status ?? "playing",
           statsRecorded: session.statsRecorded ?? false,
           difficulty: session.difficulty ?? loadDifficulty(),
