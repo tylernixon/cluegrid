@@ -139,7 +139,7 @@ export default function Home() {
         {/* Settings button */}
         <button
           type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A9DB8] hover:text-[#2B6B8A] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A9DB8] focus-visible:ring-offset-2"
+          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A8B8D] hover:text-[#3D5A5E] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A8B8D] focus-visible:ring-offset-2"
           onClick={() => setShowSettingsModal(true)}
           aria-label="Open settings"
         >
@@ -159,14 +159,17 @@ export default function Home() {
           </svg>
         </button>
 
-        <h1 className="text-heading-2 font-serif font-medium bg-gradient-to-r from-[#2B6B8A] via-[#4A9DB8] to-[#7ECCE8] bg-clip-text text-transparent">
-          gist
+        <h1 className="flex gap-0.5">
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#4A8B8D] text-white font-serif font-medium text-lg">g</span>
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#D97B5D] text-white font-serif font-medium text-lg">i</span>
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#E8B84A] text-white font-serif font-medium text-lg">s</span>
+          <span className="w-7 h-7 flex items-center justify-center rounded bg-[#3D5A5E] text-white font-serif font-medium text-lg">t</span>
         </h1>
 
         {/* Stats button */}
         <button
           type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A9DB8] hover:text-[#2B6B8A] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A9DB8] focus-visible:ring-offset-2"
+          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A8B8D] hover:text-[#3D5A5E] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A8B8D] focus-visible:ring-offset-2"
           onClick={() => setShowStatsModal(true)}
           aria-label="View statistics"
         >
