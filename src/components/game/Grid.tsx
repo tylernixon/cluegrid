@@ -184,8 +184,8 @@ export function Grid({
           ? [...existing.belongsTo, crosser.id]
           : [crosser.id];
 
-        // If cell already has data (intersection with solved letter), merge
-        if (existing && existing.letter && (existing.status === "correct" || existing.status === "revealed")) {
+        // If cell already has data (intersection with solved/revealed/typing letter), preserve it
+        if (existing && existing.letter && (existing.status === "correct" || existing.status === "revealed" || existing.status === "typing")) {
           cells[row][col] = { ...existing, belongsTo };
           continue;
         }
