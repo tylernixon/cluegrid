@@ -139,7 +139,7 @@ export default function Home() {
         {/* Settings button */}
         <button
           type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2"
+          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A9DB8] hover:text-[#2B6B8A] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A9DB8] focus-visible:ring-offset-2"
           onClick={() => setShowSettingsModal(true)}
           aria-label="Open settings"
         >
@@ -159,14 +159,14 @@ export default function Home() {
           </svg>
         </button>
 
-        <h1 className="text-heading-2 font-serif font-light bg-gradient-to-r from-[#2D8B84] via-[#4AADA6] to-[#7DD3C0] bg-clip-text text-transparent">
+        <h1 className="text-heading-2 font-serif font-medium bg-gradient-to-r from-[#2B6B8A] via-[#4A9DB8] to-[#7ECCE8] bg-clip-text text-transparent">
           gist
         </h1>
 
         {/* Stats button */}
         <button
           type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2"
+          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A9DB8] hover:text-[#2B6B8A] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A9DB8] focus-visible:ring-offset-2"
           onClick={() => setShowStatsModal(true)}
           aria-label="View statistics"
         >
