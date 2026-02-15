@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { motion, useReducedMotion, AnimatePresence, type PanInfo } from "framer-motion";
 import type { CrosserData } from "@/types";
 import { TIMING, EASE } from "@/lib/motion";
@@ -10,7 +10,6 @@ interface ActiveCluePanelProps {
   crossers: CrosserData[];
   solvedWords: Set<string>;
   onSelectTarget: (targetId: "main" | string) => void;
-  mainGuessCount: number;
   theme?: string;
   themeHint?: string;
 }
@@ -20,7 +19,6 @@ export function ActiveCluePanel({
   crossers,
   solvedWords,
   onSelectTarget,
-  mainGuessCount,
   theme,
   themeHint,
 }: ActiveCluePanelProps) {
@@ -29,7 +27,10 @@ export function ActiveCluePanel({
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
 
   // Build list of all navigable targets (crossers + main)
-  const allTargets: ("main" | string)[] = [...crossers.map((c) => c.id), "main"];
+  const allTargets = useMemo(
+    () => [...crossers.map((c) => c.id), "main"] as ("main" | string)[],
+    [crossers]
+  );
   const currentIndex = allTargets.indexOf(selectedTarget);
 
   // Find next/prev unsolved target
