@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin-auth';
 
 // Use service role for admin operations
@@ -43,10 +44,10 @@ export async function PATCH(
 
   const supabase = getServiceClient();
 
-  // Verify puzzle exists
+  // Verify puzzle exists and get date for cache revalidation
   const { data: existing, error: fetchError } = await supabase
     .from('puzzles')
-    .select('id, status')
+    .select('id, status, puzzle_date')
     .eq('id', params.id)
     .single();
 
@@ -77,6 +78,13 @@ export async function PATCH(
       { error: 'SERVER_ERROR', message: 'Failed to update status' },
       { status: 500 },
     );
+  }
+
+  // Revalidate cache for this puzzle
+  if (existing.puzzle_date) {
+    revalidatePath(`/api/puzzle/${existing.puzzle_date}`);
+    revalidatePath('/api/puzzle/today');
+    revalidatePath('/');
   }
 
   return NextResponse.json({
