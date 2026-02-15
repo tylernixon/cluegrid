@@ -1,7 +1,19 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/admin-auth';
 import { UpdatePuzzleSchema } from '@/lib/validation';
+
+// Use service role for admin operations
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    throw new Error('Missing Supabase credentials');
+  }
+
+  return createClient(url, key);
+}
 
 // GET /api/admin/puzzles/[id] -- Get single puzzle with full details (including answers)
 export async function GET(
@@ -10,6 +22,8 @@ export async function GET(
 ) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const supabase = getServiceClient();
 
   const { data: puzzle, error: puzzleError } = await supabase
     .from('puzzles')
@@ -67,6 +81,8 @@ export async function PUT(
 ) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const supabase = getServiceClient();
 
   // Verify puzzle exists and is editable
   const { data: existing, error: fetchError } = await supabase
@@ -201,6 +217,8 @@ export async function DELETE(
 ) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const supabase = getServiceClient();
 
   // Verify puzzle exists and is a draft
   const { data: existing, error: fetchError } = await supabase
