@@ -195,6 +195,7 @@ export default function Home() {
             revealedLetters={revealedLetters}
             mainWordRow={puzzle.mainWord.row}
             mainWordCol={puzzle.mainWord.col}
+            onSelectTarget={selectTarget}
           />
         )}
 

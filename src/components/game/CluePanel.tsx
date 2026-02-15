@@ -34,10 +34,6 @@ export function CluePanel({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Get the active clue for mobile view
-  const activeClue = crossers.find((c) => c.id === selectedTarget);
-  const isMainSelected = selectedTarget === "main";
-
   // Get all selectable items (crossers + main)
   const allItems = useMemo(() => [...crossers.map((c) => c.id), "main"], [crossers]);
 
@@ -122,9 +118,6 @@ export function CluePanel({
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2 focus-visible:ring-offset-canvas dark:focus-visible:ring-offset-canvas-dark";
 
   const prefersReducedMotion = useReducedMotion();
-
-  // Find the index of the active clue for display
-  const activeClueIndex = crossers.findIndex((c) => c.id === selectedTarget);
 
   // Render a single clue item with smooth selection animation
   const renderClueItem = (crosser: CrosserData, i: number) => {
