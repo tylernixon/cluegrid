@@ -14,10 +14,9 @@ import type { LetterFeedback } from '@/types';
 export function computeFeedback(guess: string, answer: string): LetterFeedback[] {
   const guessLetters = guess.split('');
   const answerLetters = answer.split('');
-  const feedback: LetterFeedback[] = guessLetters.map((letter, i) => ({
+  const feedback: LetterFeedback[] = guessLetters.map((letter) => ({
     letter,
     status: 'absent' as const,
-    position: i,
   }));
 
   // Track which answer positions have been "consumed"

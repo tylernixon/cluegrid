@@ -10,4 +10,143 @@
   .dark body {
     @apply bg-canvas-dark text-ink-dark;
   }
+
+  /* Screen reader only utility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Allow sr-only elements to become visible on focus */
+  .sr-only.focus\:not-sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}
+
+@layer components {
+  /* High contrast mode support */
+  @media (prefers-contrast: more) {
+    /* Increase border visibility */
+    .border-border,
+    .border-border-dark {
+      border-color: currentColor !important;
+    }
+
+    /* Ensure minimum contrast for feedback colors */
+    .bg-correct,
+    .bg-correct-dark {
+      background-color: #1a5f3c !important; /* Darker green for better contrast */
+    }
+
+    .bg-present,
+    .bg-present-dark {
+      background-color: #8b5a00 !important; /* Darker gold for better contrast */
+    }
+
+    .bg-absent,
+    .bg-absent-dark {
+      background-color: #4a4a4a !important; /* Darker gray */
+      color: #ffffff !important;
+    }
+
+    /* Ensure text has high contrast */
+    .text-ink-secondary,
+    .text-ink-secondary-dark,
+    .text-ink-tertiary,
+    .text-ink-tertiary-dark {
+      color: currentColor !important;
+      opacity: 1 !important;
+    }
+
+    /* Stronger focus indicators */
+    *:focus-visible {
+      outline: 3px solid currentColor !important;
+      outline-offset: 2px !important;
+    }
+
+    /* Ensure selected state is visible */
+    .ring-accent,
+    .ring-accent-dark {
+      --tw-ring-color: currentColor !important;
+      --tw-ring-width: 3px !important;
+    }
+  }
+
+  /* Forced colors mode (Windows High Contrast) */
+  @media (forced-colors: active) {
+    .bg-correct,
+    .bg-correct-dark {
+      background-color: Highlight !important;
+      color: HighlightText !important;
+    }
+
+    .bg-present,
+    .bg-present-dark {
+      background-color: Mark !important;
+      color: MarkText !important;
+    }
+
+    .bg-absent,
+    .bg-absent-dark {
+      background-color: GrayText !important;
+      color: Canvas !important;
+    }
+
+    /* Ensure borders are visible */
+    button,
+    [role="button"] {
+      border: 1px solid currentColor !important;
+    }
+
+    /* Focus states */
+    *:focus-visible {
+      outline: 3px solid Highlight !important;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Minimum touch target size (44x44px per WCAG 2.5.8) */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Ensure animations respect user preferences */
+  .motion-safe\:animate-cell-pop {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: cell-pop 80ms ease-out;
+    }
+  }
+
+  .motion-safe\:animate-row-shake {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: row-shake 200ms linear;
+    }
+  }
 }

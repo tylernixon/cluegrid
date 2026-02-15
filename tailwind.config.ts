@@ -96,6 +96,7 @@ const config: Config = {
         "cell-flip": "cell-flip 500ms ease-in-out",
         "row-shake": "row-shake 200ms linear",
         "ink-fill": "ink-fill 200ms cubic-bezier(0.25, 0.1, 0.25, 1.0)",
+        "slide-up": "slide-up 300ms ease-out",
       },
       keyframes: {
         "cell-pop": {
@@ -117,6 +118,10 @@ const config: Config = {
         "ink-fill": {
           "0%": { clipPath: "inset(100% 0 0 0)" },
           "100%": { clipPath: "inset(0 0 0 0)" },
+        },
+        "slide-up": {
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
         },
       },
     },

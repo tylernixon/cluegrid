@@ -9,22 +9,9 @@ import type {
   RevealedLetter,
   KeyStatus,
 } from "@/types";
+import { useStatsStore } from "./statsStore";
 
-// Mock puzzle: CRANE at row 2.
-// Each crosser is vertical, intersecting the main word at row 2.
-// intersectionIndex = the index within the crosser word at the intersection row.
-// The crosser's letter at intersectionIndex must match CRANE at that column.
-//
-//        col0  col1  col2  col3  col4
-// row0    O           G     D
-// row1    C           R     A
-// row2   [C]   [R]   [A]   [N]   [E]   <- main word
-// row3    U           P     C
-// row4    R           E     E
-//
-// OCCUR (col 0): O-C-C-U-R, intersectionIndex=2, letter='C' matches CRANE[0]='C'
-// GRAPE (col 2): G-R-A-P-E, intersectionIndex=2, letter='A' matches CRANE[2]='A'
-// DANCE (col 3): D-A-N-C-E, intersectionIndex=2, letter='N' matches CRANE[3]='N'
+// Fallback mock puzzle used while loading or if fetch fails
 const MOCK_PUZZLE: PuzzleData = {
   id: "mock-1",
   date: "2024-01-15",
@@ -103,6 +90,12 @@ interface GameStore {
   shakeTarget: string | null;
   toastMessage: string | null;
   showCompletionModal: boolean;
+  statsRecorded: boolean;
+
+  // Loading state
+  isLoading: boolean;
+  error: string | null;
+  puzzleLoaded: boolean;
 
   // Derived
   guessesRemaining: () => number;
@@ -112,15 +105,75 @@ interface GameStore {
   guessesForTarget: (targetId: "main" | string) => Guess[];
 
   // Actions
+  fetchPuzzle: () => Promise<void>;
   addLetter: (letter: string) => void;
   removeLetter: () => void;
   submitGuess: () => void;
   selectTarget: (targetId: "main" | string) => void;
   clearToast: () => void;
   setShowCompletionModal: (show: boolean) => void;
+  resetGame: () => void;
+}
+
+// Helper to get current puzzle ID for session storage
+function getSessionKey(puzzleId: string): string {
+  return `cluegrid:session:${puzzleId}`;
+}
+
+// Session data structure for localStorage
+interface SessionData {
+  puzzleId: string;
+  guesses: Guess[];
+  solvedWords: string[];
+  revealedLetters: RevealedLetter[];
+  status: GameStatus;
+  selectedTarget: string;
+  statsRecorded: boolean;
+}
+
+// Load session from localStorage
+function loadSession(puzzleId: string): Partial<SessionData> | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const key = getSessionKey(puzzleId);
+    const data = localStorage.getItem(key);
+    if (!data) return null;
+    const parsed = JSON.parse(data) as SessionData;
+    // Validate it's for the same puzzle
+    if (parsed.puzzleId !== puzzleId) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+// Save session to localStorage
+function saveSession(state: GameStore): void {
+  if (typeof window === "undefined") return;
+  try {
+    const key = getSessionKey(state.puzzle.id);
+    const data: SessionData = {
+      puzzleId: state.puzzle.id,
+      guesses: state.guesses,
+      solvedWords: Array.from(state.solvedWords),
+      revealedLetters: state.revealedLetters,
+      status: state.status,
+      selectedTarget: state.selectedTarget,
+      statsRecorded: state.statsRecorded,
+    };
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+// Get today's date in YYYY-MM-DD format
+function getTodayDate(): string {
+  return new Date().toISOString().split("T")[0]!;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
+  // Initial state with mock puzzle
   puzzle: MOCK_PUZZLE,
   guesses: [],
   currentGuess: "",
@@ -131,6 +184,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   shakeTarget: null,
   toastMessage: null,
   showCompletionModal: false,
+  statsRecorded: false,
+  isLoading: true,
+  error: null,
+  puzzleLoaded: false,
 
   guessesRemaining: () => 6 - get().guesses.length,
 
@@ -176,8 +233,95 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return get().guesses.filter((g) => g.targetId === targetId);
   },
 
+  fetchPuzzle: async () => {
+    // Don't fetch again if already loaded
+    if (get().puzzleLoaded) return;
+
+    set({ isLoading: true, error: null });
+
+    try {
+      const today = getTodayDate();
+      const response = await fetch(`/api/puzzle/${today}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch puzzle: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const puzzle: PuzzleData = data.puzzle;
+
+      // Load any saved session for this puzzle
+      const session = loadSession(puzzle.id);
+      const firstCrosserId = puzzle.crossers[0]?.id ?? "c1";
+
+      if (session) {
+        set({
+          puzzle,
+          guesses: session.guesses ?? [],
+          currentGuess: "",
+          selectedTarget: session.selectedTarget ?? firstCrosserId,
+          solvedWords: new Set(session.solvedWords ?? []),
+          revealedLetters: session.revealedLetters ?? [],
+          status: session.status ?? "playing",
+          statsRecorded: session.statsRecorded ?? false,
+          isLoading: false,
+          puzzleLoaded: true,
+        });
+      } else {
+        set({
+          puzzle,
+          guesses: [],
+          currentGuess: "",
+          selectedTarget: firstCrosserId,
+          solvedWords: new Set<string>(),
+          revealedLetters: [],
+          status: "playing",
+          statsRecorded: false,
+          isLoading: false,
+          puzzleLoaded: true,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch puzzle:", err);
+      // Fall back to mock puzzle
+      const session = loadSession(MOCK_PUZZLE.id);
+      const firstCrosserId = MOCK_PUZZLE.crossers[0]?.id ?? "c1";
+
+      if (session) {
+        set({
+          puzzle: MOCK_PUZZLE,
+          guesses: session.guesses ?? [],
+          currentGuess: "",
+          selectedTarget: session.selectedTarget ?? firstCrosserId,
+          solvedWords: new Set(session.solvedWords ?? []),
+          revealedLetters: session.revealedLetters ?? [],
+          status: session.status ?? "playing",
+          statsRecorded: session.statsRecorded ?? false,
+          isLoading: false,
+          error: err instanceof Error ? err.message : "Failed to load puzzle",
+          puzzleLoaded: true,
+        });
+      } else {
+        set({
+          puzzle: MOCK_PUZZLE,
+          guesses: [],
+          currentGuess: "",
+          selectedTarget: firstCrosserId,
+          solvedWords: new Set<string>(),
+          revealedLetters: [],
+          status: "playing",
+          statsRecorded: false,
+          isLoading: false,
+          error: err instanceof Error ? err.message : "Failed to load puzzle",
+          puzzleLoaded: true,
+        });
+      }
+    }
+  },
+
   addLetter: (letter: string) => {
-    const { status, currentGuess } = get();
+    const { status, currentGuess, isLoading } = get();
+    if (isLoading) return;
     const maxLen = get().targetWordLength();
     if (status !== "playing") return;
     if (currentGuess.length >= maxLen) return;
@@ -185,7 +329,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   removeLetter: () => {
-    const { status, currentGuess } = get();
+    const { status, currentGuess, isLoading } = get();
+    if (isLoading) return;
     if (status !== "playing") return;
     if (currentGuess.length === 0) return;
     set({ currentGuess: currentGuess.slice(0, -1) });
@@ -193,6 +338,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   submitGuess: () => {
     const state = get();
+    if (state.isLoading) return;
     if (state.status !== "playing") return;
     if (state.guessesRemaining() <= 0) return;
 
@@ -212,7 +358,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       return;
     }
 
-    // For MVP (mock mode), skip dictionary validation and compute feedback locally
+    // For MVP, compute feedback locally (client has answers)
     const answer = state.targetWord();
     const feedback = computeFeedback(guess, answer);
     const solved = guess === answer;
@@ -252,22 +398,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newStatus = "lost";
     }
 
+    // Determine new target for auto-advance
+    let newSelectedTarget = state.selectedTarget;
+    if (solved && state.selectedTarget !== "main" && newStatus === "playing") {
+      // Find next unsolved crosser, then fall back to main
+      const nextCrosser = state.puzzle.crossers.find(
+        (c) => !newSolvedWords.has(c.id),
+      );
+      newSelectedTarget = nextCrosser ? nextCrosser.id : "main";
+    }
+
+    // Record stats if game is over
+    let newStatsRecorded = state.statsRecorded;
+    if ((newStatus === "won" || newStatus === "lost") && !state.statsRecorded) {
+      useStatsStore.getState().recordGame(newStatus === "won", newGuesses.length);
+      newStatsRecorded = true;
+    }
+
     set({
       guesses: newGuesses,
       currentGuess: "",
       solvedWords: newSolvedWords,
       revealedLetters: newRevealedLetters,
       status: newStatus,
+      selectedTarget: newSelectedTarget,
+      statsRecorded: newStatsRecorded,
     });
 
-    // Auto-advance target if crosser was solved and game continues
-    if (solved && state.selectedTarget !== "main" && newStatus === "playing") {
-      // Find next unsolved crosser, then fall back to main
-      const nextCrosser = state.puzzle.crossers.find(
-        (c) => !newSolvedWords.has(c.id),
-      );
-      set({ selectedTarget: nextCrosser ? nextCrosser.id : "main" });
-    }
+    // Save session to localStorage
+    saveSession(get());
 
     // Show completion modal after a delay
     if (newStatus === "won" || newStatus === "lost") {
@@ -276,7 +435,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   selectTarget: (targetId: "main" | string) => {
-    const { status, solvedWords } = get();
+    const { status, solvedWords, isLoading } = get();
+    if (isLoading) return;
     if (status !== "playing") return;
     if (solvedWords.has(targetId)) return;
     set({ selectedTarget: targetId, currentGuess: "" });
@@ -285,4 +445,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
   clearToast: () => set({ toastMessage: null }),
 
   setShowCompletionModal: (show: boolean) => set({ showCompletionModal: show }),
+
+  resetGame: () => {
+    const puzzle = get().puzzle;
+    // Clear session storage
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(getSessionKey(puzzle.id));
+      } catch {
+        // Ignore storage errors
+      }
+    }
+    const firstCrosserId = puzzle.crossers[0]?.id ?? "c1";
+    set({
+      guesses: [],
+      currentGuess: "",
+      selectedTarget: firstCrosserId,
+      solvedWords: new Set<string>(),
+      revealedLetters: [],
+      status: "playing",
+      shakeTarget: null,
+      toastMessage: null,
+      showCompletionModal: false,
+      statsRecorded: false,
+    });
+  },
 }));

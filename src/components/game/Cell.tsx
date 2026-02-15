@@ -1,12 +1,17 @@
 "use client";
 
+import { motion, useReducedMotion, type Transition } from "framer-motion";
+
 interface CellProps {
   letter: string;
   status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed";
   isSelected: boolean;
   isMainWordRow: boolean;
-  animate?: "pop" | "shake" | null;
+  animate?: "pop" | "shake" | "bounce" | null;
+  animationDelay?: number;
   onClick?: () => void;
+  tabIndex?: number;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
 const statusClasses: Record<string, string> = {
@@ -27,8 +32,13 @@ export function Cell({
   isSelected,
   isMainWordRow,
   animate,
+  animationDelay = 0,
   onClick,
+  tabIndex = -1,
+  onKeyDown,
 }: CellProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   const base =
     "flex items-center justify-center w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] md:w-[60px] md:h-[60px] rounded-sm border-2 font-mono text-grid select-none transition-colors duration-150";
 
@@ -40,26 +50,46 @@ export function Cell({
 
   const mainRowClass = isMainWordRow ? "font-bold" : "";
 
-  const animClass =
-    animate === "pop"
-      ? "animate-cell-pop"
-      : animate === "shake"
-        ? "animate-row-shake"
-        : "";
+  // Focus visible class for keyboard navigation
+  const focusClass = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2";
+
+  // Determine animation values based on prefersReducedMotion and animate prop
+  let animateValue: Record<string, number[]> | undefined;
+  let transitionValue: Transition | undefined;
+
+  if (!prefersReducedMotion && animate) {
+    switch (animate) {
+      case "pop":
+        animateValue = { scale: [1, 0.96, 1] };
+        transitionValue = { duration: 0.08, ease: "easeOut" };
+        break;
+      case "shake":
+        animateValue = { x: [0, -4, 4, -3, 3, 0] };
+        transitionValue = { duration: 0.2, ease: "linear" };
+        break;
+      case "bounce":
+        animateValue = { y: [0, -12, 0], scale: [1, 1.05, 1] };
+        transitionValue = { duration: 0.4, ease: "easeOut", delay: animationDelay };
+        break;
+    }
+  }
 
   return (
-    <button
+    <motion.button
       type="button"
-      className={`${base} ${statusClass} ${selectedClass} ${mainRowClass} ${animClass}`}
+      className={`${base} ${statusClass} ${selectedClass} ${mainRowClass} ${focusClass}`}
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      tabIndex={tabIndex}
       aria-label={
         letter
           ? `${letter}, ${status}`
           : `empty cell${isMainWordRow ? ", main word" : ""}`
       }
-      tabIndex={-1}
+      animate={animateValue}
+      transition={transitionValue}
     >
       {letter}
-    </button>
+    </motion.button>
   );
 }
