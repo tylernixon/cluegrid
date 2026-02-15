@@ -23,9 +23,9 @@ export function ActiveCluePanel({
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
 
-  // Hide swipe hint after 2.5 seconds
+  // Hide swipe hint after 3.5 seconds
   useEffect(() => {
-    const timer = setTimeout(() => setShowSwipeHint(false), 2500);
+    const timer = setTimeout(() => setShowSwipeHint(false), 3500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -132,25 +132,23 @@ export function ActiveCluePanel({
       dragElastic={0.2}
       onDragEnd={handleDragEnd}
     >
-      {/* Swipe hint - fades out after 2.5s */}
+      {/* Swipe hint - centered pill with blur, fades out after 3.5s */}
       <AnimatePresence>
         {showSwipeHint && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.3 }}
-            className="absolute inset-x-0 top-1 flex items-center justify-center pointer-events-none z-10"
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
           >
-            <div className="flex items-center gap-1 text-ink-tertiary dark:text-ink-tertiary-dark">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14" />
-                <path d="M12 5l7 7-7 7" />
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-ink/10 dark:bg-white/10 backdrop-blur-md text-ink-secondary dark:text-ink-secondary-dark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
               </svg>
-              <span className="text-xs">swipe</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-180">
-                <path d="M5 12h14" />
-                <path d="M12 5l7 7-7 7" />
+              <span className="text-sm font-medium">swipe</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 18l6-6-6-6" />
               </svg>
             </div>
           </motion.div>
