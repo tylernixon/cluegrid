@@ -124,9 +124,6 @@ export default function Home() {
     disabled: !isPlaying || isLoading,
   });
 
-  // Find first unsolved crosser for the "Use a Hint" button
-  const nextHintTarget = puzzle.crossers.find((c) => !solvedWords.has(c.id));
-
   return (
     <div className="flex flex-col min-h-screen min-h-dvh bg-canvas dark:bg-canvas-dark">
       {/* Skip link for accessibility */}
@@ -192,7 +189,20 @@ export default function Home() {
       </header>
 
       {/* Main game area */}
-      <main className="flex-1 flex flex-col items-center overflow-y-auto px-4 py-2 gap-3">
+      <main className="flex-1 flex flex-col items-center overflow-y-auto px-4 py-2 gap-2">
+        {/* Status bar - above grid */}
+        {!isLoading && (
+          <div
+            className="flex items-center gap-4 text-caption text-ink-secondary dark:text-ink-secondary-dark"
+            role="status"
+            aria-label={`${remaining} guesses remaining out of ${maxGuessesValue}. ${hintsUsed} hints used out of ${puzzle.crossers.length}`}
+          >
+            <span>Guesses: {remaining}/{maxGuessesValue}</span>
+            <span className="w-px h-3 bg-border dark:bg-border-dark" aria-hidden="true" />
+            <span>Hints: {hintsUsed}/{puzzle.crossers.length}</span>
+          </div>
+        )}
+
         {/* Grid */}
         <div id="puzzle-grid" className="flex justify-center">
           {isLoading ? (
@@ -213,33 +223,6 @@ export default function Home() {
 
         {/* Guess history for selected target */}
         {!isLoading && <GuessHistory guesses={guesses} targetId={selectedTarget} />}
-
-        {/* Guess progress and hint controls */}
-        {!isLoading && (
-          <div className="flex flex-col items-center gap-2">
-            <div
-              className="flex items-center gap-4 text-body-small text-ink-secondary dark:text-ink-secondary-dark"
-              role="status"
-              aria-label={`${remaining} guesses remaining out of ${maxGuessesValue}. ${hintsUsed} hints used out of ${puzzle.crossers.length}`}
-            >
-              <span>Guesses left: {remaining} / {maxGuessesValue}</span>
-              <span className="w-px h-4 bg-border dark:bg-border-dark" aria-hidden="true" />
-              <span>Hints: {hintsUsed}/{puzzle.crossers.length}</span>
-            </div>
-
-            {/* Use a Hint button */}
-            {isPlaying && selectedTarget === "main" && nextHintTarget && (
-              <button
-                type="button"
-                onClick={() => selectTarget(nextHintTarget.id)}
-                className="px-4 py-2 text-body-small font-medium text-accent dark:text-accent-dark bg-accent/10 dark:bg-accent-dark/10 border border-accent/30 dark:border-accent-dark/30 rounded-lg hover:bg-accent/20 dark:hover:bg-accent-dark/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2"
-              >
-                Use a Hint
-              </button>
-            )}
-          </div>
-        )}
-
       </main>
 
       {/* Clue panel + Keyboard (sticky at bottom) */}

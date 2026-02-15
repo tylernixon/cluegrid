@@ -7,6 +7,72 @@ interface BadgeDisplayProps {
   earnedBadges: Badge[];
 }
 
+// SVG icons for badges (consistent visual language)
+const BadgeIcons: Record<BadgeId, React.ReactNode> = {
+  first_win: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+    </svg>
+  ),
+  genius: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
+      <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" />
+      <path d="M12 18v4" />
+    </svg>
+  ),
+  quick_thinker: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />
+    </svg>
+  ),
+  hint_master: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+      <path d="M11 8v6" />
+      <path d="M8 11h6" />
+    </svg>
+  ),
+  streak_3: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+    </svg>
+  ),
+  streak_7: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+      <line x1="12" y1="2" x2="12" y2="12" />
+    </svg>
+  ),
+  streak_30: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14" />
+    </svg>
+  ),
+  century: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 8V4H8" />
+      <rect width="16" height="12" x="4" y="8" rx="2" />
+      <path d="M2 14h2" />
+      <path d="M20 14h2" />
+      <path d="M15 13v2" />
+      <path d="M9 13v2" />
+    </svg>
+  ),
+  perfectionist: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  ),
+};
+
 const ALL_BADGE_IDS: BadgeId[] = [
   "first_win",
   "genius",
@@ -23,49 +89,47 @@ export function BadgeDisplay({ earnedBadges }: BadgeDisplayProps) {
   const earnedMap = new Map(earnedBadges.map((b) => [b.id, b]));
 
   return (
-    <div className="grid grid-cols-3 gap-3">
-      {ALL_BADGE_IDS.map((id) => {
-        const def = BADGE_DEFINITIONS[id];
-        const earned = earnedMap.get(id);
-        const isEarned = !!earned;
+    <div className="overflow-x-auto -mx-4 px-4 pb-2">
+      <div className="flex gap-3" style={{ minWidth: "max-content" }}>
+        {ALL_BADGE_IDS.map((id) => {
+          const def = BADGE_DEFINITIONS[id];
+          const earned = earnedMap.get(id);
+          const isEarned = !!earned;
 
-        return (
-          <div
-            key={id}
-            className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
-              isEarned
-                ? "bg-correct/10 dark:bg-correct-dark/10 border-correct/30 dark:border-correct-dark/30 shadow-[0_0_12px_rgba(var(--color-correct-rgb,104,159,56),0.2)]"
-                : "bg-surface-raised/50 dark:bg-surface-raised-dark/50 border-border/50 dark:border-border-dark/50 opacity-40"
-            }`}
-            title={isEarned ? `${def.name} - Earned!` : `${def.name} - ${def.description}`}
-          >
-            <span
-              className={`text-2xl ${isEarned ? "" : "grayscale"}`}
-              aria-hidden="true"
-            >
-              {def.icon}
-            </span>
-            <span
-              className={`text-caption font-semibold text-center leading-tight ${
+          return (
+            <div
+              key={id}
+              className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border w-[100px] shrink-0 transition-all ${
                 isEarned
-                  ? "text-ink dark:text-ink-dark"
-                  : "text-ink-tertiary dark:text-ink-tertiary-dark"
+                  ? "bg-correct/10 dark:bg-correct-dark/10 border-correct/40 dark:border-correct-dark/40"
+                  : "bg-surface dark:bg-surface-dark border-border dark:border-border-dark"
               }`}
+              title={`${def.name} - ${def.description}`}
             >
-              {def.name}
-            </span>
-            <span
-              className={`text-[10px] text-center leading-tight ${
-                isEarned
-                  ? "text-ink-secondary dark:text-ink-secondary-dark"
-                  : "text-ink-tertiary dark:text-ink-tertiary-dark"
-              }`}
-            >
-              {def.description}
-            </span>
-          </div>
-        );
-      })}
+              {/* Earned checkmark */}
+              {isEarned && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-correct dark:bg-correct-dark rounded-full flex items-center justify-center">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+              )}
+
+              {/* Icon */}
+              <span className={isEarned ? "text-correct dark:text-correct-dark" : "text-ink-tertiary dark:text-ink-tertiary-dark"}>
+                {BadgeIcons[id]}
+              </span>
+
+              {/* Name */}
+              <span className={`text-caption font-semibold text-center leading-tight ${
+                isEarned ? "text-ink dark:text-ink-dark" : "text-ink-secondary dark:text-ink-secondary-dark"
+              }`}>
+                {def.name}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
