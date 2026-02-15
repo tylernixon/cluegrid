@@ -48,6 +48,10 @@ export function ActiveCluePanel({
         if (index >= allTargets.length) index = 0;
 
         const targetId = allTargets[index];
+        if (!targetId) {
+          index += step;
+          continue;
+        }
         // Skip solved crossers, but always allow main
         if (targetId === "main" || !solvedWords.has(targetId)) {
           return targetId;
