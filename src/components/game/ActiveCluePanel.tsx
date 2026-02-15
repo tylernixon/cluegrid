@@ -94,11 +94,11 @@ export function ActiveCluePanel({
       // Dynamic message based on game state
       let clue: string;
       if (mainGuessCount === 0 && solvedHintCount === 0) {
-        clue = "Swipe for hints, then guess the word";
+        clue = "Guess now or swipe for hints";
       } else if (mainGuessCount === 0 && solvedHintCount > 0) {
         clue = "Use the revealed letters to guess";
       } else if (unsolvedHintCount > 0) {
-        clue = "Swipe for more hints";
+        clue = "Keep guessing or swipe for hints";
       } else {
         clue = "All hints revealed — make your guess";
       }
