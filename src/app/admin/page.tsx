@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface GeneratedCrosser {
   word: string;
@@ -32,6 +32,12 @@ export default function AdminPage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [auth, setAuth] = useState<string | null>(null);
 
+  // Load auth from sessionStorage on mount
+  useEffect(() => {
+    const stored = sessionStorage.getItem("admin_auth");
+    if (stored) setAuth(stored);
+  }, []);
+
   const getAuthHeader = () => {
     if (auth) return auth;
     const username = prompt("Admin username:");
@@ -39,6 +45,7 @@ export default function AdminPage() {
     if (!username || !password) return null;
     const header = "Basic " + btoa(`${username}:${password}`);
     setAuth(header);
+    sessionStorage.setItem("admin_auth", header);
     return header;
   };
 
