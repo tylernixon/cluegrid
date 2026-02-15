@@ -211,16 +211,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Active clue panel - shows selected clue */}
-        {!isLoading && isPlaying && (
-          <ActiveCluePanel
-            selectedTarget={selectedTarget}
-            crossers={puzzle.crossers}
-            solvedWords={solvedWords}
-            onSelectTarget={selectTarget}
-          />
-        )}
-
         {/* Guess history for selected target */}
         {!isLoading && <GuessHistory guesses={guesses} targetId={selectedTarget} />}
 
@@ -252,15 +242,30 @@ export default function Home() {
 
       </main>
 
-      {/* Keyboard (fixed at bottom) */}
-      <div className="sticky bottom-0 bg-canvas dark:bg-canvas-dark border-t border-border dark:border-border-dark py-2 pb-[env(safe-area-inset-bottom)] shrink-0">
-        <Keyboard
-          keyStatuses={keys}
-          onKey={handleKey}
-          onEnter={handleEnter}
-          onBackspace={handleBackspace}
-          disabled={!isPlaying || isLoading}
-        />
+      {/* Clue panel + Keyboard (sticky at bottom) */}
+      <div className="sticky bottom-0 bg-canvas dark:bg-canvas-dark border-t border-border dark:border-border-dark shrink-0">
+        {/* Active clue panel */}
+        {!isLoading && isPlaying && (
+          <div className="px-4 pt-2">
+            <ActiveCluePanel
+              selectedTarget={selectedTarget}
+              crossers={puzzle.crossers}
+              solvedWords={solvedWords}
+              onSelectTarget={selectTarget}
+            />
+          </div>
+        )}
+
+        {/* Keyboard */}
+        <div className="py-2 pb-[env(safe-area-inset-bottom)]">
+          <Keyboard
+            keyStatuses={keys}
+            onKey={handleKey}
+            onEnter={handleEnter}
+            onBackspace={handleBackspace}
+            disabled={!isPlaying || isLoading}
+          />
+        </div>
       </div>
 
       {/* Toast */}
