@@ -189,20 +189,7 @@ export default function Home() {
       </header>
 
       {/* Main game area */}
-      <main className="flex-1 flex flex-col items-center overflow-y-auto px-4 py-2 gap-2">
-        {/* Status bar - above grid */}
-        {!isLoading && (
-          <div
-            className="flex items-center gap-4 text-caption text-ink-secondary dark:text-ink-secondary-dark"
-            role="status"
-            aria-label={`${remaining} guesses remaining out of ${maxGuessesValue}. ${hintsUsed} hints used out of ${puzzle.crossers.length}`}
-          >
-            <span>Guesses: {remaining}/{maxGuessesValue}</span>
-            <span className="w-px h-3 bg-border dark:bg-border-dark" aria-hidden="true" />
-            <span>Hints: {hintsUsed}/{puzzle.crossers.length}</span>
-          </div>
-        )}
-
+      <main className="flex-1 flex flex-col items-center justify-start sm:justify-center overflow-y-auto px-4 pt-1 pb-2 gap-2">
         {/* Grid */}
         <div id="puzzle-grid" className="flex justify-center">
           {isLoading ? (
@@ -239,8 +226,21 @@ export default function Home() {
           </div>
         )}
 
+        {/* Status bar - between clue and keyboard */}
+        {!isLoading && (
+          <div
+            className="flex items-center justify-center gap-4 py-1.5 text-caption text-ink-tertiary dark:text-ink-tertiary-dark"
+            role="status"
+            aria-label={`${remaining} guesses remaining out of ${maxGuessesValue}. ${hintsUsed} hints used out of ${puzzle.crossers.length}`}
+          >
+            <span>{remaining} guesses left</span>
+            <span className="w-px h-3 bg-border dark:bg-border-dark" aria-hidden="true" />
+            <span>{hintsUsed}/{puzzle.crossers.length} hints</span>
+          </div>
+        )}
+
         {/* Keyboard */}
-        <div className="py-2 pb-[env(safe-area-inset-bottom)]">
+        <div className="pb-2 pb-[env(safe-area-inset-bottom)]">
           <Keyboard
             keyStatuses={keys}
             onKey={handleKey}
