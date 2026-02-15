@@ -94,7 +94,7 @@ export function ActiveCluePanel({
     if (selectedTarget === "main") {
       return {
         label: "Main Word",
-        clue: "Deduce from crossing hints",
+        clue: "Deduce from crossing hints, swipe to get started",
         hintNote: null as string | null,
       };
     }
