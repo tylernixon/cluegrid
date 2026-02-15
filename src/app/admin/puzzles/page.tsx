@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { validatePuzzleIntersections } from '@/lib/puzzle';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,6 +28,7 @@ interface GridCell {
 // ---------------------------------------------------------------------------
 export default function PuzzleEditorPage() {
   const router = useRouter();
+  const { authFetch } = useAdminAuth();
 
   // Form state
   const [date, setDate] = useState(() => {
@@ -188,7 +190,7 @@ export default function PuzzleEditorPage() {
         })),
       };
 
-      const res = await fetch('/api/admin/puzzles', {
+      const res = await authFetch('/api/admin/puzzles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -453,7 +455,7 @@ export default function PuzzleEditorPage() {
                     <input
                       type="number"
                       min={0}
-                      max={crosser.word.length - 1 || 9}
+                      max={crosser.word.length > 0 ? crosser.word.length - 1 : 9}
                       value={crosser.intersectionIndex}
                       onChange={(e) =>
                         updateCrosser(index, {

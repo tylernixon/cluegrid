@@ -52,7 +52,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
   const [mainWordCol, setMainWordCol] = useState(0);
   const [gridRows, setGridRows] = useState(5);
   const [gridCols, setGridCols] = useState(5);
-  const [status, setStatus] = useState<'draft' | 'scheduled'>('draft');
+  const [status, setStatus] = useState<'draft' | 'scheduled' | 'published' | 'archived'>('draft');
+  const [originalStatus, setOriginalStatus] = useState<string>('');
   const [difficultyRating, setDifficultyRating] = useState<number | null>(null);
   const [author, setAuthor] = useState('');
   const [notes, setNotes] = useState('');
@@ -88,7 +89,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
         setMainWordCol(puzzle.mainWordCol);
         setGridRows(puzzle.gridRows);
         setGridCols(puzzle.gridCols);
-        setStatus(puzzle.status === 'draft' || puzzle.status === 'scheduled' ? puzzle.status : 'draft');
+        setStatus(puzzle.status);
+        setOriginalStatus(puzzle.status);
         setDifficultyRating(puzzle.difficultyRating);
         setAuthor(puzzle.author || '');
         setNotes(puzzle.notes || '');
@@ -203,6 +205,37 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     [],
   );
 
+  const handleStatusChange = async (newStatus: 'draft' | 'published') => {
+    setError(null);
+    setSuccess(null);
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/admin/puzzles/${puzzleId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || 'Failed to update status');
+        return;
+      }
+
+      setOriginalStatus(newStatus);
+      setStatus(newStatus);
+      setIsEditable(newStatus === 'draft' || newStatus === 'scheduled');
+      setSuccess(`Puzzle ${newStatus === 'published' ? 'published' : 'unpublished'} successfully!`);
+    } catch (err) {
+      setError('Network error. Please try again.');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -296,7 +329,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
 
       {!isEditable && (
         <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800 mb-6">
-          This puzzle is {status} and cannot be edited. Only draft and scheduled puzzles can be modified.
+          This puzzle is <strong>{originalStatus}</strong> and cannot be edited directly. You can unpublish it to make changes.
         </div>
       )}
 
@@ -543,7 +576,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
                     <input
                       type="number"
                       min={0}
-                      max={crosser.word.length - 1 || 9}
+                      max={crosser.word.length > 0 ? crosser.word.length - 1 : 9}
                       value={crosser.intersectionIndex}
                       onChange={(e) =>
                         updateCrosser(index, {
@@ -617,12 +650,36 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
 
           {/* Submit */}
           {isEditable && (
+            <div className="space-y-3">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </button>
+              {originalStatus === 'draft' && (
+                <button
+                  type="button"
+                  onClick={() => handleStatusChange('published')}
+                  disabled={isSubmitting || !validation.valid}
+                  className="w-full py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isSubmitting ? 'Publishing...' : 'Publish Puzzle'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Unpublish button for published puzzles */}
+          {!isEditable && originalStatus === 'published' && (
             <button
-              type="submit"
+              type="button"
+              onClick={() => handleStatusChange('draft')}
               disabled={isSubmitting}
-              className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-3 bg-yellow-600 text-white font-medium rounded-lg hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              {isSubmitting ? 'Unpublishing...' : 'Unpublish (Move to Draft)'}
             </button>
           )}
         </form>

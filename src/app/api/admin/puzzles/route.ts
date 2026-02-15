@@ -35,16 +35,54 @@ export async function GET(request: Request) {
 
   try {
     const supabase = getServiceClient();
+    const url = new URL(request.url);
+    const statusFilter = url.searchParams.get("status");
+    const limit = parseInt(url.searchParams.get("limit") || "50");
+    const offset = parseInt(url.searchParams.get("offset") || "0");
 
-    const { data: puzzles, error } = await supabase
+    let query = supabase
       .from("puzzles")
-      .select("*")
+      .select("*, crossers(id)", { count: "exact" })
       .order("puzzle_date", { ascending: false })
-      .limit(50);
+      .range(offset, offset + limit - 1);
+
+    if (statusFilter && statusFilter !== "all") {
+      query = query.eq("status", statusFilter);
+    }
+
+    const { data: puzzles, error, count } = await query;
 
     if (error) throw error;
 
-    return NextResponse.json({ puzzles });
+    // Transform to camelCase for frontend
+    const transformed = (puzzles || []).map((p: {
+      id: string;
+      puzzle_date: string;
+      main_word: string;
+      status: string;
+      difficulty_rating: number | null;
+      author: string | null;
+      created_at: string;
+      updated_at: string;
+      crossers: { id: string }[];
+    }) => ({
+      id: p.id,
+      date: p.puzzle_date,
+      mainWord: p.main_word,
+      status: p.status,
+      difficultyRating: p.difficulty_rating,
+      author: p.author,
+      crosserCount: p.crossers?.length || 0,
+      createdAt: p.created_at,
+      updatedAt: p.updated_at,
+    }));
+
+    return NextResponse.json({
+      puzzles: transformed,
+      total: count || 0,
+      limit,
+      offset,
+    });
   } catch (error) {
     console.error("Error fetching puzzles:", error);
     return NextResponse.json(
@@ -72,6 +110,20 @@ export async function POST(request: Request) {
     }
 
     const supabase = getServiceClient();
+
+    // Check if a puzzle already exists for this date
+    const { data: existing } = await supabase
+      .from("puzzles")
+      .select("id, main_word")
+      .eq("puzzle_date", puzzle.date)
+      .single();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: `A puzzle already exists for ${puzzle.date} (${existing.main_word}). Please choose a different date or edit the existing puzzle.` },
+        { status: 409 }
+      );
+    }
 
     // Calculate grid size based on puzzle
     const maxCrosserLength = Math.max(...puzzle.crossers.map((c: { word: string }) => c.word.length));
@@ -134,8 +186,13 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Error saving puzzle:", error);
+    // Handle Supabase errors (which have a message property but aren't Error instances)
+    const errorMessage =
+      error instanceof Error ? error.message :
+      (error && typeof error === 'object' && 'message' in error) ? String(error.message) :
+      "Failed to save puzzle";
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to save puzzle" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
