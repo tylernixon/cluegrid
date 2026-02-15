@@ -81,6 +81,18 @@ export function CompletionModal({
           {winMessage}
         </p>
 
+        {/* Theme reveal */}
+        {puzzle.theme && (
+          <div className="mb-4 px-4 py-2 rounded-lg bg-surface-raised dark:bg-surface-raised-dark">
+            <p className="text-body text-ink-secondary dark:text-ink-secondary-dark">
+              Today&apos;s theme:{" "}
+              <span className="font-semibold text-ink dark:text-ink-dark">
+                {puzzle.theme}
+              </span>
+            </p>
+          </div>
+        )}
+
         {/* Result details */}
         {status === "won" ? (
           <div className="space-y-1 mb-4">

@@ -7,37 +7,39 @@ import type { PuzzleData, CrosserData } from '@/types';
 const MOCK_PUZZLE: PuzzleData = {
   id: 'mock-1',
   date: '2024-01-15',
-  mainWord: { word: 'CRANE', row: 2, col: 0, length: 5 },
+  mainWord: { word: 'BEACH', row: 2, col: 0, length: 5 },
   crossers: [
     {
       id: 'c1',
-      word: 'OCCUR',
-      clue: 'To happen or take place',
+      word: 'SHELL',
+      clue: 'A hard outer covering found on the shore',
       direction: 'down',
       startRow: 0,
-      startCol: 0,
-      intersectionIndex: 2,
+      startCol: 1,
+      intersectionIndex: 2, // 'E' at index 2 intersects BEACH's 'E' at col 1
     },
     {
       id: 'c2',
-      word: 'GRAPE',
-      clue: 'A small fruit that grows in bunches',
+      word: 'CRAB',
+      clue: 'A crustacean that walks sideways',
       direction: 'down',
       startRow: 0,
       startCol: 2,
-      intersectionIndex: 2,
+      intersectionIndex: 2, // 'A' at index 2 intersects BEACH's 'A' at col 2
     },
     {
       id: 'c3',
-      word: 'DANCE',
-      clue: 'What couples do on a ballroom floor',
+      word: 'OCEAN',
+      clue: 'A vast body of salt water',
       direction: 'down',
-      startRow: 0,
+      startRow: 1,
       startCol: 3,
-      intersectionIndex: 2,
+      intersectionIndex: 1, // 'C' at index 1 intersects BEACH's 'C' at col 3
     },
   ],
-  gridSize: { rows: 5, cols: 5 },
+  gridSize: { rows: 6, cols: 5 },
+  theme: 'At the Beach',
+  themeHint: 'Sun, sand, and surf',
 };
 
 // ---------------------------------------------------------------------------
@@ -52,6 +54,8 @@ interface DbPuzzle {
   grid_rows: number;
   grid_cols: number;
   status: string;
+  theme: string | null;
+  theme_hint: string | null;
 }
 
 interface DbCrosser {
@@ -140,6 +144,8 @@ export async function getPuzzleForDate(date: string): Promise<PuzzleData> {
         rows: dbPuzzle.grid_rows,
         cols: dbPuzzle.grid_cols,
       },
+      ...(dbPuzzle.theme && { theme: dbPuzzle.theme }),
+      ...(dbPuzzle.theme_hint && { themeHint: dbPuzzle.theme_hint }),
     };
 
     return puzzleData;

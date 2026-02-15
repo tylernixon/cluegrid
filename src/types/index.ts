@@ -11,6 +11,8 @@ export interface PuzzleData {
   };
   crossers: CrosserData[];
   gridSize: { rows: number; cols: number };
+  theme?: string;
+  themeHint?: string;
 }
 
 export interface CrosserData {
