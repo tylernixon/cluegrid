@@ -250,6 +250,7 @@ interface GameStore {
 
   // Loading state
   isLoading: boolean;
+  isSubmitting: boolean; // True while submitGuess is in progress
   error: string | null;
   puzzleLoaded: boolean;
 
@@ -307,6 +308,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // Loading state
   isLoading: true,
+  isSubmitting: false,
   error: null,
   puzzleLoaded: false,
 
@@ -476,8 +478,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   addLetter: (letter: string) => {
-    const { status, currentGuess, isLoading } = get();
-    if (isLoading) return;
+    const { status, currentGuess, isLoading, isSubmitting } = get();
+    if (isLoading || isSubmitting) return;
     const maxLen = get().targetWordLength();
     if (status !== "playing") return;
     if (currentGuess.length >= maxLen) return;
@@ -494,14 +496,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   submitGuess: async () => {
     const state = get();
-    if (state.isLoading) return;
+    if (state.isLoading || state.isSubmitting) return;
     if (state.status !== "playing") return;
+
+    // Lock to prevent race conditions with typing
+    set({ isSubmitting: true });
 
     const isMainGuess = state.selectedTarget === "main";
 
     // For main-word guesses, check the guess budget
     if (isMainGuess && state.guessesRemaining() <= 0) {
-      set({ toastMessage: "No guesses remaining" });
+      set({ isSubmitting: false, toastMessage: "No guesses remaining" });
       return;
     }
 
@@ -510,27 +515,31 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // Check length
     if (guess.length < requiredLength) {
-      set({ shakeTarget: state.selectedTarget, toastMessage: "Not enough letters" });
+      set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not enough letters" });
       setTimeout(() => set({ shakeTarget: null }), 300);
       return;
     }
 
     // Check if target is already solved
     if (state.solvedWords.has(state.selectedTarget)) {
-      set({ toastMessage: "Already solved" });
+      set({ isSubmitting: false, toastMessage: "Already solved" });
       return;
     }
 
-    // Validate word against dictionary
-    const isValid = await validateWord(guess);
-    if (!isValid) {
-      set({ shakeTarget: state.selectedTarget, toastMessage: "Not in word list" });
-      setTimeout(() => set({ shakeTarget: null }), 300);
-      return;
-    }
+    // Get the target answer
+    const answer = state.targetWord().toUpperCase();
 
-    // Compute feedback
-    const answer = state.targetWord();
+    // If the guess matches the answer, skip dictionary validation
+    // (handles words not in dictionary but valid as puzzle answers)
+    if (guess !== answer) {
+      // Validate word against dictionary
+      const isValid = await validateWord(guess);
+      if (!isValid) {
+        set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not in word list" });
+        setTimeout(() => set({ shakeTarget: null }), 300);
+        return;
+      }
+    }
     const feedback = computeFeedback(guess, answer);
     const solved = guess === answer;
 
@@ -606,6 +615,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     set({
+      isSubmitting: false,
       guesses: newGuesses,
       currentGuess: "",
       solvedWords: newSolvedWords,

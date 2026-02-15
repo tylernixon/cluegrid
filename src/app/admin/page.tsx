@@ -27,6 +27,7 @@ export default function AdminPage() {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isBustingCache, setIsBustingCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [puzzle, setPuzzle] = useState<GeneratedPuzzle | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
@@ -118,12 +119,49 @@ export default function AdminPage() {
     }
   };
 
+  const handleBustCache = async () => {
+    const authHeader = getAuthHeader();
+    if (!authHeader) return;
+
+    setIsBustingCache(true);
+    setError(null);
+    setSaveMessage(null);
+
+    try {
+      const response = await fetch("/api/revalidate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authHeader,
+        },
+        body: JSON.stringify({ date }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Cache bust failed");
+      setSaveMessage(data.message || "Cache busted successfully!");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Cache bust failed");
+    } finally {
+      setIsBustingCache(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          gist Admin - Puzzle Generator
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            gist Admin - Puzzle Generator
+          </h1>
+          <button
+            onClick={handleBustCache}
+            disabled={isBustingCache}
+            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 disabled:bg-orange-300 font-medium text-sm"
+          >
+            {isBustingCache ? "Busting..." : "🔄 Bust Cache"}
+          </button>
+        </div>
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">Generate New Puzzle</h2>

@@ -95,6 +95,8 @@ export function ActiveCluePanel({
       let clue: string;
       if (mainGuessCount === 0 && solvedHintCount === 0) {
         clue = "Guess now or swipe for hints";
+      } else if (mainGuessCount === 0 && solvedHintCount > 0 && unsolvedHintCount > 0) {
+        clue = "Use the revealed letters to guess, or swipe for the next hint";
       } else if (mainGuessCount === 0 && solvedHintCount > 0) {
         clue = "Use the revealed letters to guess";
       } else if (unsolvedHintCount > 0) {

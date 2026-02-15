@@ -60,6 +60,7 @@ export default function Home() {
   const maxGuesses = useGameStore((s) => s.maxGuesses);
   const hintsUsed = useGameStore((s) => s.hintsUsed);
   const keyStatuses = useGameStore((s) => s.keyStatuses);
+  const isSubmitting = useGameStore((s) => s.isSubmitting);
 
   const remaining = guessesRemaining();
   const maxGuessesValue = maxGuesses();
@@ -132,7 +133,7 @@ export default function Home() {
     onKey: handleKey,
     onEnter: handleEnter,
     onBackspace: handleBackspace,
-    disabled: !isPlaying || isLoading,
+    disabled: !isPlaying || isLoading || isSubmitting,
   });
 
   return (
@@ -256,7 +257,7 @@ export default function Home() {
             onKey={handleKey}
             onEnter={handleEnter}
             onBackspace={handleBackspace}
-            disabled={!isPlaying || isLoading}
+            disabled={!isPlaying || isLoading || isSubmitting}
           />
         </div>
       </div>

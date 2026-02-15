@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 interface UseKeyboardOptions {
   onKey: (letter: string) => void;
@@ -15,9 +15,13 @@ export function useKeyboard({
   onBackspace,
   disabled,
 }: UseKeyboardOptions) {
+  // Use ref to avoid stale closure issues with disabled state
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (disabled) return;
+      if (disabledRef.current) return;
 
       // Ignore if user is typing in an input
       if (
@@ -41,5 +45,5 @@ export function useKeyboard({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onKey, onEnter, onBackspace, disabled]);
+  }, [onKey, onEnter, onBackspace]);
 }
