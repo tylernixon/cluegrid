@@ -19,11 +19,13 @@ export function GistLogo({ className }: GistLogoProps) {
 
   useEffect(() => {
     // Generate random shuffle sequence
-    const shuffleSequence = () => {
+    const shuffleSequence = (): number[] => {
       const indices = [0, 1, 2, 3];
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
+        const temp = indices[i]!;
+        indices[i] = indices[j]!;
+        indices[j] = temp;
       }
       return indices;
     };

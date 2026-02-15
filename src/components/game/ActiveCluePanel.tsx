@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { motion, useReducedMotion, AnimatePresence, type PanInfo } from "framer-motion";
 import type { CrosserData } from "@/types";
 import { TIMING, EASE } from "@/lib/motion";
@@ -21,6 +21,13 @@ export function ActiveCluePanel({
   const isSolved = solvedWords.has(selectedTarget);
   const prefersReducedMotion = useReducedMotion();
   const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
+  const [showSwipeHint, setShowSwipeHint] = useState(true);
+
+  // Hide swipe hint after 2.5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSwipeHint(false), 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Build list of all navigable targets (crossers + main)
   const allTargets: ("main" | string)[] = [...crossers.map((c) => c.id), "main"];
@@ -104,12 +111,6 @@ export function ActiveCluePanel({
   const clueInfo = getClueInfo();
   if (!clueInfo) return null;
 
-  const hasPrev = findNextTarget("prev") !== null;
-  const hasNext = findNextTarget("next") !== null;
-
-  const buttonClass =
-    "w-10 h-10 flex items-center justify-center rounded-full text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface dark:hover:bg-surface-dark transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark";
-
   // Animation variants for card content
   const contentVariants = {
     initial: (direction: "left" | "right" | null) =>
@@ -131,57 +132,36 @@ export function ActiveCluePanel({
       dragElastic={0.2}
       onDragEnd={handleDragEnd}
     >
-      {/* Navigation arrows */}
-      <div className="absolute left-1 top-1/2 -translate-y-1/2 z-10">
-        <button
-          type="button"
-          onClick={goToPrev}
-          disabled={!hasPrev}
-          className={buttonClass}
-          aria-label="Previous clue"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      {/* Swipe hint - fades out after 2.5s */}
+      <AnimatePresence>
+        {showSwipeHint && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-x-0 top-1 flex items-center justify-center pointer-events-none z-10"
           >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-      </div>
-      <div className="absolute right-1 top-1/2 -translate-y-1/2 z-10">
-        <button
-          type="button"
-          onClick={goToNext}
-          disabled={!hasNext}
-          className={buttonClass}
-          aria-label="Next clue"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </button>
-      </div>
+            <div className="flex items-center gap-1 text-ink-tertiary dark:text-ink-tertiary-dark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
+              <span className="text-xs">swipe</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-180">
+                <path d="M5 12h14" />
+                <path d="M12 5l7 7-7 7" />
+              </svg>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Card content with animation */}
       <AnimatePresence mode="wait" custom={swipeDirection}>
         <motion.div
           key={selectedTarget}
-          className="px-8"
+          className="px-2"
           custom={swipeDirection}
           variants={contentVariants}
           initial="initial"
