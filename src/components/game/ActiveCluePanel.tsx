@@ -10,6 +10,7 @@ interface ActiveCluePanelProps {
   crossers: CrosserData[];
   solvedWords: Set<string>;
   onSelectTarget: (targetId: "main" | string) => void;
+  mainGuessCount: number;
 }
 
 export function ActiveCluePanel({
@@ -17,6 +18,7 @@ export function ActiveCluePanel({
   crossers,
   solvedWords,
   onSelectTarget,
+  mainGuessCount,
 }: ActiveCluePanelProps) {
   const isSolved = solvedWords.has(selectedTarget);
   const prefersReducedMotion = useReducedMotion();
@@ -82,12 +84,27 @@ export function ActiveCluePanel({
     [goToNext, goToPrev]
   );
 
+  // Count how many hints have been solved
+  const solvedHintCount = crossers.filter((c) => solvedWords.has(c.id)).length;
+  const unsolvedHintCount = crossers.length - solvedHintCount;
+
   // Get the active clue info
   const getClueInfo = () => {
     if (selectedTarget === "main") {
+      // Dynamic message based on game state
+      let clue: string;
+      if (mainGuessCount === 0 && solvedHintCount === 0) {
+        clue = "Swipe for hints, then guess the word";
+      } else if (mainGuessCount === 0 && solvedHintCount > 0) {
+        clue = "Use the revealed letters to guess";
+      } else if (unsolvedHintCount > 0) {
+        clue = "Swipe for more hints";
+      } else {
+        clue = "All hints revealed — make your guess";
+      }
       return {
         label: "Main Word",
-        clue: "Deduce from crossing hints, swipe to get started",
+        clue,
         hintNote: null as string | null,
       };
     }
