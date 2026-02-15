@@ -33,8 +33,17 @@ const validatedWords = new Set<string>();
 async function validateWord(word: string): Promise<boolean> {
   const normalized = word.trim().toUpperCase();
 
+  console.log("[validateWord] Checking:", {
+    input: word,
+    normalized,
+    cacheSize: validatedWords.size,
+    inCache: validatedWords.has(normalized),
+    cacheContents: Array.from(validatedWords),
+  });
+
   // Check cache first
   if (validatedWords.has(normalized)) {
+    console.log("[validateWord] Found in cache, returning true");
     return true;
   }
 
@@ -61,10 +70,17 @@ async function validateWord(word: string): Promise<boolean> {
 
 // Pre-add puzzle answers to validation cache
 function addPuzzleWordsToCache(mainWord: string, crossers: Array<{ word: string }>) {
-  validatedWords.add(mainWord.trim().toUpperCase());
+  const normalizedMain = mainWord.trim().toUpperCase();
+  validatedWords.add(normalizedMain);
+  console.log("[addPuzzleWordsToCache] Added main word:", normalizedMain);
+
   for (const c of crossers) {
-    validatedWords.add(c.word.trim().toUpperCase());
+    const normalizedCrosser = c.word.trim().toUpperCase();
+    validatedWords.add(normalizedCrosser);
+    console.log("[addPuzzleWordsToCache] Added crosser:", normalizedCrosser);
   }
+
+  console.log("[addPuzzleWordsToCache] Cache now contains:", Array.from(validatedWords));
 }
 
 // ---------------------------------------------------------------------------
@@ -486,11 +502,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   addLetter: (letter: string) => {
     const { status, currentGuess, isLoading, isSubmitting } = get();
-    if (isLoading || isSubmitting) return;
+    console.log("[addLetter] Called:", {
+      letter,
+      currentGuess,
+      isLoading,
+      isSubmitting,
+      status,
+    });
+
+    if (isLoading || isSubmitting) {
+      console.log("[addLetter] Blocked - isLoading or isSubmitting");
+      return;
+    }
     const maxLen = get().targetWordLength();
-    if (status !== "playing") return;
-    if (currentGuess.length >= maxLen) return;
-    set({ currentGuess: currentGuess + letter.toUpperCase() });
+    if (status !== "playing") {
+      console.log("[addLetter] Blocked - status is not playing");
+      return;
+    }
+    if (currentGuess.length >= maxLen) {
+      console.log("[addLetter] Blocked - at max length");
+      return;
+    }
+    const newGuess = currentGuess + letter.toUpperCase();
+    console.log("[addLetter] Setting new guess:", newGuess);
+    set({ currentGuess: newGuess });
   },
 
   removeLetter: () => {
@@ -503,8 +538,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   submitGuess: async () => {
     const state = get();
-    if (state.isLoading || state.isSubmitting) return;
-    if (state.status !== "playing") return;
+
+    // Debug: trace the entire submission flow
+    console.log("[submitGuess] Starting submission:", {
+      currentGuess: state.currentGuess,
+      selectedTarget: state.selectedTarget,
+      isLoading: state.isLoading,
+      isSubmitting: state.isSubmitting,
+      status: state.status,
+      puzzleId: state.puzzle.id,
+    });
+
+    if (state.isLoading || state.isSubmitting) {
+      console.log("[submitGuess] Blocked - isLoading or isSubmitting");
+      return;
+    }
+    if (state.status !== "playing") {
+      console.log("[submitGuess] Blocked - status is not playing:", state.status);
+      return;
+    }
 
     // Lock to prevent race conditions with typing
     set({ isSubmitting: true });
@@ -513,6 +565,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // For main-word guesses, check the guess budget
     if (isMainGuess && state.guessesRemaining() <= 0) {
+      console.log("[submitGuess] Blocked - no guesses remaining");
       set({ isSubmitting: false, toastMessage: "No guesses remaining" });
       return;
     }
@@ -521,8 +574,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Trim and uppercase guess immediately - use this clean value throughout
     const guess = state.currentGuess.trim().toUpperCase();
 
+    console.log("[submitGuess] Length check:", {
+      guess,
+      guessLength: guess.length,
+      requiredLength,
+      rawCurrentGuess: state.currentGuess,
+    });
+
     // Check length
     if (guess.length < requiredLength) {
+      console.log("[submitGuess] Blocked - not enough letters");
       set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not enough letters" });
       setTimeout(() => set({ shakeTarget: null }), 300);
       return;
@@ -535,25 +596,43 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Get the target answer directly from captured state
-    const answer = (
-      state.selectedTarget === "main"
-        ? state.puzzle.mainWord.word
-        : state.puzzle.crossers.find((c) => c.id === state.selectedTarget)?.word ?? ""
-    ).trim().toUpperCase();
+    const rawAnswer = state.selectedTarget === "main"
+      ? state.puzzle.mainWord.word
+      : state.puzzle.crossers.find((c) => c.id === state.selectedTarget)?.word ?? "";
+    const answer = rawAnswer.trim().toUpperCase();
 
-    // Debug: log comparison (remove after fixing)
-    console.log("Guess comparison:", { guess, answer, match: guess === answer });
+    // Debug: detailed comparison logging
+    console.log("[submitGuess] Answer lookup:", {
+      selectedTarget: state.selectedTarget,
+      rawAnswer,
+      normalizedAnswer: answer,
+      mainWord: state.puzzle.mainWord.word,
+      crosserCount: state.puzzle.crossers.length,
+      crosserIds: state.puzzle.crossers.map(c => c.id),
+    });
+
+    console.log("[submitGuess] Comparison:", {
+      guess,
+      answer,
+      areEqual: guess === answer,
+      guessChars: [...guess].map(c => c.charCodeAt(0)),
+      answerChars: [...answer].map(c => c.charCodeAt(0)),
+    });
 
     // If the guess matches the answer, skip dictionary validation
     // (handles words not in dictionary but valid as puzzle answers)
     if (guess !== answer) {
+      console.log("[submitGuess] Guess does not match answer, validating against dictionary...");
       // Validate word against dictionary
       const isValid = await validateWord(guess);
+      console.log("[submitGuess] Dictionary validation result:", isValid);
       if (!isValid) {
         set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not in word list" });
         setTimeout(() => set({ shakeTarget: null }), 300);
         return;
       }
+    } else {
+      console.log("[submitGuess] Guess matches answer exactly, skipping dictionary validation");
     }
     const feedback = computeFeedback(guess, answer);
     const solved = guess === answer;
