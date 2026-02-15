@@ -278,6 +278,7 @@ interface GameStore {
   keyStatuses: () => Record<string, KeyStatus>;
   guessesForTarget: (targetId: "main" | string) => Guess[];
   starRating: () => StarRating;
+  lockedPositions: () => Map<number, string>; // position -> letter for current target
 
   // Actions
   fetchPuzzle: () => Promise<void>;
@@ -386,6 +387,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
   starRating: () => {
     const { hintsUsed, puzzle } = get();
     return calculateStars(hintsUsed, puzzle.crossers.length);
+  },
+
+  lockedPositions: () => {
+    const { puzzle, selectedTarget, revealedLetters } = get();
+    const locked = new Map<number, string>();
+
+    if (selectedTarget === "main") {
+      // For main word: check revealedLetters at main word row
+      const mainRow = puzzle.mainWord.row;
+      const mainCol = puzzle.mainWord.col;
+      for (const rl of revealedLetters) {
+        if (rl.row === mainRow) {
+          const position = rl.col - mainCol;
+          if (position >= 0 && position < puzzle.mainWord.word.length) {
+            locked.set(position, rl.letter.toUpperCase());
+          }
+        }
+      }
+    } else {
+      // For crosser: check revealedLetters at crosser column
+      const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
+      if (crosser) {
+        for (const rl of revealedLetters) {
+          if (rl.col === crosser.startCol) {
+            const position = rl.row - crosser.startRow;
+            if (position >= 0 && position < crosser.word.length) {
+              locked.set(position, rl.letter.toUpperCase());
+            }
+          }
+        }
+      }
+    }
+
+    return locked;
   },
 
   // -----------------------------------------------------------------------
@@ -501,39 +536,131 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   addLetter: (letter: string) => {
-    const { status, currentGuess, isLoading, isSubmitting } = get();
-    console.log("[addLetter] Called:", {
-      letter,
-      currentGuess,
-      isLoading,
-      isSubmitting,
-      status,
-    });
+    // Use functional update to avoid race conditions with rapid typing
+    set((state) => {
+      if (state.isLoading || state.isSubmitting) return state;
+      if (state.status !== "playing") return state;
 
-    if (isLoading || isSubmitting) {
-      console.log("[addLetter] Blocked - isLoading or isSubmitting");
-      return;
-    }
-    const maxLen = get().targetWordLength();
-    if (status !== "playing") {
-      console.log("[addLetter] Blocked - status is not playing");
-      return;
-    }
-    if (currentGuess.length >= maxLen) {
-      console.log("[addLetter] Blocked - at max length");
-      return;
-    }
-    const newGuess = currentGuess + letter.toUpperCase();
-    console.log("[addLetter] Setting new guess:", newGuess);
-    set({ currentGuess: newGuess });
+      // Compute locked positions for current target
+      const locked = new Set<number>();
+      let targetLength = 5;
+
+      if (state.selectedTarget === "main") {
+        targetLength = state.puzzle.mainWord.word.length;
+        const mainRow = state.puzzle.mainWord.row;
+        const mainCol = state.puzzle.mainWord.col;
+        for (const rl of state.revealedLetters) {
+          if (rl.row === mainRow) {
+            const position = rl.col - mainCol;
+            if (position >= 0 && position < targetLength) {
+              locked.add(position);
+            }
+          }
+        }
+      } else {
+        const crosser = state.puzzle.crossers.find((c) => c.id === state.selectedTarget);
+        if (crosser) {
+          targetLength = crosser.word.length;
+          for (const rl of state.revealedLetters) {
+            if (rl.col === crosser.startCol) {
+              const position = rl.row - crosser.startRow;
+              if (position >= 0 && position < targetLength) {
+                locked.add(position);
+              }
+            }
+          }
+        }
+      }
+
+      // Ensure currentGuess is the right length (pad with spaces if needed)
+      const guess = state.currentGuess.padEnd(targetLength, " ");
+
+      // Find the first empty (space) position that's not locked
+      let insertPos = -1;
+      for (let i = 0; i < targetLength; i++) {
+        if (!locked.has(i) && guess[i] === " ") {
+          insertPos = i;
+          break;
+        }
+      }
+
+      if (insertPos === -1) {
+        // No empty position available
+        return state;
+      }
+
+      // Insert the letter at the found position
+      const guessArray = guess.split("");
+      guessArray[insertPos] = letter.toUpperCase();
+      const newGuess = guessArray.join("");
+
+      console.log("[addLetter] Setting new guess:", { letter, insertPos, newGuess, locked: Array.from(locked) });
+      return { currentGuess: newGuess };
+    });
   },
 
   removeLetter: () => {
-    const { status, currentGuess, isLoading } = get();
-    if (isLoading) return;
-    if (status !== "playing") return;
-    if (currentGuess.length === 0) return;
-    set({ currentGuess: currentGuess.slice(0, -1) });
+    // Use functional update to avoid race conditions with rapid typing
+    set((state) => {
+      if (state.isLoading || state.isSubmitting) return state;
+      if (state.status !== "playing") return state;
+
+      // Compute locked positions for current target
+      const locked = new Set<number>();
+      let targetLength = 5;
+
+      if (state.selectedTarget === "main") {
+        targetLength = state.puzzle.mainWord.word.length;
+        const mainRow = state.puzzle.mainWord.row;
+        const mainCol = state.puzzle.mainWord.col;
+        for (const rl of state.revealedLetters) {
+          if (rl.row === mainRow) {
+            const position = rl.col - mainCol;
+            if (position >= 0 && position < targetLength) {
+              locked.add(position);
+            }
+          }
+        }
+      } else {
+        const crosser = state.puzzle.crossers.find((c) => c.id === state.selectedTarget);
+        if (crosser) {
+          targetLength = crosser.word.length;
+          for (const rl of state.revealedLetters) {
+            if (rl.col === crosser.startCol) {
+              const position = rl.row - crosser.startRow;
+              if (position >= 0 && position < targetLength) {
+                locked.add(position);
+              }
+            }
+          }
+        }
+      }
+
+      // Ensure currentGuess is the right length
+      const guess = state.currentGuess.padEnd(targetLength, " ");
+
+      // Find the last filled (non-space) position that's not locked
+      let removePos = -1;
+      for (let i = targetLength - 1; i >= 0; i--) {
+        if (!locked.has(i) && guess[i] !== " ") {
+          removePos = i;
+          break;
+        }
+      }
+
+      if (removePos === -1) {
+        // Nothing to remove
+        return state;
+      }
+
+      // Remove the letter at the found position (replace with space)
+      const guessArray = guess.split("");
+      guessArray[removePos] = " ";
+      const newGuess = guessArray.join("");
+
+      console.log("[removeLetter] Removing letter:", { removePos, newGuess, locked: Array.from(locked) });
+      return { currentGuess: newGuess };
+    });
   },
 
   submitGuess: async () => {
@@ -571,18 +698,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const requiredLength = state.targetWordLength();
-    // Trim and uppercase guess immediately - use this clean value throughout
-    const guess = state.currentGuess.trim().toUpperCase();
+    // With crossword-style input, spaces indicate unfilled positions
+    const rawGuess = state.currentGuess.toUpperCase();
+    const hasUnfilledPositions = rawGuess.includes(" ") || rawGuess.length < requiredLength;
+    const guess = rawGuess.replace(/ /g, ""); // Remove spaces for comparison
 
     console.log("[submitGuess] Length check:", {
+      rawGuess,
       guess,
       guessLength: guess.length,
       requiredLength,
-      rawCurrentGuess: state.currentGuess,
+      hasUnfilledPositions,
     });
 
-    // Check length
-    if (guess.length < requiredLength) {
+    // Check if all positions are filled
+    if (hasUnfilledPositions || guess.length < requiredLength) {
       console.log("[submitGuess] Blocked - not enough letters");
       set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not enough letters" });
       setTimeout(() => set({ shakeTarget: null }), 300);
@@ -615,8 +745,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       guess,
       answer,
       areEqual: guess === answer,
-      guessChars: [...guess].map(c => c.charCodeAt(0)),
-      answerChars: [...answer].map(c => c.charCodeAt(0)),
+      guessChars: guess.split('').map(c => c.charCodeAt(0)),
+      answerChars: answer.split('').map(c => c.charCodeAt(0)),
     });
 
     // If the guess matches the answer, skip dictionary validation
@@ -689,6 +819,45 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newSelectedTarget = "main";
     }
 
+    // Compute pre-filled guess for the new target (with locked letters from revealed)
+    let newCurrentGuess = "";
+    if (newStatus === "playing") {
+      const locked = new Map<number, string>();
+      let targetLength = 5;
+
+      if (newSelectedTarget === "main") {
+        targetLength = state.puzzle.mainWord.word.length;
+        const mainRow = state.puzzle.mainWord.row;
+        const mainCol = state.puzzle.mainWord.col;
+        for (const rl of newRevealedLetters) {
+          if (rl.row === mainRow) {
+            const position = rl.col - mainCol;
+            if (position >= 0 && position < targetLength) {
+              locked.set(position, rl.letter.toUpperCase());
+            }
+          }
+        }
+      } else {
+        const crosser = state.puzzle.crossers.find((c) => c.id === newSelectedTarget);
+        if (crosser) {
+          targetLength = crosser.word.length;
+          for (const rl of newRevealedLetters) {
+            if (rl.col === crosser.startCol) {
+              const position = rl.row - crosser.startRow;
+              if (position >= 0 && position < targetLength) {
+                locked.set(position, rl.letter.toUpperCase());
+              }
+            }
+          }
+        }
+      }
+
+      // Build initial guess with locked letters pre-filled
+      newCurrentGuess = Array.from({ length: targetLength }, (_, i) =>
+        locked.has(i) ? locked.get(i)! : " "
+      ).join("");
+    }
+
     // Record stats if game is over
     let newStatsRecorded = state.statsRecorded;
     if ((newStatus === "won" || newStatus === "lost") && !state.statsRecorded) {
@@ -711,7 +880,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       isSubmitting: false,
       guesses: newGuesses,
-      currentGuess: "",
+      currentGuess: newCurrentGuess,
       solvedWords: newSolvedWords,
       revealedLetters: newRevealedLetters,
       status: newStatus,
@@ -731,11 +900,52 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   selectTarget: (targetId: "main" | string) => {
-    const { status, solvedWords, isLoading } = get();
+    const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters } = get();
+
     if (isLoading) return;
     if (status !== "playing") return;
     if (solvedWords.has(targetId)) return;
-    set({ selectedTarget: targetId, currentGuess: "" });
+    if (targetId === selectedTarget) return;
+
+    // Compute locked positions for the new target
+    const locked = new Map<number, string>();
+    let targetLength = 5;
+
+    if (targetId === "main") {
+      targetLength = puzzle.mainWord.word.length;
+      const mainRow = puzzle.mainWord.row;
+      const mainCol = puzzle.mainWord.col;
+      for (const rl of revealedLetters) {
+        if (rl.row === mainRow) {
+          const position = rl.col - mainCol;
+          if (position >= 0 && position < targetLength) {
+            locked.set(position, rl.letter.toUpperCase());
+          }
+        }
+      }
+    } else {
+      const crosser = puzzle.crossers.find((c) => c.id === targetId);
+      if (crosser) {
+        targetLength = crosser.word.length;
+        for (const rl of revealedLetters) {
+          if (rl.col === crosser.startCol) {
+            const position = rl.row - crosser.startRow;
+            if (position >= 0 && position < targetLength) {
+              locked.set(position, rl.letter.toUpperCase());
+            }
+          }
+        }
+      }
+    }
+
+    // Build initial guess with locked letters pre-filled
+    // Use space for unfilled positions
+    const initialGuess = Array.from({ length: targetLength }, (_, i) =>
+      locked.has(i) ? locked.get(i)! : " "
+    ).join("");
+
+    console.log("[selectTarget] Pre-filling guess:", { targetId, locked: Object.fromEntries(locked), initialGuess });
+    set({ selectedTarget: targetId, currentGuess: initialGuess });
   },
 
   clearToast: () => set({ toastMessage: null }),

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import type { Guess } from "@/types";
 import { GistLogo } from "@/components/GistLogo";
 import { FLIP_STAGGER_MS } from "@/lib/motion";
@@ -71,47 +71,45 @@ export function HeaderFeedback({ guesses, selectedTarget }: HeaderFeedbackProps)
 
       {/* Feedback tiles */}
       <div className="flex gap-0.5">
-        <AnimatePresence mode="wait">
-          {latestGuess.feedback.map((fb, i) => {
-            const isFlipping = flippingTiles.has(i);
-            const isRevealed = revealedTiles.has(i);
+        {latestGuess.feedback.map((fb, i) => {
+          const isFlipping = flippingTiles.has(i);
+          const isRevealed = revealedTiles.has(i);
 
-            const bgColor = isRevealed
-              ? fb.status === "correct"
-                ? "bg-correct dark:bg-correct-dark"
-                : fb.status === "present"
-                  ? "bg-present dark:bg-present-dark"
-                  : "bg-absent dark:bg-absent-dark"
-              : "bg-surface-raised dark:bg-surface-raised-dark";
+          const bgColor = isRevealed
+            ? fb.status === "correct"
+              ? "bg-correct dark:bg-correct-dark"
+              : fb.status === "present"
+                ? "bg-present dark:bg-present-dark"
+                : "bg-absent dark:bg-absent-dark"
+            : "bg-surface-raised dark:bg-surface-raised-dark";
 
-            const textColor = isRevealed
-              ? "text-white"
-              : "text-ink dark:text-ink-dark";
+          const textColor = isRevealed
+            ? "text-white"
+            : "text-ink dark:text-ink-dark";
 
-            return (
-              <motion.span
-                key={`${i}-${fb.letter}`}
-                className={`w-7 h-7 flex items-center justify-center rounded text-sm font-mono font-semibold ${bgColor} ${textColor}`}
-                style={{
-                  transformStyle: "preserve-3d",
-                }}
-                animate={
-                  isFlipping
-                    ? {
-                        rotateX: [0, 90, 0],
-                        transition: {
-                          duration: 0.4,
-                          ease: "easeInOut",
-                        },
-                      }
-                    : {}
-                }
-              >
-                {fb.letter}
-              </motion.span>
-            );
-          })}
-        </AnimatePresence>
+          return (
+            <motion.span
+              key={`${i}-${fb.letter}`}
+              className={`w-7 h-7 flex items-center justify-center rounded text-sm font-mono font-semibold ${bgColor} ${textColor}`}
+              style={{
+                transformStyle: "preserve-3d",
+              }}
+              animate={
+                isFlipping
+                  ? {
+                      rotateX: [0, 90, 0],
+                      transition: {
+                        duration: 0.4,
+                        ease: "easeInOut",
+                      },
+                    }
+                  : {}
+              }
+            >
+              {fb.letter}
+            </motion.span>
+          );
+        })}
       </div>
     </div>
   );

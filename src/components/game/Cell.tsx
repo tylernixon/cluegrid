@@ -26,7 +26,7 @@ const statusClasses: Record<string, string> = {
   present: "bg-present dark:bg-present-dark border-present dark:border-present-dark text-white",
   absent: "bg-absent dark:bg-absent-dark border-absent dark:border-absent-dark text-white",
   revealed:
-    "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark",
+    "bg-correct dark:bg-correct-dark border-correct dark:border-correct-dark text-white",
   typing:
     "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-ink dark:text-ink-dark",
 };

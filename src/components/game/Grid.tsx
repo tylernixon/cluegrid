@@ -160,8 +160,8 @@ export function Grid({
       } else if (revealed) {
         letter = revealed.letter;
         status = "revealed";
-      } else if (selectedTarget === "main" && currentGuess[i]) {
-        // Show current guess letter for main word
+      } else if (selectedTarget === "main" && currentGuess[i] && currentGuess[i] !== " ") {
+        // Show current guess letter for main word (skip spaces which indicate unfilled)
         letter = currentGuess[i]!.toUpperCase();
         status = "typing";
       }
@@ -196,8 +196,8 @@ export function Grid({
         if (isSolved) {
           letter = crosser.word[i]!;
           status = "correct";
-        } else if (isActiveTarget && currentGuess[i]) {
-          // Show current guess letter for this crosser
+        } else if (isActiveTarget && currentGuess[i] && currentGuess[i] !== " ") {
+          // Show current guess letter for this crosser (skip spaces which indicate unfilled)
           letter = currentGuess[i]!.toUpperCase();
           status = "typing";
         }
