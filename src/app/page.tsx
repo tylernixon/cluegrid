@@ -4,19 +4,21 @@ import { useCallback, useState, useEffect, useRef } from "react";
 import { Grid } from "@/components/game/Grid";
 import { GridSkeleton } from "@/components/game/GridSkeleton";
 import { Keyboard } from "@/components/game/Keyboard";
-import { CluePanel } from "@/components/game/CluePanel";
-import { CluePanelSkeleton } from "@/components/game/CluePanelSkeleton";
 import { ActiveCluePanel } from "@/components/game/ActiveCluePanel";
 import { GuessHistory } from "@/components/game/GuessHistory";
 import { CompletionModal } from "@/components/game/CompletionModal";
 import { StatsModal } from "@/components/game/StatsModal";
+import { SettingsModal } from "@/components/game/SettingsModal";
+import { BadgeNotification } from "@/components/game/BadgeNotification";
 import { Confetti } from "@/components/game/Confetti";
 import { Toast } from "@/components/ui/Toast";
 import { useGameStore } from "@/stores/gameStore";
+import { useStatsStore } from "@/stores/statsStore";
 import { useKeyboard } from "@/hooks/useKeyboard";
 
 export default function Home() {
   const [showStatsModal, setShowStatsModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const puzzle = useGameStore((s) => s.puzzle);
   const guesses = useGameStore((s) => s.guesses);
@@ -46,13 +48,14 @@ export default function Home() {
   const guessesRemaining = useGameStore((s) => s.guessesRemaining);
   const maxGuesses = useGameStore((s) => s.maxGuesses);
   const hintsUsed = useGameStore((s) => s.hintsUsed);
-  const targetWordLength = useGameStore((s) => s.targetWordLength);
   const keyStatuses = useGameStore((s) => s.keyStatuses);
 
   const remaining = guessesRemaining();
   const maxGuessesValue = maxGuesses();
-  const targetLen = targetWordLength();
   const keys = keyStatuses();
+
+  const newBadges = useStatsStore((s) => s.newBadges);
+  const clearNewBadges = useStatsStore((s) => s.clearNewBadges);
 
   const isPlaying = status === "playing";
   const isVictory = status === "won";
@@ -136,8 +139,28 @@ export default function Home() {
 
       {/* Header */}
       <header className="flex items-center justify-between h-14 border-b border-border dark:border-border-dark px-4 shrink-0">
-        {/* Spacer for centering */}
-        <div className="w-10" />
+        {/* Settings button */}
+        <button
+          type="button"
+          className="w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:focus-visible:ring-accent-dark focus-visible:ring-offset-2"
+          onClick={() => setShowSettingsModal(true)}
+          aria-label="Open settings"
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
 
         <h1 className="text-heading-3 text-ink dark:text-ink-dark lowercase">
           cluegrid
@@ -169,7 +192,7 @@ export default function Home() {
       </header>
 
       {/* Main game area */}
-      <main className="flex-1 flex flex-col items-center overflow-y-auto px-4 py-4 gap-4">
+      <main className="flex-1 flex flex-col items-center overflow-y-auto px-4 py-2 gap-3">
         {/* Grid */}
         <div id="puzzle-grid" className="flex justify-center">
           {isLoading ? (
@@ -188,17 +211,12 @@ export default function Home() {
           )}
         </div>
 
-        {/* Active clue panel - shows selected clue with slot pattern */}
+        {/* Active clue panel - shows selected clue */}
         {!isLoading && isPlaying && (
           <ActiveCluePanel
             selectedTarget={selectedTarget}
             crossers={puzzle.crossers}
-            currentGuess={currentGuess}
-            targetLength={targetLen}
             solvedWords={solvedWords}
-            revealedLetters={revealedLetters}
-            mainWordRow={puzzle.mainWord.row}
-            mainWordCol={puzzle.mainWord.col}
             onSelectTarget={selectTarget}
           />
         )}
@@ -232,18 +250,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Clue panel */}
-        {isLoading ? (
-          <CluePanelSkeleton clueCount={3} />
-        ) : (
-          <CluePanel
-            crossers={puzzle.crossers}
-            selectedTarget={selectedTarget}
-            solvedWords={solvedWords}
-            mainWordLength={puzzle.mainWord.word.length}
-            onSelectTarget={selectTarget}
-          />
-        )}
       </main>
 
       {/* Keyboard (fixed at bottom) */}
@@ -262,6 +268,11 @@ export default function Home() {
 
       {/* Confetti celebration */}
       <Confetti active={showConfetti} />
+
+      {/* Badge notification */}
+      {newBadges.length > 0 && (
+        <BadgeNotification badges={newBadges} onDismiss={clearNewBadges} />
+      )}
 
       {/* Completion modal */}
       {(status === "won" || status === "lost") && (
@@ -298,6 +309,12 @@ export default function Home() {
       <StatsModal
         open={showStatsModal}
         onClose={() => setShowStatsModal(false)}
+      />
+
+      {/* Settings modal */}
+      <SettingsModal
+        open={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
       />
     </div>
   );

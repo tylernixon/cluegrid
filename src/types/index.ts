@@ -140,3 +140,91 @@ export interface ApiError {
   error: string;
   message: string;
 }
+
+// ---------------------------------------------------------------------------
+// Badge / Achievement system
+// ---------------------------------------------------------------------------
+
+export type BadgeId =
+  | "first_win"
+  | "genius"
+  | "quick_thinker"
+  | "hint_master"
+  | "streak_3"
+  | "streak_7"
+  | "streak_30"
+  | "century"
+  | "perfectionist";
+
+export interface Badge {
+  id: BadgeId;
+  name: string;
+  description: string;
+  icon: string; // emoji
+  earnedAt?: string; // ISO date when earned
+}
+
+export const BADGE_DEFINITIONS: Record<BadgeId, Omit<Badge, "earnedAt">> = {
+  first_win: {
+    id: "first_win",
+    name: "First Win",
+    description: "Complete your first puzzle",
+    icon: "\u{1F389}", // party popper
+  },
+  genius: {
+    id: "genius",
+    name: "Genius",
+    description: "Solve with no hints",
+    icon: "\u{1F9E0}", // brain
+  },
+  quick_thinker: {
+    id: "quick_thinker",
+    name: "Quick Thinker",
+    description: "Solve in 2 or fewer guesses",
+    icon: "\u{26A1}", // lightning
+  },
+  hint_master: {
+    id: "hint_master",
+    name: "Hint Master",
+    description: "Solve after using all hints",
+    icon: "\u{1F50D}", // magnifying glass
+  },
+  streak_3: {
+    id: "streak_3",
+    name: "On a Roll",
+    description: "Win 3 days in a row",
+    icon: "\u{1F525}", // fire
+  },
+  streak_7: {
+    id: "streak_7",
+    name: "Weekly Warrior",
+    description: "Win 7 days in a row",
+    icon: "\u{1F4AA}", // flexed bicep
+  },
+  streak_30: {
+    id: "streak_30",
+    name: "Monthly Master",
+    description: "Win 30 days in a row",
+    icon: "\u{1F451}", // crown
+  },
+  century: {
+    id: "century",
+    name: "Century",
+    description: "Complete 100 puzzles",
+    icon: "\u{1F4AF}", // 100
+  },
+  perfectionist: {
+    id: "perfectionist",
+    name: "Perfectionist",
+    description: "Get 5 perfect (3-star) solves in a row",
+    icon: "\u{2B50}", // star
+  },
+};
+
+export interface GameResult {
+  won: boolean;
+  guessCount: number;
+  hintsUsed: number;
+  totalCrossers: number;
+  starRating: StarRating;
+}

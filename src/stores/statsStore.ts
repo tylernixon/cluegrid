@@ -2,6 +2,8 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Badge, BadgeId, GameResult } from "@/types";
+import { BADGE_DEFINITIONS } from "@/types";
 
 // Get today's date in YYYY-MM-DD format (UTC)
 function getTodayUTC(): string {
@@ -34,11 +36,17 @@ export interface GameStats {
   graceSavesAvailable: number;
   lastGraceSaveRefresh: string | null;
   streakSavedByGrace: boolean; // Was the current streak saved by grace?
+  // Badges
+  badges: Badge[];
+  newBadges: Badge[]; // Badges earned in the current session (for notifications)
+  consecutivePerfectSolves: number; // Track consecutive 3-star solves
 }
 
 interface StatsStore extends GameStats {
   // Actions
   recordGame: (won: boolean, guessCount: number, puzzleDate?: string) => void;
+  checkAndAwardBadges: (result: GameResult) => void;
+  clearNewBadges: () => void;
   useGraceSave: () => boolean;
   resetStats: () => void;
   // Computed
@@ -64,6 +72,9 @@ const initialStats: GameStats = {
   graceSavesAvailable: 1,
   lastGraceSaveRefresh: null,
   streakSavedByGrace: false,
+  badges: [],
+  newBadges: [],
+  consecutivePerfectSolves: 0,
 };
 
 export const useStatsStore = create<StatsStore>()(
@@ -139,6 +150,74 @@ export const useStatsStore = create<StatsStore>()(
           lastGraceSaveRefresh: newGraceRefresh,
           streakSavedByGrace: newStreakSavedByGrace,
         });
+      },
+
+      checkAndAwardBadges: (result: GameResult) => {
+        const state = get();
+        const earnedIds = new Set(state.badges.map((b) => b.id));
+        const newlyEarned: Badge[] = [];
+        const now = new Date().toISOString();
+
+        function award(id: BadgeId) {
+          if (earnedIds.has(id)) return;
+          const def = BADGE_DEFINITIONS[id];
+          newlyEarned.push({ ...def, earnedAt: now });
+        }
+
+        if (result.won) {
+          // First Win
+          award("first_win");
+
+          // Genius - solved with 0 hints
+          if (result.hintsUsed === 0) {
+            award("genius");
+          }
+
+          // Quick Thinker - solved in 2 or fewer guesses
+          if (result.guessCount <= 2) {
+            award("quick_thinker");
+          }
+
+          // Hint Master - solved after using all hints
+          if (result.hintsUsed === result.totalCrossers && result.totalCrossers > 0) {
+            award("hint_master");
+          }
+
+          // Streak badges (use the already-updated streak from recordGame)
+          if (state.currentStreak >= 3) award("streak_3");
+          if (state.currentStreak >= 7) award("streak_7");
+          if (state.currentStreak >= 30) award("streak_30");
+
+          // Century - 100 wins
+          if (state.gamesWon >= 100) {
+            award("century");
+          }
+
+          // Perfectionist - 5 consecutive 3-star solves
+          const newConsecutive = result.starRating === 3
+            ? state.consecutivePerfectSolves + 1
+            : 0;
+
+          if (newConsecutive >= 5) {
+            award("perfectionist");
+          }
+
+          set({ consecutivePerfectSolves: newConsecutive });
+        } else {
+          // Lost - reset consecutive perfect streak
+          set({ consecutivePerfectSolves: 0 });
+        }
+
+        if (newlyEarned.length > 0) {
+          set({
+            badges: [...state.badges, ...newlyEarned],
+            newBadges: newlyEarned,
+          });
+        }
+      },
+
+      clearNewBadges: () => {
+        set({ newBadges: [] });
       },
 
       useGraceSave: () => {

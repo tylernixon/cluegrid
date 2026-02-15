@@ -8,24 +8,14 @@ import { TIMING, EASE } from "@/lib/motion";
 interface ActiveCluePanelProps {
   selectedTarget: "main" | string;
   crossers: CrosserData[];
-  currentGuess: string;
-  targetLength: number;
   solvedWords: Set<string>;
-  revealedLetters: Array<{ row: number; col: number; letter: string }>;
-  mainWordRow: number;
-  mainWordCol: number;
   onSelectTarget: (targetId: "main" | string) => void;
 }
 
 export function ActiveCluePanel({
   selectedTarget,
   crossers,
-  currentGuess,
-  targetLength,
   solvedWords,
-  revealedLetters,
-  mainWordRow,
-  mainWordCol,
   onSelectTarget,
 }: ActiveCluePanelProps) {
   const isSolved = solvedWords.has(selectedTarget);
@@ -96,12 +86,8 @@ export function ActiveCluePanel({
   const getClueInfo = () => {
     if (selectedTarget === "main") {
       return {
-        number: "*",
         label: "Main Word",
         clue: "Deduce from crossing hints",
-        direction: "Across",
-        length: targetLength,
-        word: null as string | null,
         hintNote: null as string | null,
       };
     }
@@ -109,56 +95,14 @@ export function ActiveCluePanel({
     if (!crosser) return null;
     const index = crossers.findIndex((c) => c.id === selectedTarget) + 1;
     return {
-      number: index.toString(),
       label: `Hint ${index}`,
       clue: crosser.clue,
-      direction: "Down",
-      length: crosser.word.length,
-      word: isSolved ? crosser.word : null,
-      hintNote: isSolved ? null : "Solving this will reveal a letter in the main word",
+      hintNote: isSolved ? null : "Solves a letter in the main word",
     };
   };
 
   const clueInfo = getClueInfo();
   if (!clueInfo) return null;
-
-  // Build the slot pattern with revealed letters and current guess
-  const buildSlotPattern = () => {
-    const slots: { letter: string; isRevealed: boolean; isFilled: boolean }[] = [];
-
-    if (selectedTarget === "main") {
-      // For main word, check revealed letters at main word positions
-      for (let i = 0; i < targetLength; i++) {
-        const col = mainWordCol + i;
-        const revealed = revealedLetters.find(
-          (r) => r.row === mainWordRow && r.col === col
-        );
-        const guessLetter = currentGuess[i]?.toUpperCase() ?? "";
-
-        if (revealed) {
-          slots.push({ letter: revealed.letter, isRevealed: true, isFilled: true });
-        } else if (guessLetter) {
-          slots.push({ letter: guessLetter, isRevealed: false, isFilled: true });
-        } else {
-          slots.push({ letter: "_", isRevealed: false, isFilled: false });
-        }
-      }
-    } else {
-      // For crossers, just show current guess progress
-      for (let i = 0; i < clueInfo.length; i++) {
-        const guessLetter = currentGuess[i]?.toUpperCase() ?? "";
-        if (guessLetter) {
-          slots.push({ letter: guessLetter, isRevealed: false, isFilled: true });
-        } else {
-          slots.push({ letter: "_", isRevealed: false, isFilled: false });
-        }
-      }
-    }
-
-    return slots;
-  };
-
-  const slots = buildSlotPattern();
 
   const hasPrev = findNextTarget("prev") !== null;
   const hasNext = findNextTarget("next") !== null;
@@ -181,7 +125,7 @@ export function ActiveCluePanel({
 
   return (
     <motion.div
-      className="w-full max-w-[480px] mx-auto px-4 py-4 bg-surface-raised dark:bg-surface-raised-dark rounded-xl border border-border dark:border-border-dark relative overflow-hidden touch-pan-y"
+      className="w-full max-w-[480px] mx-auto px-4 py-3 bg-surface-raised dark:bg-surface-raised-dark rounded-xl border border-border dark:border-border-dark relative overflow-hidden touch-pan-y"
       drag={prefersReducedMotion ? false : "x"}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.2}
@@ -245,8 +189,8 @@ export function ActiveCluePanel({
           exit="exit"
           transition={{ duration: TIMING.fast, ease: EASE.out }}
         >
-          {/* Header row with label, direction, length */}
-          <div className="flex items-center justify-center gap-3 mb-2">
+          {/* Label badge */}
+          <div className="flex items-center justify-center mb-2">
             <span className={`text-caption font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
               selectedTarget !== "main"
                 ? "bg-present/15 dark:bg-present-dark/15 text-present dark:text-present-dark"
@@ -254,72 +198,40 @@ export function ActiveCluePanel({
             }`}>
               {clueInfo.label}
             </span>
-            <span className="text-caption text-ink-secondary dark:text-ink-secondary-dark uppercase tracking-wider">
-              {clueInfo.direction}
-            </span>
-            <span className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark">
-              ({clueInfo.length} letters)
-            </span>
+            {isSolved && (
+              <span className="ml-2 text-correct dark:text-correct-dark">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </span>
+            )}
           </div>
 
           {/* Clue text */}
-          <p className="text-body text-ink dark:text-ink-dark mb-1 text-center">
+          <p className="text-body text-ink dark:text-ink-dark text-center">
             {clueInfo.clue}
           </p>
 
           {/* Hint note */}
           {clueInfo.hintNote && (
-            <p className="text-caption text-present dark:text-present-dark text-center mb-3 italic">
+            <p className="text-caption text-present dark:text-present-dark text-center mt-1 italic">
               {clueInfo.hintNote}
             </p>
-          )}
-          {!clueInfo.hintNote && <div className="mb-3" />}
-
-          {/* Slot pattern display */}
-          <div className="flex items-center justify-center gap-2" role="group" aria-label="Letter slots">
-            {slots.map((slot, i) => (
-              <div
-                key={i}
-                className={`flex items-center justify-center w-10 h-12 rounded-md border-2 font-mono text-xl font-bold transition-all duration-100
-                  ${
-                    isSolved
-                      ? "bg-correct/10 dark:bg-correct-dark/10 border-correct dark:border-correct-dark text-correct dark:text-correct-dark"
-                      : slot.isRevealed
-                        ? "bg-accent/10 dark:bg-accent-dark/10 border-accent dark:border-accent-dark text-accent dark:text-accent-dark"
-                        : slot.isFilled
-                          ? "bg-surface dark:bg-surface-dark border-border-active dark:border-border-active-dark text-ink dark:text-ink-dark"
-                          : "bg-surface dark:bg-surface-dark border-border dark:border-border-dark text-ink-tertiary dark:text-ink-tertiary-dark"
-                  }
-                `}
-              >
-                {isSolved && clueInfo.word ? clueInfo.word[i] : slot.letter}
-              </div>
-            ))}
-          </div>
-
-          {/* Solved indicator */}
-          {isSolved && (
-            <div className="mt-3 flex items-center justify-center gap-2 text-correct dark:text-correct-dark">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              <span className="text-caption font-medium uppercase tracking-wider">Solved</span>
-            </div>
           )}
         </motion.div>
       </AnimatePresence>
 
       {/* Dot indicators */}
-      <div className="flex items-center justify-center gap-1.5 mt-4">
+      <div className="flex items-center justify-center gap-1.5 mt-3">
         {allTargets.map((targetId, i) => {
           const isActive = targetId === selectedTarget;
           const targetSolved = solvedWords.has(targetId);

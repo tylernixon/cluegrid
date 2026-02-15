@@ -1,6 +1,7 @@
 "use client";
 
 import { Modal } from "@/components/ui/Modal";
+import { BadgeDisplay } from "@/components/game/BadgeDisplay";
 import { useStatsStore } from "@/stores/statsStore";
 
 interface StatsModalProps {
@@ -14,6 +15,7 @@ export function StatsModal({ open, onClose }: StatsModalProps) {
   const currentStreak = useStatsStore((s) => s.currentStreak);
   const maxStreak = useStatsStore((s) => s.maxStreak);
   const guessDistribution = useStatsStore((s) => s.guessDistribution);
+  const badges = useStatsStore((s) => s.badges);
 
   const winPercentage =
     gamesPlayed > 0 ? Math.round((gamesWon / gamesPlayed) * 100) : 0;
@@ -97,6 +99,14 @@ export function StatsModal({ open, onClose }: StatsModalProps) {
               );
             })}
           </div>
+        </div>
+
+        {/* Badges */}
+        <div className="mb-6">
+          <h3 className="text-heading-3 text-ink dark:text-ink-dark mb-4 text-left">
+            Badges
+          </h3>
+          <BadgeDisplay earnedBadges={badges} />
         </div>
 
         {/* Close button */}

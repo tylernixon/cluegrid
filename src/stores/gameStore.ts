@@ -12,6 +12,7 @@ import type {
   StarRating,
 } from "@/types";
 import { DIFFICULTY_GUESS_LIMITS, calculateStars } from "@/types";
+import type { GameResult } from "@/types";
 import { useStatsStore } from "./statsStore";
 
 // ---------------------------------------------------------------------------
@@ -588,7 +589,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Record stats if game is over
     let newStatsRecorded = state.statsRecorded;
     if ((newStatus === "won" || newStatus === "lost") && !state.statsRecorded) {
-      useStatsStore.getState().recordGame(newStatus === "won", newMainGuessCount);
+      const statsStore = useStatsStore.getState();
+      statsStore.recordGame(newStatus === "won", newMainGuessCount);
+
+      // Check and award badges
+      const gameResult: GameResult = {
+        won: newStatus === "won",
+        guessCount: newMainGuessCount,
+        hintsUsed: newHintsUsed,
+        totalCrossers: state.puzzle.crossers.length,
+        starRating: calculateStars(newHintsUsed, state.puzzle.crossers.length),
+      };
+      statsStore.checkAndAwardBadges(gameResult);
+
       newStatsRecorded = true;
     }
 
