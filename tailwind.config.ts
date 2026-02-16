@@ -18,9 +18,9 @@ const config: Config = {
         "ink-tertiary": { DEFAULT: "#AEA69C", dark: "#606068" },
         border: { DEFAULT: "#E2DDD6", dark: "#2A2A32" },
         "border-active": { DEFAULT: "#C4BDB4", dark: "#3A3A44" },
-        correct: { DEFAULT: "#4A8B6E", dark: "#4A9B7E" },
-        // Revealed/hint letters - solid green for light, faint green for dark
-        revealed: { DEFAULT: "#4A8B6E", dark: "#4A9B7E52" },
+        correct: { DEFAULT: "#4A8B6E", dark: "#4A8B6E" },
+        // Revealed/hint letters - solid green for main word row
+        revealed: { DEFAULT: "#4A8B6E", dark: "#4A8B6E" },
         // Crosser solved - very faint green (~12% opacity) for solved crosser cells (not main row)
         "crosser-solved": { DEFAULT: "#4A8B6E20", dark: "#4A9B7E20" },
         present: { DEFAULT: "#C4944A", dark: "#D4A45A" },
