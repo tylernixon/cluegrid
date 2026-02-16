@@ -1,46 +1,50 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
-// Using game feedback colors: green (correct), yellow (present), gray (absent)
+// Final letters with their colors
 const LETTERS = [
   { char: "g", color: "#4A8B6E" },  // correct (green)
   { char: "i", color: "#C4944A" },  // present (yellow)
-  { char: "s", color: "#B8B0A6" },  // absent (gray)
+  { char: "s", color: "#B8B0A6" },  // absent (beige)
   { char: "t", color: "#4A8B6E" },  // correct (green)
 ];
 
-// Characters to cycle through for the slot-machine effect
-const SLOT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase().split("");
+// Colors to cycle through during animation
+const TILE_COLORS = ["#4A8B6E", "#C4944A", "#B8B0A6"];
+
+// Characters to cycle through
+const SLOT_CHARS = "abcdefghijklmnopqrstuvwxyz".split("");
 
 interface GistLogoProps {
   className?: string;
 }
 
-function SlotLetter({
+function FlipTile({
   targetChar,
-  color,
+  targetColor,
   delay
 }: {
   targetChar: string;
-  color: string;
+  targetColor: string;
   delay: number;
 }) {
-  // Start with target char to avoid hydration mismatch (server/client must match)
+  // Start with target values to avoid hydration mismatch
   const [currentChar, setCurrentChar] = useState(targetChar);
+  const [currentColor, setCurrentColor] = useState(targetColor);
+  const [flipKey, setFlipKey] = useState(0);
   const [isSettled, setIsSettled] = useState(true);
   const hasStartedRef = useRef(false);
 
   useEffect(() => {
-    // Only run animation on client after mount
     if (hasStartedRef.current) return;
     hasStartedRef.current = true;
     setIsSettled(false);
 
-    let spinCount = 0;
-    const maxSpins = 8 + Math.floor(Math.random() * 4); // 8-11 spins
-    const spinInterval = 60; // ms between each character change
+    let flipCount = 0;
+    const maxFlips = 4 + Math.floor(Math.random() * 3); // 4-6 flips
+    const flipInterval = 200; // ms between flips
 
     const startTime = Date.now();
 
@@ -48,53 +52,51 @@ function SlotLetter({
       const elapsed = Date.now() - startTime;
 
       if (elapsed < delay) {
-        // Still in delay phase, show random char
-        setCurrentChar(SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]!);
-        return;
+        return; // Wait for stagger delay
       }
 
-      spinCount++;
+      flipCount++;
 
-      if (spinCount >= maxSpins) {
-        // Settle on the target character
+      if (flipCount > maxFlips) {
+        // Final flip to target
         setCurrentChar(targetChar);
+        setCurrentColor(targetColor);
+        setFlipKey(prev => prev + 1);
         setIsSettled(true);
         clearInterval(interval);
       } else {
-        // Show a random character with vertical flip
+        // Random flip
         setCurrentChar(SLOT_CHARS[Math.floor(Math.random() * SLOT_CHARS.length)]!);
+        setCurrentColor(TILE_COLORS[Math.floor(Math.random() * TILE_COLORS.length)]!);
+        setFlipKey(prev => prev + 1);
       }
-    }, spinInterval);
+    }, flipInterval);
 
     return () => {
       clearInterval(interval);
       // Always settle on target when cleaning up
       setCurrentChar(targetChar);
+      setCurrentColor(targetColor);
       setIsSettled(true);
     };
-  }, [targetChar, delay]);
+  }, [targetChar, targetColor, delay]);
 
   return (
-    <span
-      className="relative w-7 h-7 flex items-center justify-center rounded text-white font-sans font-semibold text-lg overflow-hidden"
-      style={{ backgroundColor: color }}
-    >
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={currentChar + (isSettled ? "-settled" : "")}
-          initial={{ y: -16, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 16, opacity: 0 }}
-          transition={{
-            duration: isSettled ? 0.12 : 0.04,
-            ease: "linear"
-          }}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          {currentChar}
-        </motion.span>
-      </AnimatePresence>
-    </span>
+    <div className="w-7 h-7" style={{ perspective: "200px" }}>
+      <motion.div
+        key={flipKey}
+        className="w-full h-full rounded flex items-center justify-center text-white font-sans font-semibold text-lg"
+        style={{ backgroundColor: currentColor }}
+        initial={flipKey === 0 ? false : { rotateX: -90 }}
+        animate={{ rotateX: 0 }}
+        transition={{
+          duration: isSettled ? 0.3 : 0.15,
+          ease: "easeOut"
+        }}
+      >
+        {currentChar}
+      </motion.div>
+    </div>
   );
 }
 
@@ -102,11 +104,11 @@ export function GistLogo({ className }: GistLogoProps) {
   return (
     <h1 className={`flex gap-0.5 ${className || ""}`}>
       {LETTERS.map((letter, index) => (
-        <SlotLetter
-          key={letter.char}
+        <FlipTile
+          key={index}
           targetChar={letter.char}
-          color={letter.color}
-          delay={index * 80} // Stagger the start of each letter
+          targetColor={letter.color}
+          delay={index * 150} // Stagger start of each tile
         />
       ))}
     </h1>
