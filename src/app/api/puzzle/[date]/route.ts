@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { getPuzzleForDate } from '@/lib/puzzle';
 import type { PuzzleData } from '@/types';
 
+// Force dynamic rendering to avoid stale edge cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(
   request: Request,
   { params }: { params: { date: string } },
@@ -14,23 +18,19 @@ export async function GET(
     );
   }
 
-  // Check for cache-bust query param
-  const url = new URL(request.url);
-  const bustCache = url.searchParams.has('bust');
-
   // Fetch puzzle from database (falls back to mock if none exists)
   const puzzle: PuzzleData = await getPuzzleForDate(params.date);
 
-  // If bust param is present, don't cache
-  const cacheHeaders = bustCache
-    ? { 'Cache-Control': 'no-store, no-cache, must-revalidate' }
-    : { 'Cache-Control': 'public, max-age=300, s-maxage=300, stale-while-revalidate=60' };
-
+  // Always no-cache to ensure fresh data
   return NextResponse.json(
     { puzzle },
     {
       status: 200,
-      headers: cacheHeaders,
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
     },
   );
 }

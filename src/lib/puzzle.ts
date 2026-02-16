@@ -86,11 +86,13 @@ interface DbCrosser {
 export async function getPuzzleForDate(date: string): Promise<PuzzleData> {
   // Validate date format
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-    console.warn(`Invalid date format: ${date}, returning mock puzzle`);
+    console.warn(`[getPuzzleForDate] Invalid date format: ${date}, returning mock puzzle`);
     return { ...MOCK_PUZZLE, date };
   }
 
   try {
+    console.log(`[getPuzzleForDate] Fetching puzzle for date: ${date}`);
+
     // Fetch published puzzle for date
     const { data: puzzle, error: puzzleError } = await supabase
       .from('puzzles')
@@ -99,9 +101,17 @@ export async function getPuzzleForDate(date: string): Promise<PuzzleData> {
       .eq('status', 'published')
       .single();
 
+    console.log(`[getPuzzleForDate] Query result:`, {
+      date,
+      hasData: !!puzzle,
+      puzzleId: puzzle?.id,
+      mainWord: puzzle?.main_word,
+      error: puzzleError?.message,
+    });
+
     if (puzzleError || !puzzle) {
       // No published puzzle for this date - return mock
-      console.log(`No published puzzle for ${date}, using mock`);
+      console.log(`[getPuzzleForDate] No published puzzle for ${date}, using mock BEACH`);
       return { ...MOCK_PUZZLE, date };
     }
 
@@ -157,10 +167,19 @@ export async function getPuzzleForDate(date: string): Promise<PuzzleData> {
 
 /**
  * Gets today's puzzle date in YYYY-MM-DD format.
- * Uses UTC to ensure consistency across timezones.
+ * Uses Pacific Time since puzzles are published in that timezone.
  */
 export function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0]!;
+  const now = new Date();
+  // Format in Pacific Time (handles PST/PDT automatically)
+  const pacificDate = now.toLocaleDateString('en-CA', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  // en-CA locale gives YYYY-MM-DD format
+  return pacificDate;
 }
 
 /**

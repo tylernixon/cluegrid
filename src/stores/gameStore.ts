@@ -297,8 +297,22 @@ interface GameStore {
 // Utilities
 // ---------------------------------------------------------------------------
 
+/**
+ * Get today's date in YYYY-MM-DD format using Pacific Time.
+ * Puzzles are published in Pacific Time, so we use that timezone
+ * to determine which puzzle to show.
+ */
 function getTodayDate(): string {
-  return new Date().toISOString().split("T")[0]!;
+  const now = new Date();
+  // Format in Pacific Time (handles PST/PDT automatically)
+  const pacificDate = now.toLocaleDateString('en-CA', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  // en-CA locale gives YYYY-MM-DD format
+  return pacificDate;
 }
 
 // ---------------------------------------------------------------------------
@@ -471,19 +485,38 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   fetchPuzzle: async () => {
+    // Check if URL has reset param - clears all sessions (must happen BEFORE puzzleLoaded check)
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has("reset")) {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith("cluegrid:session:"))
+          .forEach((k) => localStorage.removeItem(k));
+        // Remove reset param from URL and force reload to get fresh state
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete("reset");
+        window.location.replace(newUrl.toString());
+        return;
+      }
+    }
+
     if (get().puzzleLoaded) return;
 
     set({ isLoading: true, error: null });
 
     try {
       const today = getTodayDate();
+      console.log("[fetchPuzzle] Fetching for date:", today);
 
       // Check if URL has cache-bust param (e.g., ?t=123)
       const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
       const shouldBustCache = urlParams?.has("t") || urlParams?.has("bust");
       const bustParam = shouldBustCache ? "?bust" : "";
 
-      const response = await fetch(`/api/puzzle/${today}${bustParam}`);
+      const url = `/api/puzzle/${today}${bustParam}`;
+      console.log("[fetchPuzzle] Fetching URL:", url);
+      const response = await fetch(url);
+      console.log("[fetchPuzzle] Response status:", response.status);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch puzzle: ${response.status}`);
