@@ -136,7 +136,7 @@ export function MenuDrawer({
     >
       {/* LAYER 1: Blurred backdrop - absolute full-bleed, NO safe area padding */}
       <motion.div
-        className="absolute inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        className="absolute inset-0 bg-canvas/[0.56] dark:bg-canvas-dark/[0.56] backdrop-blur-xl"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
