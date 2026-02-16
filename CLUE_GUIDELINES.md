@@ -180,15 +180,38 @@ Before any clue ships, run through this:
 - May use figurative language
 - Example for BREAD: "What a sandwich cannot exist without."
 
-### Hard Clues (Difficulty 4-5)
+### Hard Clues (Difficulty 4)
 - Require lateral thinking
-- May use misdirection (honestly)
-- Example for BREAD: "Slang for money, or what you might toast in the morning."
+- Use misdirection, metaphor, or abstraction
+- Clues should NOT directly hint at the theme -- they must be oblique
+- Example for BREAD: "What the desperate are said to lack."
+- Example for FRESH: "What yesterday's regrets became at midnight." (Not: "New or recently made")
+
+### Very Hard Clues (Difficulty 5)
+- **Crosser clues must NOT reveal the theme.** The theme should only become apparent AFTER solving.
+- Use poetic, cryptic, or philosophical language
+- Clues should work on multiple levels -- the surface meaning misdirects
+- Avoid any word that shares semantic overlap with the main word or theme
+- The solver should need to solve 2-3 crossers before the main word becomes guessable
+- Example theme "Tabula rasa" with main word FRESH:
+  - BAD: "Newly picked" (too obvious)
+  - BAD: "Like morning air" (hints at newness)
+  - GOOD: "What yesterday's regrets became at midnight" (abstract, requires inference)
+- Example crosser clue for FLARE (intersecting F in FRESH):
+  - BAD: "Bright burst of light" (too direct)
+  - GOOD: "Sudden burst of brilliance" (could be metaphorical)
+
+### Theme Hint Guidelines (for Hard/Very Hard)
+- The theme hint should be evocative but NOT give away the main word
+- It should create an "aha" moment AFTER solving, not before
+- BAD theme hint for FRESH: "Something new and clean" (gives it away)
+- GOOD theme hint for FRESH: "What yesterday's regrets became at midnight" (poetic, requires solving to understand)
 
 ### Difficulty Distribution for Launch
-- 30% Easy (days 1-27)
-- 50% Medium (days 28-72)
-- 20% Hard (days 73-90)
+- 20% Easy (difficulty 1-2) -- onboarding, weekends
+- 40% Medium (difficulty 3) -- standard weekday puzzles
+- 30% Hard (difficulty 4) -- challenging but fair
+- 10% Very Hard (difficulty 5) -- "Friday hard" -- most players will need all crossers
 
 This gives new players a gentle ramp and keeps veterans engaged.
 

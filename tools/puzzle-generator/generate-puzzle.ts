@@ -182,29 +182,53 @@ async function generateClues(
   const wordList = crossers.map((c) => c.word).join(", ");
 
   const difficultyGuidance =
-    difficulty >= 4
-      ? "Use subtle misdirection or require lateral thinking. The connection to the answer should be clear in hindsight."
-      : difficulty <= 2
-        ? "Be direct and evocative. Use vivid sensory language that points clearly to the answer."
-        : "Balance directness with a small creative leap. The clue should be satisfying to solve.";
+    difficulty >= 5
+      ? `VERY HARD MODE - Critical rules:
+- Clues must NOT hint at the theme. The theme should only become apparent AFTER solving.
+- Use poetic, cryptic, or philosophical language. The surface meaning should misdirect.
+- Avoid ANY word that shares semantic overlap with the main word "${mainWord}" or theme "${theme}".
+- The solver should need 2-3 crossers before the main word becomes guessable.
+- Example: For theme "Tabula rasa" with main word FRESH, DON'T say "Newly picked" (too obvious). DO say "What yesterday's regrets became at midnight" (abstract, requires inference).
+- Clues should work on multiple levels - be technically accurate but creatively oblique.`
+      : difficulty >= 4
+        ? `HARD MODE - Rules:
+- Use misdirection, metaphor, or abstraction. Clues should NOT directly hint at the theme.
+- Avoid obvious descriptors. If a word means "new", don't use synonyms of "new" in the clue.
+- The clue should be defensible but require lateral thinking.
+- Example: For BREAD, DON'T say "Baked loaf" (too direct). DO say "What the desperate are said to lack" (requires inference).`
+        : difficulty <= 2
+          ? "Be direct and evocative. Use vivid sensory language that points clearly to the answer."
+          : "Balance directness with a small creative leap. The clue should be satisfying to solve.";
 
   const prompt = `You are a puzzle clue writer for Cluegrid, a word puzzle game.
 
 MAIN WORD: ${mainWord} (the hidden word players are trying to guess)
 THEME: ${theme}
 CROSSER WORDS: ${wordList}
+DIFFICULTY: ${difficulty}/5
 
 Write a clue for each crosser word. Each clue should:
-1. Point clearly to the crosser word as the answer
-2. Subtly connect to or evoke the theme "${theme}" (but don't mention the theme directly)
-3. Be 10-25 words long
-4. Use vivid, sensory language when possible
-5. ${difficultyGuidance}
+1. Point clearly to the crosser word as the answer (one defensible answer only)
+2. Be 10-25 words long
+3. Use vivid, sensory language when possible
+4. ${difficultyGuidance}
 
-Example good clues:
+${difficulty >= 4 ? `
+CRITICAL FOR HARD/VERY HARD:
+- The crosser clues should NOT reveal or hint at the theme "${theme}".
+- Solvers should only understand how the theme connects AFTER they solve the puzzle.
+- If every clue obviously relates to "${theme}", the puzzle is TOO EASY.
+- Write clues that are accurate for the crosser word but don't give away what "${mainWord}" might be.
+` : `Subtly connect to or evoke the theme "${theme}" (but don't mention it directly).`}
+
+Example good clues (for EASY/MEDIUM):
 - For CORAL with theme "Ocean Life": "The hard, colorful structures that tiny sea creatures build over centuries."
-- For ARROW with theme "Hunting": "What a bow releases toward its target, seeking the mark."
 - For STORM with theme "Weather": "Dark clouds, wind, and heavy rain all arriving at once."
+
+Example good clues (for HARD/VERY HARD):
+- For FLARE with theme "Tabula rasa": "Sudden burst of brilliance" (doesn't hint at "fresh/new" theme)
+- For NERVE with theme "Courage": "Anatomy or audacity" (misdirects with medical meaning)
+- For THAW with theme "Forgiveness": "Ice surrendering to warmth" (accurate but doesn't reveal theme)
 
 Respond with a JSON object:
 {
