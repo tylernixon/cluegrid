@@ -14,7 +14,6 @@ import { Confetti } from "@/components/game/Confetti";
 import { Toast } from "@/components/ui/Toast";
 import { HeaderFeedback } from "@/components/game/HeaderFeedback";
 import { OnboardingModal } from "@/components/game/OnboardingModal";
-import { PresentLettersHint } from "@/components/game/PresentLettersHint";
 import { useGameStore } from "@/stores/gameStore";
 import { useStatsStore } from "@/stores/statsStore";
 import { useKeyboard } from "@/hooks/useKeyboard";
@@ -59,14 +58,12 @@ export default function Home() {
   const setShowCompletionModal = useGameStore((s) => s.setShowCompletionModal);
 
   const guessesRemaining = useGameStore((s) => s.guessesRemaining);
-  const maxGuesses = useGameStore((s) => s.maxGuesses);
   const hintsUsed = useGameStore((s) => s.hintsUsed);
   const keyStatuses = useGameStore((s) => s.keyStatuses);
   const isSubmitting = useGameStore((s) => s.isSubmitting);
   const presentLettersForTarget = useGameStore((s) => s.presentLettersForTarget);
 
   const remaining = guessesRemaining();
-  const maxGuessesValue = maxGuesses();
   const keys = keyStatuses();
   const presentLetters = presentLettersForTarget();
 
@@ -235,7 +232,7 @@ export default function Home() {
       </main>
 
       {/* Clue panel + Keyboard (sticky at bottom) */}
-      <div className="sticky bottom-0 bg-canvas dark:bg-canvas-dark border-t border-border dark:border-border-dark shrink-0">
+      <div className="sticky bottom-0 bg-canvas/85 dark:bg-canvas-dark/85 backdrop-blur-md border-t border-border/50 dark:border-border-dark/50 shrink-0">
         {/* Active clue panel */}
         {!isLoading && isPlaying && (
           <div className="px-4 pt-2">
@@ -246,25 +243,12 @@ export default function Home() {
               onSelectTarget={selectTarget}
               theme={puzzle.theme}
               themeHint={puzzle.themeHint}
+              presentLetters={presentLetters}
+              guessesRemaining={remaining}
+              hintsUsed={hintsUsed}
             />
           </div>
         )}
-
-        {/* Status bar - between clue and keyboard */}
-        {!isLoading && (
-          <div
-            className="flex items-center justify-center gap-4 py-1.5 text-caption text-ink-tertiary dark:text-ink-tertiary-dark"
-            role="status"
-            aria-label={`${remaining} guesses remaining out of ${maxGuessesValue}. ${hintsUsed} hints used out of ${puzzle.crossers.length}`}
-          >
-            <span>{remaining} guesses left</span>
-            <span className="w-px h-3 bg-border dark:bg-border-dark" aria-hidden="true" />
-            <span>{hintsUsed}/{puzzle.crossers.length} hints</span>
-          </div>
-        )}
-
-        {/* Present letters hint - shows letters in word but wrong position */}
-        {!isLoading && isPlaying && <PresentLettersHint letters={presentLetters} />}
 
         {/* Keyboard */}
         <div className="pb-2 pb-[env(safe-area-inset-bottom)]">

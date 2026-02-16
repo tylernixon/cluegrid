@@ -12,6 +12,10 @@ interface ActiveCluePanelProps {
   onSelectTarget: (targetId: "main" | string) => void;
   theme?: string;
   themeHint?: string;
+  presentLetters?: string[];
+  guessesRemaining?: number;
+  maxGuesses?: number;
+  hintsUsed?: number;
 }
 
 export function ActiveCluePanel({
@@ -21,6 +25,9 @@ export function ActiveCluePanel({
   onSelectTarget,
   theme,
   themeHint,
+  presentLetters = [],
+  guessesRemaining,
+  hintsUsed,
 }: ActiveCluePanelProps) {
   const isSolved = solvedWords.has(selectedTarget);
   const prefersReducedMotion = useReducedMotion();
@@ -141,7 +148,7 @@ export function ActiveCluePanel({
 
   return (
     <motion.div
-      className="w-full max-w-[480px] mx-auto px-4 py-3 bg-surface-raised dark:bg-surface-raised-dark rounded-xl border border-border dark:border-border-dark relative overflow-hidden touch-pan-y"
+      className="w-full max-w-[480px] mx-auto px-4 py-2 bg-surface-raised/90 dark:bg-surface-raised-dark/90 backdrop-blur-sm rounded-xl border border-border/50 dark:border-border-dark/50 relative overflow-hidden touch-pan-y"
       drag={prefersReducedMotion ? false : "x"}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.2}
@@ -187,7 +194,7 @@ export function ActiveCluePanel({
           </div>
 
           {/* Clue text */}
-          <p className="text-body font-serif text-ink dark:text-ink-dark text-center">
+          <p className="text-[13px] leading-snug font-serif text-ink dark:text-ink-dark text-center">
             {clueInfo.clue}
           </p>
 
@@ -200,29 +207,73 @@ export function ActiveCluePanel({
         </motion.div>
       </AnimatePresence>
 
-      {/* Dot indicators */}
-      <div className="flex items-center justify-center gap-1.5 mt-3">
-        {allTargets.map((targetId, i) => {
-          const isActive = targetId === selectedTarget;
-          const targetSolved = solvedWords.has(targetId);
-          return (
-            <button
-              key={targetId}
-              type="button"
-              onClick={() => onSelectTarget(targetId)}
-              className={`w-2 h-2 rounded-full transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
-                ${
-                  isActive
-                    ? "bg-accent dark:bg-accent-dark w-4"
-                    : targetSolved
-                      ? "bg-correct/50 dark:bg-correct-dark/50"
-                      : "bg-border-active dark:bg-border-active-dark hover:bg-ink-tertiary dark:hover:bg-ink-tertiary-dark"
-                }
-              `}
-              aria-label={`Go to clue ${i + 1}${targetId === "main" ? " (main word)" : ""}${targetSolved ? " (solved)" : ""}`}
-            />
-          );
-        })}
+      {/* Bottom row: dots, status, and present letters */}
+      <div className="flex items-center justify-between mt-2 gap-2">
+        {/* Compact status (left) */}
+        <div
+          className="flex items-center gap-2 text-xs text-ink-tertiary dark:text-ink-tertiary-dark"
+          role="status"
+          aria-label={`${guessesRemaining} guesses remaining. ${hintsUsed} of ${crossers.length} hints used.`}
+        >
+          {guessesRemaining !== undefined && (
+            <span className="flex items-center gap-1" title={`${guessesRemaining} guesses left`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+              <span className="font-medium">{guessesRemaining}</span>
+            </span>
+          )}
+          {hintsUsed !== undefined && (
+            <span className="flex items-center gap-1" title={`${hintsUsed}/${crossers.length} hints`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><circle cx="12" cy="12" r="10" /><path d="M12 17h.01" />
+              </svg>
+              <span className="font-medium">{hintsUsed}/{crossers.length}</span>
+            </span>
+          )}
+        </div>
+
+        {/* Dot indicators (center) */}
+        <div className="flex items-center justify-center gap-1.5">
+          {allTargets.map((targetId, i) => {
+            const isActive = targetId === selectedTarget;
+            const targetSolved = solvedWords.has(targetId);
+            return (
+              <button
+                key={targetId}
+                type="button"
+                onClick={() => onSelectTarget(targetId)}
+                className={`w-2 h-2 rounded-full transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
+                  ${
+                    isActive
+                      ? "bg-accent dark:bg-accent-dark w-4"
+                      : targetSolved
+                        ? "bg-correct/50 dark:bg-correct-dark/50"
+                        : "bg-border-active dark:bg-border-active-dark hover:bg-ink-tertiary dark:hover:bg-ink-tertiary-dark"
+                  }
+                `}
+                aria-label={`Go to clue ${i + 1}${targetId === "main" ? " (main word)" : ""}${targetSolved ? " (solved)" : ""}`}
+              />
+            );
+          })}
+        </div>
+
+        {/* Present letters (right) */}
+        <div className="flex items-center gap-1">
+          {presentLetters.length > 0 ? (
+            presentLetters.map((letter) => (
+              <span
+                key={letter}
+                className="w-6 h-6 flex items-center justify-center rounded-sm bg-present dark:bg-present-dark text-white text-xs font-mono font-semibold"
+                title={`${letter} is in the word`}
+              >
+                {letter}
+              </span>
+            ))
+          ) : (
+            <span className="w-6" /> /* Spacer for balance */
+          )}
+        </div>
       </div>
     </motion.div>
   );

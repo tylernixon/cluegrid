@@ -6,23 +6,17 @@ import { DifficultySelector } from "@/components/game/DifficultySelector";
 import { useGameStore } from "@/stores/gameStore";
 import type { Difficulty } from "@/types";
 
-type Theme = "light" | "dark" | "system";
+type Theme = "light" | "dark";
 
 function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "system";
-  return (localStorage.getItem("gist-theme") as Theme) || "system";
+  if (typeof window === "undefined") return "dark";
+  return (localStorage.getItem("gist-theme") as Theme) || "dark";
 }
 
 function applyTheme(theme: Theme) {
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const isDark = theme === "dark";
   document.documentElement.classList.toggle("dark", isDark);
-  if (theme === "system") {
-    localStorage.removeItem("gist-theme");
-  } else {
-    localStorage.setItem("gist-theme", theme);
-  }
+  localStorage.setItem("gist-theme", theme);
 }
 
 interface SettingsModalProps {
@@ -39,7 +33,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   const [pendingDifficulty, setPendingDifficulty] = useState<Difficulty>(currentDifficulty);
   const hasChanged = pendingDifficulty !== currentDifficulty;
 
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     setTheme(getInitialTheme());
@@ -76,21 +70,41 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
           <h3 className="text-body font-semibold text-ink dark:text-ink-dark mb-3">
             Theme
           </h3>
-          <div className="flex gap-2">
-            {(["light", "dark", "system"] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => handleThemeChange(t)}
-                className={`flex-1 px-4 py-2.5 rounded-lg text-body-small font-medium capitalize transition-all ${
-                  theme === t
-                    ? "bg-accent dark:bg-accent-dark text-white"
-                    : "bg-surface-raised dark:bg-surface-raised-dark text-ink-secondary dark:text-ink-secondary-dark hover:bg-border dark:hover:bg-border-dark"
-                }`}
-              >
-                {t === "system" ? "Auto" : t}
-              </button>
-            ))}
+          <div className="flex gap-3">
+            {(["light", "dark"] as const).map((t) => {
+              const isSelected = theme === t;
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => handleThemeChange(t)}
+                  className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 text-body font-semibold capitalize transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-correct dark:focus-visible:ring-correct-dark focus-visible:ring-offset-2 ${
+                    isSelected
+                      ? "bg-correct/10 dark:bg-correct-dark/10 border-correct dark:border-correct-dark text-correct dark:text-correct-dark"
+                      : "border-border dark:border-border-dark hover:border-border-active dark:hover:border-border-active-dark bg-surface dark:bg-surface-dark text-ink dark:text-ink-dark"
+                  }`}
+                >
+                  {t === "light" ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="4" />
+                      <path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" />
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                    </svg>
+                  )}
+                  {t}
+                  {isSelected && (
+                    <span className="absolute top-2 right-2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 

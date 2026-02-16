@@ -113,7 +113,8 @@ export default function RootLayout({
               (function() {
                 try {
                   var theme = localStorage.getItem('gist-theme');
-                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  // Default to dark if no preference is stored
+                  if (theme !== 'light') {
                     document.documentElement.classList.add('dark');
                   }
                 } catch(e) {}
