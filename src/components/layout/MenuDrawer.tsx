@@ -164,9 +164,9 @@ export function MenuDrawer({
             <GistLogo />
           </header>
 
-          {/* Menu items - centered */}
-          <nav className="flex-1 py-4 px-4 flex flex-col items-center" aria-label="Main navigation">
-            <div className="w-full max-w-xs">
+          {/* Menu items - centered under logo */}
+          <nav className="flex-1 py-4 flex flex-col items-center" aria-label="Main navigation">
+            <div className="w-full max-w-xs px-4">
             <MenuItem
               icon={<GearIcon />}
               label="Settings"

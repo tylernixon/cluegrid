@@ -60,60 +60,54 @@ export function ModalShell({
       aria-modal="true"
       aria-label={title}
     >
-      {/* Edge-to-edge blurred backdrop - extends into safe areas */}
+      {/* LAYER 1: Blurred backdrop - full screen, NO safe area padding */}
       <div
-        className="fixed bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
         onClick={onClose}
-        style={{
-          // Use negative margins to extend beyond safe areas
-          top: 'calc(-1 * env(safe-area-inset-top, 0px))',
-          left: 'calc(-1 * env(safe-area-inset-left, 0px))',
-          right: 'calc(-1 * env(safe-area-inset-right, 0px))',
-          bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))',
-          // Or simply cover everything
-          width: '100vw',
-          height: '100vh',
-          minHeight: '100dvh',
-        }}
       />
 
-      {/* Full-screen modal surface with safe area padding */}
+      {/* LAYER 2: Content wrapper - safe area padding applied here */}
       <div
-        className="fixed inset-0 h-[100dvh] px-4"
+        className="fixed inset-0 flex flex-col"
         style={{
-          paddingTop: 'max(16px, env(safe-area-inset-top))',
-          paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
         }}
       >
-        <div className="h-full w-full grid grid-rows-[auto_minmax(0,1fr)_auto]">
-          {/* Header pinned top - no border */}
-          <header className="relative flex items-center justify-center py-3 shrink-0">
-            <button
-              type="button"
-              className="absolute left-0 w-10 h-10 flex items-center justify-center text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark transition-colors focus:outline-none"
-              onClick={onClose}
-              aria-label="Go back"
-            >
-              <ChevronLeftIcon />
-            </button>
-            {title && (
-              <h1 className="text-heading-3 font-serif text-ink dark:text-ink-dark">
-                {title}
-              </h1>
-            )}
-          </header>
+        {/* Inner content with additional app padding */}
+        <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
+          <div className="flex-1 grid grid-rows-[auto_minmax(0,1fr)_auto] min-h-0 max-w-lg mx-auto w-full">
+            {/* Header pinned top */}
+            <header className="relative flex items-center justify-center py-3 shrink-0">
+              <button
+                type="button"
+                className="absolute left-0 w-10 h-10 flex items-center justify-center text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark transition-colors focus:outline-none"
+                onClick={onClose}
+                aria-label="Go back"
+              >
+                <ChevronLeftIcon />
+              </button>
+              {title && (
+                <h1 className="text-heading-3 font-serif text-ink dark:text-ink-dark">
+                  {title}
+                </h1>
+              )}
+            </header>
 
-          {/* Content - scrolls if needed, centered when short */}
-          <div className={`overflow-y-auto ${centerContent ? "grid place-items-center" : ""}`}>
-            <div className="w-full max-w-lg mx-auto">{children}</div>
-          </div>
-
-          {/* Footer pinned bottom - no border */}
-          {footer && (
-            <div className="py-3 shrink-0 max-w-lg mx-auto w-full">
-              {footer}
+            {/* Content - scrolls if needed, centered when short */}
+            <div className={`overflow-y-auto min-h-0 ${centerContent ? "grid place-items-center" : ""}`}>
+              <div className="w-full">{children}</div>
             </div>
-          )}
+
+            {/* Footer pinned bottom */}
+            {footer && (
+              <div className="py-3 shrink-0">
+                {footer}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
