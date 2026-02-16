@@ -164,8 +164,9 @@ export function MenuDrawer({
             <GistLogo />
           </header>
 
-          {/* Menu items */}
-          <nav className="flex-1 py-4 px-4" aria-label="Main navigation">
+          {/* Menu items - centered */}
+          <nav className="flex-1 py-4 px-4 flex flex-col items-center" aria-label="Main navigation">
+            <div className="w-full max-w-xs">
             <MenuItem
               icon={<GearIcon />}
               label="Settings"
@@ -190,6 +191,7 @@ export function MenuDrawer({
                 onOpenHistory();
               }}
             />
+            </div>
           </nav>
         </motion.div>
       )}

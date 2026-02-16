@@ -60,16 +60,20 @@ export function ModalShell({
       aria-modal="true"
       aria-label={title}
     >
-      {/* Edge-to-edge blurred backdrop - directly on body via portal */}
+      {/* Edge-to-edge blurred backdrop - extends into safe areas */}
       <div
-        className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        className="fixed bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
         onClick={onClose}
         style={{
-          // Extend into safe areas
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
+          // Use negative margins to extend beyond safe areas
+          top: 'calc(-1 * env(safe-area-inset-top, 0px))',
+          left: 'calc(-1 * env(safe-area-inset-left, 0px))',
+          right: 'calc(-1 * env(safe-area-inset-right, 0px))',
+          bottom: 'calc(-1 * env(safe-area-inset-bottom, 0px))',
+          // Or simply cover everything
+          width: '100vw',
+          height: '100vh',
+          minHeight: '100dvh',
         }}
       />
 
