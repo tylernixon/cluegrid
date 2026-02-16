@@ -3,41 +3,21 @@ import type { PuzzleData } from "@/types";
 /**
  * A simple, static puzzle used by the interactive tutorial.
  *
- * Layout (5x5 grid):
+ * The crosser clues hint at the theme - that's the "gist" of the game!
+ *
+ * Layout (5x4 grid):
  *
  *       0   1   2   3   4
- *  0         A       P
- *  1         P       I
- *  2    A  [P] [L] [E] [S]   <-- main word row (PLES shifted; actual: APPLE)
- *  3         L       C
- *  4         E       K
- *
- * Main word: APPLE  (row 2, cols 0-4)
- * Crosser 1: "APPLE" vertical? No -- let's pick clear, simple words.
- *
- * Revised layout (7 cols x 5 rows):
- *
- *       0   1   2   3   4
- *  0        A           P
- *  1        P           E
- *  2   [A] [P] [P] [L] [E]   <-- main word "APPLE" row=2, col=0
- *  3        L           N
- *  4        E
- *
- * Crosser 1: APPLE down at col=1, rows 0-4 (intersects main at row=2, col=1 => "P")
- *   Wait, that duplicates. Let's use different words.
- *
- * Better layout:
- *
- *       0   1   2   3   4
- *  0        C           S
- *  1        A           P
+ *  0        R           T
+ *  1        I           R
  *  2   [A] [P] [P] [L] [E]   <-- main word "APPLE"
- *  3        E           N
- *  4                    D
+ *  3        E           E
  *
- * Crosser 1: CAPE  col=1, rows 0-3 (intersects main at row=2, col=1 => "P", intersectionIndex=2)
- * Crosser 2: SPEND col=4, rows 0-4 (intersects main at row=2, col=4 => "E", intersectionIndex=2)
+ * Crosser 1: RIPE col=1, rows 0-3 (intersects main at row=2, col=1 => "P", intersectionIndex=2)
+ *   Clue hints at fruit: "Ready to pick from the orchard"
+ *
+ * Crosser 2: TREE col=4, rows 0-3 (intersects main at row=2, col=4 => "E", intersectionIndex=2)
+ *   Clue hints at fruit: "A Granny Smith grows on one"
  */
 export const tutorialPuzzle: PuzzleData = {
   id: "tutorial",
@@ -51,24 +31,24 @@ export const tutorialPuzzle: PuzzleData = {
   crossers: [
     {
       id: "crosser-1",
-      word: "CAPE",
-      clue: "A superhero wears one",
+      word: "RIPE",
+      clue: "Ready to pick from the orchard",
       direction: "down",
       startRow: 0,
       startCol: 1,
-      intersectionIndex: 2, // "P" is at index 2 of "CAPE"
+      intersectionIndex: 2, // "P" is at index 2 of "RIPE"
     },
     {
       id: "crosser-2",
-      word: "SPEND",
-      clue: "Use money to buy things",
+      word: "TREE",
+      clue: "A Granny Smith grows on one",
       direction: "down",
       startRow: 0,
       startCol: 4,
-      intersectionIndex: 2, // "E" is at index 2 of "SPEND"
+      intersectionIndex: 2, // "E" is at index 2 of "TREE"
     },
   ],
-  gridSize: { rows: 5, cols: 5 },
+  gridSize: { rows: 4, cols: 5 },
   theme: "Fruit",
   themeHint: "A common fruit",
 };
