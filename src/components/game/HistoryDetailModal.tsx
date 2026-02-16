@@ -1,32 +1,19 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Modal } from "@/components/ui/Modal";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { ShareButton } from "@/components/ui/ShareButton";
 import type { PuzzleData, Guess, LetterFeedback } from "@/types";
 import type { GameHistoryEntry } from "@/stores/historyStore";
-
-// ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
 
 interface HistoryDetailModalProps {
   open: boolean;
   onClose: () => void;
   entry: GameHistoryEntry;
-  puzzle: PuzzleData | null; // Full puzzle data loaded from API
+  puzzle: PuzzleData | null;
   isLoadingPuzzle: boolean;
 }
 
-// ---------------------------------------------------------------------------
-// Helper: reconstruct minimal Guess objects for ShareButton
-// ---------------------------------------------------------------------------
-
-/**
- * Build synthetic Guess objects from the history entry's guessWords.
- * We only need the main-word guesses for the share visual, and we can
- * reconstruct feedback by comparing against the known answer.
- */
 function reconstructGuesses(
   entry: GameHistoryEntry,
   puzzle: PuzzleData,
@@ -70,10 +57,6 @@ function computeFeedback(guess: string, answer: string): LetterFeedback[] {
   return result;
 }
 
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
 export function HistoryDetailModal({
   open,
   onClose,
@@ -85,17 +68,14 @@ export function HistoryDetailModal({
 
   const won = entry.status === "won";
 
-  // Reconstruct guesses for share button when puzzle data is available
   const guesses = useMemo(() => {
     if (!puzzle) return [];
     return reconstructGuesses(entry, puzzle);
   }, [entry, puzzle]);
 
-  // Build a synthetic solvedWords set for share button
   const solvedWords = useMemo(() => {
     const set = new Set<string>();
     if (won) set.add("main");
-    // Mark crossers as solved based on hints used
     if (puzzle) {
       for (let i = 0; i < entry.hintsUsed && i < puzzle.crossers.length; i++) {
         set.add(puzzle.crossers[i]!.id);
@@ -104,7 +84,6 @@ export function HistoryDetailModal({
     return set;
   }, [won, puzzle, entry.hintsUsed]);
 
-  // Format date for display
   const displayDate = useMemo(() => {
     const date = new Date(entry.puzzleDate + "T12:00:00");
     return date.toLocaleDateString("en-US", {
@@ -115,7 +94,6 @@ export function HistoryDetailModal({
     });
   }, [entry.puzzleDate]);
 
-  // Trigger staggered animation
   useEffect(() => {
     if (open && !hasAnimated) {
       const timer = setTimeout(() => setHasAnimated(true), 100);
@@ -128,8 +106,34 @@ export function HistoryDetailModal({
 
   const title = won ? "Solved!" : "Not solved";
 
+  const footer = (
+    <div
+      className={`flex gap-3 justify-center transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+    >
+      {puzzle && guesses.length > 0 && (
+        <ShareButton
+          puzzle={puzzle}
+          guesses={guesses}
+          solvedWords={solvedWords}
+          won={won}
+          size="large"
+          className={`flex-1 max-w-[160px] justify-center rounded-xl shadow-md ${
+            won ? "!bg-correct dark:!bg-correct-dark hover:!brightness-110" : ""
+          }`}
+        />
+      )}
+      <button
+        type="button"
+        className="flex-1 max-w-[160px] px-6 py-3 bg-surface-raised/80 dark:bg-surface-raised-dark/80 backdrop-blur-sm text-ink dark:text-ink-dark border border-border dark:border-border-dark rounded-xl font-semibold text-body hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-all active:scale-[0.97]"
+        onClick={onClose}
+      >
+        Close
+      </button>
+    </div>
+  );
+
   return (
-    <Modal open={open} onClose={onClose} title={title}>
+    <ModalShell open={open} onClose={onClose} title={title} footer={footer} centerContent>
       <div className="text-center">
         {/* Date header */}
         <div
@@ -159,7 +163,7 @@ export function HistoryDetailModal({
         {/* Theme reveal */}
         {puzzle?.theme && (
           <div
-            className={`mt-4 px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-100 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            className={`mt-4 px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 inline-block transition-all duration-500 delay-100 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
             <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
               Theme
@@ -174,7 +178,6 @@ export function HistoryDetailModal({
         <div
           className={`mt-6 flex items-center justify-center gap-6 transition-all duration-500 delay-200 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
         >
-          {/* Guess count */}
           <div className="text-center">
             <p className="text-stat text-ink dark:text-ink-dark">
               {entry.guessCount}
@@ -186,7 +189,6 @@ export function HistoryDetailModal({
 
           <div className="w-px h-12 bg-border dark:bg-border-dark" />
 
-          {/* Hints */}
           <div className="text-center">
             <p className="text-stat text-ink dark:text-ink-dark">
               {entry.hintsUsed}
@@ -198,7 +200,6 @@ export function HistoryDetailModal({
 
           <div className="w-px h-12 bg-border dark:bg-border-dark" />
 
-          {/* Difficulty */}
           <div className="text-center">
             <p className="text-stat text-ink dark:text-ink-dark capitalize">
               {entry.difficulty}
@@ -209,7 +210,7 @@ export function HistoryDetailModal({
           </div>
         </div>
 
-        {/* Visual results - show solved word in tiles when won, or attempts when lost */}
+        {/* Visual results */}
         {won && puzzle ? (
           <div
             className={`mt-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
@@ -217,12 +218,11 @@ export function HistoryDetailModal({
             <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
               Your solve
             </p>
-            <div className="inline-flex gap-1.5 justify-center">
+            <div className="flex gap-1.5 justify-center">
               {puzzle.mainWord.word.split("").map((letter, i) => (
                 <div
                   key={i}
                   className="w-10 h-10 rounded-lg bg-correct dark:bg-correct-dark flex items-center justify-center text-white font-mono text-lg font-bold"
-                  style={{ animationDelay: `${i * 60}ms` }}
                 >
                   {letter}
                 </div>
@@ -257,7 +257,7 @@ export function HistoryDetailModal({
           </div>
         ) : null}
 
-        {/* Loading state for puzzle data */}
+        {/* Loading state */}
         {isLoadingPuzzle && (
           <div className="mt-6">
             <p className="text-body-small text-ink-tertiary dark:text-ink-tertiary-dark animate-pulse">
@@ -265,34 +265,7 @@ export function HistoryDetailModal({
             </p>
           </div>
         )}
-
-        {/* Actions */}
-        <div
-          className={`mt-6 flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-        >
-          {puzzle && guesses.length > 0 && (
-            <ShareButton
-              puzzle={puzzle}
-              guesses={guesses}
-              solvedWords={solvedWords}
-              won={won}
-              size="large"
-              className={`flex-1 max-w-[160px] justify-center rounded-xl shadow-md ${
-                won
-                  ? "!bg-correct dark:!bg-correct-dark hover:!brightness-110"
-                  : ""
-              }`}
-            />
-          )}
-          <button
-            type="button"
-            className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
-            onClick={onClose}
-          >
-            Close
-          </button>
-        </div>
       </div>
-    </Modal>
+    </ModalShell>
   );
 }
