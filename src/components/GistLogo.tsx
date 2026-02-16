@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Using game feedback colors: green (correct), yellow (present), gray (absent)
@@ -30,12 +30,12 @@ function SlotLetter({
   // Start with target char to avoid hydration mismatch (server/client must match)
   const [currentChar, setCurrentChar] = useState(targetChar);
   const [isSettled, setIsSettled] = useState(true);
-  const [hasStarted, setHasStarted] = useState(false);
+  const hasStartedRef = useRef(false);
 
   useEffect(() => {
     // Only run animation on client after mount
-    if (hasStarted) return;
-    setHasStarted(true);
+    if (hasStartedRef.current) return;
+    hasStartedRef.current = true;
     setIsSettled(false);
 
     let spinCount = 0;
@@ -67,7 +67,7 @@ function SlotLetter({
     }, spinInterval);
 
     return () => clearInterval(interval);
-  }, [targetChar, delay, hasStarted]);
+  }, [targetChar, delay]);
 
   return (
     <span
