@@ -71,20 +71,20 @@ function SlotLetter({
 
   return (
     <span
-      className="w-7 h-7 flex items-center justify-center rounded text-white font-sans font-semibold text-lg overflow-hidden"
+      className="relative w-7 h-7 flex items-center justify-center rounded text-white font-sans font-semibold text-lg overflow-hidden"
       style={{ backgroundColor: color }}
     >
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         <motion.span
           key={currentChar + (isSettled ? "-settled" : "")}
-          initial={{ y: -20, opacity: 0 }}
+          initial={{ y: -16, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 20, opacity: 0 }}
+          exit={{ y: 16, opacity: 0 }}
           transition={{
-            duration: isSettled ? 0.15 : 0.06,
-            ease: isSettled ? "easeOut" : "linear"
+            duration: isSettled ? 0.12 : 0.04,
+            ease: "linear"
           }}
-          className="block"
+          className="absolute inset-0 flex items-center justify-center"
         >
           {currentChar}
         </motion.span>
