@@ -535,6 +535,10 @@ IMPORTANT RULES:
 - Each crosser intersects the main word at a different letter position
 - The shared letter must appear in the crosser word at the "intersectionIndex" position
 - Spread crossers across different positions in the main word for visual balance
+- CRITICAL: Use DIFFERENT intersectionIndex values for each crosser to avoid overlapping rows
+  - Example: if one crosser has intersectionIndex=2, another should have intersectionIndex=0 or 4
+  - This prevents horizontal letter sequences that look like unintended words
+- Try to vary word lengths (mix of 4, 5, 6, 7 letter words) for visual interest
 
 Respond ONLY with a JSON object in this exact format (no markdown, no explanation):
 {
@@ -575,6 +579,10 @@ Requirements:
 5. Crosser words should be 4-8 letters long.
 6. Each crosser must intersect the main word at a DIFFERENT position.
 7. Crosser words should loosely relate to the theme when possible.
+8. CRITICAL: Use DIFFERENT intersectionIndex values for each crosser to avoid overlapping rows
+   - Example: if one crosser has intersectionIndex=2, another should have intersectionIndex=0 or 4
+   - This prevents horizontal letter sequences that look like unintended words
+9. Try to vary word lengths (mix of 4, 5, 6, 7 letter words) for visual interest
 
 Difficulty level: ${difficulty}
 ${guidance}

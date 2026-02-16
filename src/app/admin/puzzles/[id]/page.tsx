@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { validatePuzzleIntersections } from '@/lib/puzzle';
+import { validatePuzzleIntersections, checkHorizontalConflicts } from '@/lib/puzzle';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 // ---------------------------------------------------------------------------
@@ -151,6 +151,22 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
       })),
     );
   }, [mainWord, mainWordRow, mainWordCol, crossers]);
+
+  // Check for horizontal conflicts (crossers forming words on same row)
+  const horizontalWarnings = useMemo(() => {
+    if (crossers.every((c) => !c.word)) {
+      return { warnings: [] };
+    }
+    return checkHorizontalConflicts(
+      mainWordRow,
+      gridCols,
+      crossers.filter((c) => c.word).map((c) => ({
+        word: c.word.toUpperCase(),
+        startRow: c.startRow,
+        startCol: c.startCol,
+      })),
+    );
+  }, [mainWordRow, gridCols, crossers]);
 
   // Grid preview
   const gridPreview = useMemo((): GridCell[][] => {
@@ -869,6 +885,29 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
                       />
                     </svg>
                     <span className="text-sm">{err}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Horizontal conflict warnings */}
+            {horizontalWarnings.warnings.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
+                <div className="text-sm font-medium text-yellow-700 mb-2">Crosser Layout Warnings</div>
+                {horizontalWarnings.warnings.map((warn, i) => (
+                  <div key={i} className="flex items-start gap-2 text-yellow-700">
+                    <svg
+                      className="w-5 h-5 shrink-0 mt-0.5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span className="text-sm">{warn}</span>
                   </div>
                 ))}
               </div>

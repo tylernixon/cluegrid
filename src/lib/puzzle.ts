@@ -265,3 +265,77 @@ export function validatePuzzleIntersections(
     errors,
   };
 }
+
+/**
+ * Checks for horizontal letter sequences formed by crossers on the same row.
+ * Returns warnings for rows where multiple crossers share letters (excluding main word row).
+ */
+export function checkHorizontalConflicts(
+  mainWordRow: number,
+  gridCols: number,
+  crossers: Array<{
+    word: string;
+    startRow: number;
+    startCol: number;
+  }>,
+): { warnings: string[] } {
+  const warnings: string[] = [];
+
+  // Build a map of row -> columns that have crosser letters
+  const rowLetters = new Map<number, Map<number, string>>();
+
+  for (const crosser of crossers) {
+    for (let i = 0; i < crosser.word.length; i++) {
+      const row = crosser.startRow + i;
+      const col = crosser.startCol;
+      const letter = crosser.word[i]!;
+
+      if (!rowLetters.has(row)) {
+        rowLetters.set(row, new Map());
+      }
+      rowLetters.get(row)!.set(col, letter);
+    }
+  }
+
+  // Check each row (except main word row) for multiple letters
+  for (const [row, colMap] of rowLetters) {
+    if (row === mainWordRow) continue; // Skip main word row
+    if (colMap.size < 2) continue; // Need at least 2 letters
+
+    // Build the horizontal sequence
+    const cols = Array.from(colMap.keys()).sort((a, b) => a - b);
+    let sequence = '';
+    let lastCol = -2;
+
+    for (const col of cols) {
+      if (col === lastCol + 1) {
+        // Adjacent letter
+        sequence += colMap.get(col);
+      } else {
+        // Gap - check previous sequence
+        if (sequence.length >= 3) {
+          warnings.push(
+            `Row ${row}: Adjacent crosser letters form "${sequence}" - verify this isn't a confusing word`
+          );
+        }
+        sequence = colMap.get(col)!;
+      }
+      lastCol = col;
+    }
+
+    // Check final sequence
+    if (sequence.length >= 3) {
+      warnings.push(
+        `Row ${row}: Adjacent crosser letters form "${sequence}" - verify this isn't a confusing word`
+      );
+    } else if (colMap.size >= 2) {
+      // Non-adjacent letters on same row
+      const letters = cols.map(c => colMap.get(c)).join(', ');
+      warnings.push(
+        `Row ${row}: Multiple crosser letters (${letters}) on same row may look like a word`
+      );
+    }
+  }
+
+  return { warnings };
+}
