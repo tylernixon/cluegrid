@@ -58,7 +58,7 @@ export function ModalShell({
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 z-50 m-0 p-0 w-full h-full max-w-none max-h-none bg-transparent backdrop:bg-transparent"
+      className="fixed inset-0 z-50 m-0 p-0 w-full h-full max-w-none max-h-none bg-canvas/80 dark:bg-canvas-dark/80 backdrop:bg-black/50"
       aria-label={title}
     >
       {/* Fixed container */}
@@ -97,14 +97,10 @@ export function ModalShell({
               </header>
 
               {/* Body - only scrollable region */}
-              <div className="overflow-y-auto">
-                {centerContent ? (
-                  <div className="min-h-full flex items-center p-4">
-                    <div className="w-full">{children}</div>
-                  </div>
-                ) : (
-                  <div className="p-4">{children}</div>
-                )}
+              <div className={`overflow-y-auto ${centerContent ? "flex items-center" : ""}`}>
+                <div className={`w-full p-4 ${centerContent ? "my-auto" : ""}`}>
+                  {children}
+                </div>
               </div>
 
               {/* Footer - pinned to bottom */}
