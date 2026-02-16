@@ -193,8 +193,8 @@ export function ActiveCluePanel({
             )}
           </div>
 
-          {/* Clue text - responsive: 12px small phone, 14px large phone, 16px tablet+ */}
-          <p className="text-xs min-[400px]:text-sm sm:text-base leading-snug font-serif text-ink dark:text-ink-dark text-center">
+          {/* Clue text - responsive: 12px small phone (<375), 14px phone (375+), 16px tablet (640+) */}
+          <p className="text-xs min-[375px]:text-sm sm:text-base leading-snug font-serif text-ink dark:text-ink-dark text-center">
             {clueInfo.clue}
           </p>
 
