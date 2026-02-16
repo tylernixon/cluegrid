@@ -141,6 +141,15 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
 
   const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80" role="dialog" aria-modal="true" aria-label="How to play">
+      {/* Edge gradients to blend any safe-area seams */}
+      <div
+        className="absolute inset-x-0 top-0 h-12 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, black, transparent)' }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, black, transparent)' }}
+      />
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}

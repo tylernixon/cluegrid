@@ -82,6 +82,16 @@ export function HelpMenu({ open, onClose, onViewTutorial, onStartWalkthrough }: 
             aria-hidden="true"
           />
 
+          {/* Edge gradients to blend any safe-area seams */}
+          <div
+            className="fixed inset-x-0 top-0 h-12 z-50 pointer-events-none"
+            style={{ background: 'linear-gradient(to bottom, black, transparent)' }}
+          />
+          <div
+            className="fixed inset-x-0 bottom-0 h-12 z-50 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, black, transparent)' }}
+          />
+
           {/* Action sheet */}
           <motion.div
             className="fixed bottom-0 left-0 right-0 z-50 px-4"
