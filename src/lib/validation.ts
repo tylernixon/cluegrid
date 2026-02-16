@@ -50,6 +50,8 @@ export const CreatePuzzleSchema = z.object({
     .max(6),
   status: z.enum(['draft', 'scheduled']).default('draft'),
   difficultyRating: z.number().int().min(1).max(5).optional(),
+  theme: z.string().max(100).optional(),
+  themeHint: z.string().max(200).optional(),
   author: z.string().max(100).optional(),
   notes: z.string().max(2000).optional(),
 });

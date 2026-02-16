@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { ShareButton } from "@/components/ui/ShareButton";
-import { WIN_MESSAGES, calculateStars } from "@/types";
-import type { StarRating } from "@/types";
 import { useStatsStore } from "@/stores/statsStore";
 import type { PuzzleData, Guess } from "@/types";
 
@@ -71,24 +69,6 @@ function FireIcon({ className }: { className?: string }) {
   );
 }
 
-// Checkmark icon
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
 // Clock icon
 function ClockIcon({ className }: { className?: string }) {
   return (
@@ -105,20 +85,6 @@ function ClockIcon({ className }: { className?: string }) {
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
     </svg>
-  );
-}
-
-// Star display component
-function StarDisplay({ rating, className }: { rating: StarRating; className?: string }) {
-  const stars = Array.from({ length: 3 }, (_, i) => i < rating);
-  return (
-    <div className={`flex items-center gap-1 ${className ?? ""}`} aria-label={`${rating} out of 3 stars`}>
-      {stars.map((filled, i) => (
-        <span key={i} className="text-2xl" aria-hidden="true">
-          {filled ? "\u2B50" : "\u2606"}
-        </span>
-      ))}
-    </div>
   );
 }
 
@@ -145,21 +111,6 @@ export function CompletionModal({
   const totalCrossers = puzzle.crossers.length;
   const mainGuesses = guesses.filter((g) => g.targetId === "main");
 
-  // Star rating based on hints used
-  const starRating = calculateStars(hintsUsed, totalCrossers);
-
-  // Calculate perfect game - no hints used and solved quickly
-  const isPerfectGame =
-    status === "won" && hintsUsed === 0 && mainGuesses.length <= 3;
-
-  const winMessage = useMemo(() => {
-    if (status === "lost") return null;
-    if (isPerfectGame) return "Perfect!";
-    if (starRating === 3) return "Brilliant!";
-    if (starRating === 2) return "Great job!";
-    return WIN_MESSAGES[mainGuesses.length] ?? "Well done!";
-  }, [status, isPerfectGame, starRating, mainGuesses.length]);
-
   // Trigger staggered animation when modal opens
   useEffect(() => {
     if (open && !hasAnimated) {
@@ -176,27 +127,12 @@ export function CompletionModal({
   // ============================================
   if (status === "won") {
     return (
-      <Modal open={open} onClose={onClose} title={winMessage ?? "Solved!"}>
+      <Modal open={open} onClose={onClose} title="Solved!">
         <div className="text-center">
-          {/* Success headline with star rating */}
-          <div
-            className={`transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          >
-            <StarDisplay rating={starRating} className="justify-center mb-2" />
-            <p className="text-heading-1 text-correct dark:text-correct-dark mb-1">
-              {winMessage}
-            </p>
-            {isPerfectGame && (
-              <p className="text-body-small text-present dark:text-present-dark animate-gentle-pulse">
-                Flawless victory
-              </p>
-            )}
-          </div>
-
           {/* Theme reveal */}
           {puzzle.theme && (
             <div
-              className={`mt-4 px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-100 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
                 {isArchiveMode ? "Theme" : "Today\u0027s theme"}
@@ -273,66 +209,23 @@ export function CompletionModal({
             </div>
           )}
 
-          {/* Visual results grid - main word guesses */}
+          {/* Visual results - show the solved word in tiles */}
           <div
             className={`mt-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
             <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
               Your solve
             </p>
-            <div className="inline-flex flex-col gap-1">
-              {mainGuesses.map((guess, i) => (
+            <div className="inline-flex gap-1.5 justify-center">
+              {puzzle.mainWord.word.split("").map((letter, i) => (
                 <div
                   key={i}
-                  className="flex gap-1 justify-center"
-                  style={{ animationDelay: `${i * 80}ms` }}
+                  className="w-10 h-10 rounded-lg bg-correct dark:bg-correct-dark flex items-center justify-center text-white font-mono text-lg font-bold"
+                  style={{ animationDelay: `${i * 60}ms` }}
                 >
-                  {guess.feedback.map((fb, j) => (
-                    <div
-                      key={j}
-                      className={`w-7 h-7 rounded-md transition-all duration-300 ${
-                        fb.status === "correct"
-                          ? "bg-correct dark:bg-correct-dark"
-                          : fb.status === "present"
-                            ? "bg-present dark:bg-present-dark"
-                            : "bg-absent dark:bg-absent-dark"
-                      }`}
-                      style={{ animationDelay: `${i * 80 + j * 40}ms` }}
-                    />
-                  ))}
+                  {letter}
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Crosser summary pills */}
-          <div
-            className={`mt-4 transition-all duration-500 delay-[400ms] ${hasAnimated ? "opacity-100" : "opacity-0"}`}
-          >
-            <div className="flex gap-2 justify-center flex-wrap">
-              {puzzle.crossers.map((crosser, i) => {
-                const isSolved = solvedWords.has(crosser.id);
-                return (
-                  <div
-                    key={crosser.id}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-body-small transition-all ${
-                      isSolved
-                        ? "bg-correct/15 dark:bg-correct-dark/15 text-correct dark:text-correct-dark"
-                        : "bg-border/50 dark:bg-border-dark/50 text-ink-tertiary dark:text-ink-tertiary-dark"
-                    }`}
-                    style={{ animationDelay: `${400 + i * 50}ms` }}
-                  >
-                    <span className="font-mono text-caption">{i + 1}</span>
-                    {isSolved ? (
-                      <CheckIcon className="w-3.5 h-3.5" />
-                    ) : (
-                      <span className="w-3.5 h-3.5 flex items-center justify-center text-caption">
-                        -
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
             </div>
           </div>
 

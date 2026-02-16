@@ -72,7 +72,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     id: "solve-main",
     title: "Now solve the main word",
-    description: "The theme is \"Fruit\" and you can see the letter P. Type APPLE and press Enter!",
+    description: "The theme is \"Fruit\" and you can see the letter P. Type the remaining letters — the revealed P is locked, so it will be skipped!",
     highlight: "grid-main-row",
     allowInput: true,
     expectedWord: "APPLE",
@@ -289,6 +289,93 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
   const puzzle = tutorialPuzzle;
   const step = TOUR_STEPS[stepIndex]!;
 
+  // Helper: get locked positions for the current target (positions with revealed letters)
+  const getLockedPositions = useCallback(
+    (target: "main" | string): Set<number> => {
+      const locked = new Set<number>();
+      if (target === "main") {
+        // For main word, locked positions are where revealed letters exist
+        for (const revealed of revealedLetters) {
+          if (revealed.row === puzzle.mainWord.row) {
+            const posInMain = revealed.col - puzzle.mainWord.col;
+            if (posInMain >= 0 && posInMain < puzzle.mainWord.word.length) {
+              locked.add(posInMain);
+            }
+          }
+        }
+      }
+      // Crossers don't have locked positions (main word intersection shows in main row)
+      return locked;
+    },
+    [revealedLetters, puzzle.mainWord],
+  );
+
+  // Helper: map typed characters to word positions, skipping locked positions
+  const mapGuessToPositions = useCallback(
+    (guess: string, target: "main" | string): Map<number, string> => {
+      const locked = getLockedPositions(target);
+      const targetWord =
+        target === "main"
+          ? puzzle.mainWord.word
+          : puzzle.crossers.find((c) => c.id === target)?.word || "";
+      const result = new Map<number, string>();
+
+      let guessIndex = 0;
+      for (let pos = 0; pos < targetWord.length && guessIndex < guess.length; pos++) {
+        if (!locked.has(pos)) {
+          result.set(pos, guess[guessIndex]!);
+          guessIndex++;
+        }
+      }
+      return result;
+    },
+    [getLockedPositions, puzzle],
+  );
+
+  // Helper: build the full word from guess + locked letters
+  const buildFullWord = useCallback(
+    (guess: string, target: "main" | string): string => {
+      const locked = getLockedPositions(target);
+      const targetWord =
+        target === "main"
+          ? puzzle.mainWord.word
+          : puzzle.crossers.find((c) => c.id === target)?.word || "";
+
+      const result: string[] = [];
+      let guessIndex = 0;
+
+      for (let pos = 0; pos < targetWord.length; pos++) {
+        if (locked.has(pos)) {
+          // Use the revealed letter
+          const revealed = revealedLetters.find(
+            (r) => r.row === puzzle.mainWord.row && r.col === puzzle.mainWord.col + pos,
+          );
+          result.push(revealed?.letter || "");
+        } else if (guessIndex < guess.length) {
+          result.push(guess[guessIndex]!);
+          guessIndex++;
+        } else {
+          result.push("");
+        }
+      }
+      return result.join("");
+    },
+    [getLockedPositions, revealedLetters, puzzle],
+  );
+
+  // Calculate max input length (word length minus locked positions)
+  const getMaxInputLength = useCallback(
+    (target: "main" | string): number => {
+      const targetWord =
+        target === "main"
+          ? puzzle.mainWord.word
+          : puzzle.crossers.find((c) => c.id === target)?.word || "";
+      const locked = getLockedPositions(target);
+      return targetWord.length - locked.size;
+    },
+    [getLockedPositions, puzzle],
+  );
+
   // Reset state when tour opens
   useEffect(() => {
     if (open) {
@@ -318,11 +405,7 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
       }
 
       const target = step.selectTarget || selectedTarget;
-      const targetWord =
-        target === "main"
-          ? puzzle.mainWord.word
-          : puzzle.crossers.find((c) => c.id === target)?.word || "";
-      const maxLength = targetWord.length;
+      const maxLength = getMaxInputLength(target);
 
       if (e.key === "Backspace") {
         setCurrentGuess((prev) => prev.slice(0, -1));
@@ -330,9 +413,11 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
       }
 
       if (e.key === "Enter") {
+        // Build the full word including locked letters
+        const fullWord = buildFullWord(currentGuess, target);
         if (
           step.expectedWord &&
-          currentGuess.toUpperCase() === step.expectedWord.toUpperCase()
+          fullWord.toUpperCase() === step.expectedWord.toUpperCase()
         ) {
           // Correct guess -- mark word as solved
           if (target !== "main") {
@@ -371,7 +456,7 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, step, currentGuess, selectedTarget, puzzle, onClose]);
+  }, [open, step, currentGuess, selectedTarget, puzzle, onClose, getMaxInputLength, buildFullWord]);
 
   // Close on escape for non-input steps
   useEffect(() => {
@@ -397,11 +482,7 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
       if (!step.allowInput) return;
 
       const target = step.selectTarget || selectedTarget;
-      const targetWord =
-        target === "main"
-          ? puzzle.mainWord.word
-          : puzzle.crossers.find((c) => c.id === target)?.word || "";
-      const maxLength = targetWord.length;
+      const maxLength = getMaxInputLength(target);
 
       if (key === "BACK") {
         setCurrentGuess((prev) => prev.slice(0, -1));
@@ -409,9 +490,11 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
       }
 
       if (key === "ENTER") {
+        // Build the full word including locked letters
+        const fullWord = buildFullWord(currentGuess, target);
         if (
           step.expectedWord &&
-          currentGuess.toUpperCase() === step.expectedWord.toUpperCase()
+          fullWord.toUpperCase() === step.expectedWord.toUpperCase()
         ) {
           if (target !== "main") {
             const crosser = puzzle.crossers.find((c) => c.id === target);
@@ -444,7 +527,7 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
         setCurrentGuess((prev) => prev + key);
       }
     },
-    [step, selectedTarget, puzzle, currentGuess],
+    [step, selectedTarget, currentGuess, getMaxInputLength, buildFullWord],
   );
 
   // Build the visual grid
@@ -463,6 +546,9 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
     const { row: mainRow, col: mainCol, word: mainWord } = puzzle.mainWord;
     const mainSolved = solvedWords.has("main");
 
+    // Map current guess to positions (skipping locked positions)
+    const mainGuessMap = selectedTarget === "main" ? mapGuessToPositions(currentGuess, "main") : new Map();
+
     for (let i = 0; i < mainWord.length; i++) {
       const col = mainCol + i;
       const revealed = revealedLetters.find(
@@ -478,8 +564,8 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
       } else if (revealed) {
         letter = revealed.letter;
         status = "revealed";
-      } else if (selectedTarget === "main" && currentGuess[i]) {
-        letter = currentGuess[i]!;
+      } else if (selectedTarget === "main" && mainGuessMap.has(i)) {
+        letter = mainGuessMap.get(i)!;
         status = "typing";
       }
 
@@ -494,6 +580,8 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
     // Place crossers
     for (const crosser of puzzle.crossers) {
       const isSolved = solvedWords.has(crosser.id);
+      // Map current guess for this crosser
+      const crosserGuessMap = selectedTarget === crosser.id ? mapGuessToPositions(currentGuess, crosser.id) : new Map();
 
       for (let i = 0; i < crosser.word.length; i++) {
         const row = crosser.startRow + i;
@@ -504,8 +592,8 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
         if (existing) {
           existing.belongsTo.push(crosser.id);
           // If typing into this crosser, show the typed letter at intersection
-          if (!isSolved && selectedTarget === crosser.id && currentGuess[i]) {
-            existing.letter = currentGuess[i]!;
+          if (!isSolved && selectedTarget === crosser.id && crosserGuessMap.has(i)) {
+            existing.letter = crosserGuessMap.get(i)!;
             existing.status = "typing";
           }
           if (isSolved && existing.status !== "solved") {
@@ -521,8 +609,8 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
           letter = crosser.word[i]!;
           // Use grey for solved crosser cells (not on main row)
           status = "crosserSolved";
-        } else if (selectedTarget === crosser.id && currentGuess[i]) {
-          letter = currentGuess[i]!;
+        } else if (selectedTarget === crosser.id && crosserGuessMap.has(i)) {
+          letter = crosserGuessMap.get(i)!;
           status = "typing";
         }
 
@@ -536,7 +624,7 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
     }
 
     return cells;
-  }, [puzzle, solvedWords, revealedLetters, selectedTarget, currentGuess]);
+  }, [puzzle, solvedWords, revealedLetters, selectedTarget, currentGuess, mapGuessToPositions]);
 
   // Determine which cells are highlighted based on current step
   const isHighlighted = useCallback(

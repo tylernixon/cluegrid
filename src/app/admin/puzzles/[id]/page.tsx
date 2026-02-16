@@ -29,6 +29,8 @@ interface PuzzleDetail {
   gridCols: number;
   status: 'draft' | 'scheduled' | 'published' | 'archived';
   difficultyRating: number | null;
+  theme: string | null;
+  themeHint: string | null;
   author: string | null;
   notes: string | null;
   crossers: CrosserInput[];
@@ -59,6 +61,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<'draft' | 'scheduled' | 'published' | 'archived'>('draft');
   const [originalStatus, setOriginalStatus] = useState<string>('');
   const [difficultyRating, setDifficultyRating] = useState<number | null>(null);
+  const [theme, setTheme] = useState('');
+  const [themeHint, setThemeHint] = useState('');
   const [author, setAuthor] = useState('');
   const [notes, setNotes] = useState('');
   const [crossers, setCrossers] = useState<CrosserInput[]>([]);
@@ -105,6 +109,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
         setStatus(puzzle.status);
         setOriginalStatus(puzzle.status);
         setDifficultyRating(puzzle.difficultyRating);
+        setTheme(puzzle.theme || '');
+        setThemeHint(puzzle.themeHint || '');
         setAuthor(puzzle.author || '');
         setNotes(puzzle.notes || '');
         setCrossers(
@@ -365,6 +371,8 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
         gridCols,
         status,
         difficultyRating: difficultyRating ?? undefined,
+        theme: theme || undefined,
+        themeHint: themeHint || undefined,
         author: author || undefined,
         notes: notes || undefined,
         crossers: validCrossers.map((c, i) => ({
@@ -543,6 +551,40 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm font-mono uppercase focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 required
               />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="theme" className="block text-sm font-medium text-gray-700 mb-1">
+                  Theme <span className="text-gray-400 font-normal">(revealed after solve)</span>
+                </label>
+                <input
+                  id="theme"
+                  type="text"
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                  maxLength={100}
+                  placeholder="e.g., Ocean Life"
+                  disabled={!isEditable}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="themeHint" className="block text-sm font-medium text-gray-700 mb-1">
+                  Theme Hint <span className="text-gray-400 font-normal">(shown during play)</span>
+                </label>
+                <input
+                  id="themeHint"
+                  type="text"
+                  value={themeHint}
+                  onChange={(e) => setThemeHint(e.target.value)}
+                  maxLength={200}
+                  placeholder="e.g., A creature of the deep"
+                  disabled={!isEditable}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-4 gap-4">

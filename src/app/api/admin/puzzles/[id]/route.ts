@@ -56,6 +56,8 @@ export async function GET(
       gridCols: puzzle.grid_cols,
       status: puzzle.status,
       difficultyRating: puzzle.difficulty_rating,
+      theme: puzzle.theme,
+      themeHint: puzzle.theme_hint,
       author: puzzle.author,
       notes: puzzle.notes,
       createdAt: puzzle.created_at,
@@ -136,6 +138,8 @@ export async function PUT(
   if (input.gridCols !== undefined) puzzleUpdate.grid_cols = input.gridCols;
   if (input.status !== undefined) puzzleUpdate.status = input.status;
   if (input.difficultyRating !== undefined) puzzleUpdate.difficulty_rating = input.difficultyRating;
+  if (input.theme !== undefined) puzzleUpdate.theme = input.theme;
+  if (input.themeHint !== undefined) puzzleUpdate.theme_hint = input.themeHint;
   if (input.author !== undefined) puzzleUpdate.author = input.author;
   if (input.notes !== undefined) puzzleUpdate.notes = input.notes;
 

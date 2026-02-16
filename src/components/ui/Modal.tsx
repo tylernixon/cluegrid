@@ -48,22 +48,22 @@ export function Modal({ open, onClose, children, title }: ModalProps) {
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 z-50 w-full h-full m-0 p-0 bg-canvas dark:bg-canvas-dark backdrop:bg-black/50 dark:backdrop:bg-black/70 overflow-y-auto"
+      className="fixed inset-0 z-50 w-full h-full m-0 p-0 bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl backdrop:bg-transparent overflow-y-auto"
       aria-label={title}
     >
       <div className="min-h-full flex flex-col">
-        {/* Header with back button */}
-        <header className="flex items-center h-14 px-4 border-b border-border dark:border-border-dark shrink-0">
+        {/* Header with centered title */}
+        <header className="relative flex items-center justify-center h-14 px-4 shrink-0">
           <button
             type="button"
-            className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A8B8D] hover:text-[#3D5A5E] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A8B8D]"
+            className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors"
             onClick={onClose}
             aria-label="Go back"
           >
             <ChevronLeftIcon />
           </button>
           {title && (
-            <h1 className="ml-2 text-heading-3 font-serif text-ink dark:text-ink-dark">
+            <h1 className="text-heading-3 font-serif text-ink dark:text-ink-dark">
               {title}
             </h1>
           )}

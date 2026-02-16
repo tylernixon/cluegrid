@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { ShareButton } from "@/components/ui/ShareButton";
-import type { StarRating, PuzzleData, Guess, LetterFeedback } from "@/types";
+import type { PuzzleData, Guess, LetterFeedback } from "@/types";
 import type { GameHistoryEntry } from "@/stores/historyStore";
 
 // ---------------------------------------------------------------------------
@@ -71,50 +71,6 @@ function computeFeedback(guess: string, answer: string): LetterFeedback[] {
 }
 
 // ---------------------------------------------------------------------------
-// Star display (same pattern as CompletionModal)
-// ---------------------------------------------------------------------------
-
-function StarDisplay({
-  rating,
-  className,
-}: {
-  rating: StarRating;
-  className?: string;
-}) {
-  const stars = Array.from({ length: 3 }, (_, i) => i < rating);
-  return (
-    <div
-      className={`flex items-center gap-1 ${className ?? ""}`}
-      aria-label={`${rating} out of 3 stars`}
-    >
-      {stars.map((filled, i) => (
-        <span key={i} className="text-2xl" aria-hidden="true">
-          {filled ? "\u2B50" : "\u2606"}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-// Checkmark icon
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -127,7 +83,6 @@ export function HistoryDetailModal({
 }: HistoryDetailModalProps) {
   const [hasAnimated, setHasAnimated] = useState(false);
 
-  const starRating = entry.starRating;
   const won = entry.status === "won";
 
   // Reconstruct guesses for share button when puzzle data is available
@@ -184,18 +139,7 @@ export function HistoryDetailModal({
             {displayDate}
           </p>
 
-          {won ? (
-            <>
-              <StarDisplay rating={starRating} className="justify-center mb-2" />
-              <p className="text-heading-2 text-correct dark:text-correct-dark">
-                {starRating === 3
-                  ? "Perfect!"
-                  : starRating === 2
-                    ? "Great job!"
-                    : "Solved!"}
-              </p>
-            </>
-          ) : (
+          {!won && (
             <>
               <p className="text-heading-2 text-ink dark:text-ink-dark mb-1">
                 Not quite
@@ -265,13 +209,32 @@ export function HistoryDetailModal({
           </div>
         </div>
 
-        {/* Visual results grid */}
-        {guesses.length > 0 && (
+        {/* Visual results - show solved word in tiles when won, or attempts when lost */}
+        {won && puzzle ? (
           <div
             className={`mt-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
             <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
-              {won ? "Your solve" : "Your attempts"}
+              Your solve
+            </p>
+            <div className="inline-flex gap-1.5 justify-center">
+              {puzzle.mainWord.word.split("").map((letter, i) => (
+                <div
+                  key={i}
+                  className="w-10 h-10 rounded-lg bg-correct dark:bg-correct-dark flex items-center justify-center text-white font-mono text-lg font-bold"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  {letter}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : guesses.length > 0 ? (
+          <div
+            className={`mt-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          >
+            <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
+              Your attempts
             </p>
             <div className="inline-flex flex-col gap-1">
               {guesses.map((guess, i) => (
@@ -292,39 +255,7 @@ export function HistoryDetailModal({
               ))}
             </div>
           </div>
-        )}
-
-        {/* Crosser summary pills */}
-        {puzzle && (
-          <div
-            className={`mt-4 transition-all duration-500 delay-[400ms] ${hasAnimated ? "opacity-100" : "opacity-0"}`}
-          >
-            <div className="flex gap-2 justify-center flex-wrap">
-              {puzzle.crossers.map((crosser, i) => {
-                const isSolved = solvedWords.has(crosser.id);
-                return (
-                  <div
-                    key={crosser.id}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-body-small transition-all ${
-                      isSolved
-                        ? "bg-correct/15 dark:bg-correct-dark/15 text-correct dark:text-correct-dark"
-                        : "bg-border/50 dark:bg-border-dark/50 text-ink-tertiary dark:text-ink-tertiary-dark"
-                    }`}
-                  >
-                    <span className="font-mono text-caption">{i + 1}</span>
-                    {isSolved ? (
-                      <CheckIcon className="w-3.5 h-3.5" />
-                    ) : (
-                      <span className="w-3.5 h-3.5 flex items-center justify-center text-caption">
-                        -
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        ) : null}
 
         {/* Loading state for puzzle data */}
         {isLoadingPuzzle && (
