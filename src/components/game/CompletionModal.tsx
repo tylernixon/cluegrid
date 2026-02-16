@@ -127,8 +127,8 @@ export function CompletionModal({
   // ============================================
   if (status === "won") {
     return (
-      <Modal open={open} onClose={onClose} title="Solved!" showBackButton={false}>
-        <div className="grid grid-rows-[auto_1fr_auto] min-h-[70vh]">
+      <Modal open={open} onClose={onClose} title="Solved!">
+        <div className="grid grid-rows-[auto_1fr_auto] flex-1">
           {/* Top: Theme reveal */}
           {puzzle.theme && (
             <div
@@ -290,8 +290,8 @@ export function CompletionModal({
   // FAILURE STATE - Gentle, not punishing
   // ============================================
   return (
-    <Modal open={open} onClose={onClose} title="So close!" showBackButton={false}>
-      <div className="grid grid-rows-[1fr_auto] min-h-[70vh] text-center">
+    <Modal open={open} onClose={onClose} title="So close!">
+      <div className="grid grid-rows-[1fr_auto] flex-1 text-center">
         {/* Gentle loss message */}
         <div
           className={`transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}

@@ -59,8 +59,8 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title="Settings" showBackButton={false}>
-      <div className="flex flex-col min-h-[60vh]">
+    <Modal open={open} onClose={handleClose} title="Settings">
+      <div className="flex flex-col flex-1">
         {/* Settings content */}
         <div className="flex-1">
           {/* Theme selector */}

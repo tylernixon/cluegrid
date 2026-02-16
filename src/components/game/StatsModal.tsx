@@ -30,8 +30,8 @@ export function StatsModal({ open, onClose }: StatsModalProps) {
   );
 
   return (
-    <Modal open={open} onClose={onClose} title="Statistics" showBackButton={false}>
-      <div className="flex flex-col min-h-[60vh]">
+    <Modal open={open} onClose={onClose} title="Statistics">
+      <div className="flex flex-col flex-1">
         {/* Stats content */}
         <div className="flex-1 text-center">
           {/* Stats grid */}
