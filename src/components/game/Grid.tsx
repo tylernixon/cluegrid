@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect, useCallback, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Cell } from "./Cell";
 import type { PuzzleData, RevealedLetter, Guess } from "@/types";
-import { VICTORY_STAGGER_MS, EASE } from "@/lib/motion";
+import { VICTORY_STAGGER_MS } from "@/lib/motion";
 
 interface GridProps {
   puzzle: PuzzleData;
