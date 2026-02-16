@@ -68,7 +68,7 @@ export function DifficultySelector({ selected, onChange }: DifficultySelectorPro
             className={`relative flex items-start gap-3 px-4 py-3 rounded-lg border-2 transition-all duration-150 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-correct dark:focus-visible:ring-correct-dark focus-visible:ring-offset-2 ${
               isSelected
                 ? "bg-correct/10 dark:bg-correct-dark/10 border-correct dark:border-correct-dark"
-                : "border-border dark:border-border-dark hover:border-border-active dark:hover:border-border-active-dark bg-surface dark:bg-surface-dark"
+                : "border-border dark:border-border-dark hover:border-border-active dark:hover:border-border-active-dark bg-surface-raised dark:bg-surface-raised-dark"
             }`}
           >
             {/* Icon */}

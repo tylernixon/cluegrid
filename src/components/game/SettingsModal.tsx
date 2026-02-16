@@ -79,7 +79,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                     className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 text-body font-semibold capitalize transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-correct dark:focus-visible:ring-correct-dark focus-visible:ring-offset-2 ${
                       isSelected
                         ? "bg-correct/10 dark:bg-correct-dark/10 border-correct dark:border-correct-dark text-correct dark:text-correct-dark"
-                        : "border-border dark:border-border-dark hover:border-border-active dark:hover:border-border-active-dark bg-surface dark:bg-surface-dark text-ink dark:text-ink-dark"
+                        : "border-border dark:border-border-dark hover:border-border-active dark:hover:border-border-active-dark bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark"
                     }`}
                   >
                     {t === "light" ? (
