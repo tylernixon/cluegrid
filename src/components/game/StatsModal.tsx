@@ -40,10 +40,10 @@ export function StatsModal({ open, onClose }: StatsModalProps) {
 
   return (
     <ModalShell open={open} onClose={onClose} title="Statistics" footer={footer}>
-      <div className="text-center">
-        {/* Stats grid */}
+      <div className="text-center overflow-hidden">
+        {/* Stats grid - 2x2 layout */}
         <div
-          className="grid grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-2 gap-4 mb-8"
           role="group"
           aria-label="Game statistics"
         >
