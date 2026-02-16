@@ -298,7 +298,7 @@ export function checkHorizontalConflicts(
   }
 
   // Check each row (except main word row) for multiple letters
-  for (const [row, colMap] of rowLetters) {
+  for (const [row, colMap] of Array.from(rowLetters.entries())) {
     if (row === mainWordRow) continue; // Skip main word row
     if (colMap.size < 2) continue; // Need at least 2 letters
 
