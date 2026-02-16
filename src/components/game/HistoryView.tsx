@@ -168,12 +168,12 @@ export function HistoryView({ onClose }: HistoryViewProps) {
 
       {/* Edge gradients to blend any safe-area seams */}
       <div
-        className="absolute inset-x-0 top-0 h-8 pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)' }}
+        className="absolute inset-x-0 top-0 h-12 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, black, transparent)' }}
       />
       <div
-        className="absolute inset-x-0 bottom-0 h-8 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}
+        className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, black, transparent)' }}
       />
 
       {/* LAYER 2: Content wrapper - absolute full-bleed with safe area padding */}
