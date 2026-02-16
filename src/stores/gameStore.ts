@@ -766,6 +766,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const newGuess = guessArray.join("");
 
       console.log("[addLetter] Setting new guess:", { letter, insertPos, newGuess, locked: Array.from(locked) });
+
+      // Check if all positions are now filled (auto-submit)
+      const allFilled = !newGuess.includes(" ") && newGuess.length === targetLength;
+      if (allFilled) {
+        // Schedule auto-submit after state update
+        setTimeout(() => {
+          const currentState = get();
+          // Only auto-submit if still on same target and guess matches
+          if (currentState.currentGuess === newGuess && currentState.selectedTarget === state.selectedTarget) {
+            currentState.submitGuess();
+          }
+        }, 50);
+      }
+
       return { currentGuess: newGuess };
     });
   },
