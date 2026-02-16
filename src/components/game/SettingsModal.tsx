@@ -68,7 +68,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   );
 
   return (
-    <ModalShell open={open} onClose={handleClose} title="Settings" footer={footer} centerContent={false}>
+    <ModalShell open={open} onClose={handleClose} title="Settings" footer={footer}>
       {/* Theme selector */}
       <div className="mb-6">
         <h3 className="text-body font-semibold text-ink dark:text-ink-dark mb-3">
