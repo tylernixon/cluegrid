@@ -158,7 +158,8 @@ export function HistoryCalendar({
             return <div key={`empty-${i}`} className="aspect-square" />;
           }
 
-          const isInteractive = !cell.isFuture && !cell.isBeforeFirstPuzzle && (cell.entry !== null || cell.isToday);
+          // Allow clicking any date between first puzzle and today (inclusive)
+          const isInteractive = !cell.isFuture && !cell.isBeforeFirstPuzzle;
           const isSelected = cell.date === selectedDate;
 
           return (

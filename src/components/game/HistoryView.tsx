@@ -14,7 +14,7 @@ interface HistoryViewProps {
   onClose: () => void;
 }
 
-const FIRST_PUZZLE_DATE = "2025-01-01";
+const FIRST_PUZZLE_DATE = "2026-01-01";
 
 function getTodayDate(): string {
   const now = new Date();
