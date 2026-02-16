@@ -66,7 +66,12 @@ function SlotLetter({
       }
     }, spinInterval);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // Always settle on target when cleaning up
+      setCurrentChar(targetChar);
+      setIsSettled(true);
+    };
   }, [targetChar, delay]);
 
   return (
