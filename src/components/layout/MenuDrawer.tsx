@@ -141,7 +141,7 @@ export function MenuDrawer({
       {open && (
         <motion.div
           ref={drawerRef}
-          className="fixed inset-0 z-50 w-screen h-dvh bg-canvas/95 dark:bg-canvas-dark/95 flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
+          className="fixed inset-0 z-50 w-screen h-dvh bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
           variants={drawerVariants}
           initial="hidden"
           animate="visible"

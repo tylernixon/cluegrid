@@ -144,7 +144,7 @@ export function HistoryView({ onClose }: HistoryViewProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-40 w-screen h-dvh flex flex-col bg-canvas/95 dark:bg-canvas-dark/95 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
+        className="fixed inset-0 z-40 w-screen h-dvh flex flex-col bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
         initial={{ opacity: 0, x: "-100%" }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: "-100%" }}
