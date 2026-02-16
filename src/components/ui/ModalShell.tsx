@@ -62,7 +62,7 @@ export function ModalShell({
     >
       {/* LAYER 1: Blurred backdrop - absolute full-bleed, NO safe area padding */}
       <div
-        className="absolute inset-0 bg-canvas/[0.56] dark:bg-canvas-dark/[0.56] backdrop-blur-xl"
+        className="absolute inset-0 bg-canvas/50 dark:bg-canvas-dark/50 backdrop-blur-xl"
         onClick={onClose}
       />
 
