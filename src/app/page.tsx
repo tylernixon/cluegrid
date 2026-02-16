@@ -207,7 +207,7 @@ export default function Home() {
       )}
 
       {/* Main game area */}
-      <main className="flex-1 flex flex-col items-center justify-start sm:justify-center overflow-y-auto px-4 pt-1 pb-2 gap-2">
+      <main className="flex-1 flex flex-col items-center justify-start sm:justify-center overflow-y-auto px-4 pt-2 pb-2 gap-1">
         {/* Grid */}
         <div id="puzzle-grid" className="flex justify-center">
           {isLoading ? (
