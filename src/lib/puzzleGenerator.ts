@@ -298,12 +298,37 @@ async function generateClues(
 ): Promise<Map<string, string>> {
   const wordList = crossers.map((c) => c.word).join(", ");
 
-  const difficultyGuidance =
-    difficulty >= 4
-      ? "Use subtle misdirection or require lateral thinking."
-      : difficulty <= 2
-        ? "Be direct and evocative. Use vivid sensory language."
-        : "Balance directness with a small creative leap.";
+  // Different clue styles based on difficulty
+  let difficultyGuidance: string;
+  let lengthGuidance: string;
+
+  if (difficulty >= 4) {
+    // Hard/Very Hard - cryptic riddle style
+    difficultyGuidance = `HARD CLUE STYLE:
+- Write clues that feel like riddles, not explanations
+- Use ONE indirect anchor or metaphor per clue
+- AVOID: dates, famous proper nouns, Wikipedia-style facts
+- AVOID: "this is the thing" or definitional phrasing
+- Use poetic misdirection and double meanings
+- Make the solver work for it through lateral thinking
+
+Examples of GOOD hard clues:
+- PARIS: "A capital of talk, not war."
+- TOKYO: "Where neon and order coexist."
+- ITALY: "A boot with an empire in its shadow."
+- CLAWS: "What cats keep hidden until needed."
+
+Examples of BAD clues (too easy/explanatory):
+- PARIS: "The capital of France, known for the Eiffel Tower."
+- TOKYO: "Japan's largest city, home to 14 million people."`;
+    lengthGuidance = "1 sentence, under 10 words";
+  } else if (difficulty <= 2) {
+    difficultyGuidance = "Be direct and evocative. Use vivid sensory language that paints a clear picture.";
+    lengthGuidance = "1-2 sentences, 10-20 words";
+  } else {
+    difficultyGuidance = "Balance directness with a small creative leap. Use clever wordplay but keep it accessible.";
+    lengthGuidance = "1 sentence, 8-15 words";
+  }
 
   const prompt = `You are a puzzle clue writer for gist, a word puzzle game.
 
@@ -311,11 +336,13 @@ MAIN WORD: ${mainWord}
 THEME: ${theme}
 CROSSER WORDS: ${wordList}
 
-Write a clue for each crosser word. Each clue should:
-1. Point clearly to the crosser word as the answer
-2. Subtly connect to or evoke the theme "${theme}"
-3. Be 10-25 words long
-4. ${difficultyGuidance}
+Write a clue for each crosser word.
+
+${difficultyGuidance}
+
+LENGTH: ${lengthGuidance}
+
+Each clue should subtly evoke the theme "${theme}" when possible.
 
 Respond with a JSON object:
 {
@@ -473,7 +500,15 @@ export async function generatePuzzleWithAI(request: AIGenerateRequest): Promise<
   const difficultyGuidance: Record<string, string> = {
     easy: 'Write straightforward, definitional clues. Use common words (4-6 letters) that most people would know.',
     medium: 'Write clever wordplay clues in the style of NYT Monday/Tuesday crosswords. Use moderately common words (4-7 letters). Include some misdirection.',
-    hard: 'Write challenging, cryptic-style clues. Use less common but still valid words (4-8 letters). Employ double meanings, puns, or oblique references.',
+    hard: `Write cryptic RIDDLE-style clues (not explanations). Each clue should:
+- Be 1 sentence, under 10 words
+- Use ONE indirect anchor or metaphor
+- AVOID dates, famous proper nouns, Wikipedia facts
+- AVOID "this is the thing" phrasing
+- Feel like a riddle that requires lateral thinking
+
+GOOD examples: "A capital of talk, not war." (PARIS), "Where neon and order coexist." (TOKYO), "A boot with an empire in its shadow." (ITALY)
+BAD examples: "The capital of France, known for the Eiffel Tower." (too explanatory)`,
   };
 
   let prompt: string;
