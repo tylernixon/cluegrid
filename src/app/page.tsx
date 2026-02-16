@@ -235,7 +235,7 @@ export default function Home() {
       <div className="sticky bottom-0 bg-canvas/85 dark:bg-canvas-dark/85 backdrop-blur-md border-t border-border/50 dark:border-border-dark/50 shrink-0">
         {/* Active clue panel */}
         {!isLoading && isPlaying && (
-          <div className="px-4 pt-2">
+          <div className="px-4 pt-2 pb-1">
             <ActiveCluePanel
               selectedTarget={selectedTarget}
               crossers={puzzle.crossers}
