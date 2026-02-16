@@ -184,12 +184,12 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
                   <div className="flex flex-col gap-1 items-center mb-6">
                     <div className="flex gap-1">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="B" status="revealed" size="small" />
+                      <DemoCell letter="C" status="revealed" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
                     <div className="flex gap-1">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="R" status="revealed" size="small" />
+                      <DemoCell letter="L" status="revealed" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
                     <div className="flex gap-1">
@@ -199,12 +199,12 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
                     </div>
                     <div className="flex gap-1">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="I" status="revealed" size="small" />
+                      <DemoCell letter="W" status="revealed" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
                     <div className="flex gap-1">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="N" status="revealed" size="small" />
+                      <DemoCell letter="S" status="revealed" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
                   </div>
@@ -226,22 +226,22 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
                       Hint
                     </span>
                     <span className="text-body-small text-ink dark:text-ink-dark font-serif">
-                      &quot;Gray matter organ&quot;
+                      &quot;Sharp things on paws&quot;
                     </span>
                   </div>
 
                   {/* Visual grid showing vertical hint intersecting horizontal main word */}
                   <div className="flex flex-col items-center gap-1 mb-4">
-                    {/* B */}
+                    {/* C */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="B" status="correct" size="small" />
+                      <DemoCell letter="C" status="correct" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
-                    {/* R */}
+                    {/* L */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="R" status="correct" size="small" />
+                      <DemoCell letter="L" status="correct" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
                     {/* Main word row - A is revealed at intersection */}
@@ -250,22 +250,22 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
                       <DemoCell letter="A" status="revealed" size="small" highlight />
                       <DemoCell letter="?" status="main" size="small" highlight />
                     </div>
-                    {/* I */}
+                    {/* W */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="I" status="correct" size="small" />
+                      <DemoCell letter="W" status="correct" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
-                    {/* N */}
+                    {/* S */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="N" status="correct" size="small" />
+                      <DemoCell letter="S" status="correct" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
                   </div>
 
                   <p className="text-xs text-correct dark:text-correct-dark mb-4">
-                    Solving &quot;BRAIN&quot; reveals the &quot;A&quot; in the main word!
+                    Solving &quot;CLAWS&quot; reveals the &quot;A&quot; in the main word!
                   </p>
 
                   <h2 className="text-heading-2 text-ink dark:text-ink-dark mb-2">
