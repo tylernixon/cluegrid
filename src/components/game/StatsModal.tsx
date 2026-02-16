@@ -39,7 +39,7 @@ export function StatsModal({ open, onClose }: StatsModalProps) {
   );
 
   return (
-    <ModalShell open={open} onClose={onClose} title="Statistics" footer={footer}>
+    <ModalShell open={open} onClose={onClose} title="Statistics" footer={footer} centerContent={false}>
       <div className="text-center">
         {/* Stats grid */}
         <div
