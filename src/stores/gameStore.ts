@@ -727,7 +727,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (state.isLoading || state.isSubmitting) return state;
       if (state.status !== "playing") return state;
 
-      // Compute locked positions for current target
+      // Compute locked positions for current target (revealed letters + correct feedback)
       const locked = new Set<number>();
       let targetLength = 5;
 
@@ -758,6 +758,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }
       }
 
+      // Also lock positions from previous guesses that got "correct" feedback
+      const targetGuesses = state.guesses.filter((g) => g.targetId === state.selectedTarget);
+      for (const guess of targetGuesses) {
+        for (let i = 0; i < guess.feedback.length; i++) {
+          const fb = guess.feedback[i];
+          if (fb && fb.status === "correct") {
+            locked.add(i);
+          }
+        }
+      }
+
       // Ensure currentGuess is the right length (pad with spaces if needed)
       const guess = state.currentGuess.padEnd(targetLength, " ");
 
@@ -771,7 +782,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
 
       if (insertPos === -1) {
-        // No empty position available
+        // No empty position available - word is complete, don't add anything
         return state;
       }
 
@@ -780,10 +791,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
       guessArray[insertPos] = letter.toUpperCase();
       const newGuess = guessArray.join("");
 
-      console.log("[addLetter] Setting new guess:", { letter, insertPos, newGuess, locked: Array.from(locked) });
+      // Check if all non-locked positions are now filled (auto-submit)
+      let allFilled = true;
+      for (let i = 0; i < targetLength; i++) {
+        if (!locked.has(i) && newGuess[i] === " ") {
+          allFilled = false;
+          break;
+        }
+      }
 
-      // Check if all positions are now filled (auto-submit)
-      const allFilled = !newGuess.includes(" ") && newGuess.length === targetLength;
       if (allFilled) {
         // Schedule auto-submit after state update
         setTimeout(() => {
@@ -805,7 +821,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (state.isLoading || state.isSubmitting) return state;
       if (state.status !== "playing") return state;
 
-      // Compute locked positions for current target
+      // Compute locked positions for current target (revealed letters + correct feedback)
       const locked = new Set<number>();
       let targetLength = 5;
 
@@ -832,6 +848,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 locked.add(position);
               }
             }
+          }
+        }
+      }
+
+      // Also lock positions from previous guesses that got "correct" feedback
+      const targetGuesses = state.guesses.filter((g) => g.targetId === state.selectedTarget);
+      for (const guess of targetGuesses) {
+        for (let i = 0; i < guess.feedback.length; i++) {
+          const fb = guess.feedback[i];
+          if (fb && fb.status === "correct") {
+            locked.add(i);
           }
         }
       }
@@ -858,7 +885,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       guessArray[removePos] = " ";
       const newGuess = guessArray.join("");
 
-      console.log("[removeLetter] Removing letter:", { removePos, newGuess, locked: Array.from(locked) });
       return { currentGuess: newGuess };
     });
   },
