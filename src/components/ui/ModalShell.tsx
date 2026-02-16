@@ -58,7 +58,7 @@ export function ModalShell({
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 z-50 m-0 p-0 w-full h-full max-w-none max-h-none bg-canvas/80 dark:bg-canvas-dark/80 backdrop:bg-black/50"
+      className="fixed inset-0 z-50 m-0 p-0 w-full h-full max-w-none max-h-none bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl backdrop:bg-black/50"
       aria-label={title}
     >
       {/* Fixed container */}
