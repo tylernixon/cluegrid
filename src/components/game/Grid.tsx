@@ -360,6 +360,30 @@ export function Grid({
   const mainRow = puzzle.mainWord.row;
   const mainCol = puzzle.mainWord.col;
 
+  // Calculate the actual bounds of the puzzle (excluding empty rows/cols)
+  const bounds = useMemo(() => {
+    let minRow = puzzle.gridSize.rows;
+    let maxRow = 0;
+    let minCol = puzzle.gridSize.cols;
+    let maxCol = 0;
+
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        if (cell) {
+          minRow = Math.min(minRow, rowIndex);
+          maxRow = Math.max(maxRow, rowIndex);
+          minCol = Math.min(minCol, colIndex);
+          maxCol = Math.max(maxCol, colIndex);
+        }
+      });
+    });
+
+    return { minRow, maxRow, minCol, maxCol };
+  }, [grid, puzzle.gridSize]);
+
+  const visibleRows = bounds.maxRow - bounds.minRow + 1;
+  const visibleCols = bounds.maxCol - bounds.minCol + 1;
+
   // Grid glow disabled - was too distracting on victory
 
   return (
@@ -367,19 +391,23 @@ export function Grid({
       ref={gridRef}
       className="inline-grid gap-[6px] rounded-lg p-1"
       style={{
-        gridTemplateColumns: `repeat(${puzzle.gridSize.cols}, 1fr)`,
-        gridTemplateRows: `repeat(${puzzle.gridSize.rows}, 1fr)`,
+        gridTemplateColumns: `repeat(${visibleCols}, 1fr)`,
+        gridTemplateRows: `repeat(${visibleRows}, 1fr)`,
       }}
       role="grid"
       aria-label="Puzzle grid"
     >
-      {grid.map((row, rowIndex) =>
-        row.map((cell, colIndex) => {
+      {grid.slice(bounds.minRow, bounds.maxRow + 1).map((row, rowIndex) =>
+        row.slice(bounds.minCol, bounds.maxCol + 1).map((cell, colIndex) => {
+          // Adjust indices back to original grid coordinates
+          const actualRow = rowIndex + bounds.minRow;
+          const actualCol = colIndex + bounds.minCol;
+
           if (!cell) {
-            // Empty space in the grid
+            // Empty space in the grid - render invisible placeholder
             return (
               <div
-                key={`${rowIndex}-${colIndex}`}
+                key={`${actualRow}-${actualCol}`}
                 className="w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] md:w-[60px] md:h-[60px]"
                 aria-hidden="true"
               />
@@ -387,7 +415,7 @@ export function Grid({
           }
 
           const isSelected = cell.belongsTo.includes(selectedTarget);
-          const isMainWordRow = rowIndex === mainRow;
+          const isMainWordRow = actualRow === mainRow;
 
           // Handle click: toggle between words at intersection
           const handleClick = () => {
@@ -414,7 +442,7 @@ export function Grid({
           const shouldGlow =
             victoryAnimating && isMainWordRow && cell.belongsTo.includes("main");
           const glowDelay = shouldGlow
-            ? (colIndex - mainCol) * (VICTORY_STAGGER_MS / 1000)
+            ? (actualCol - mainCol) * (VICTORY_STAGGER_MS / 1000)
             : 0;
 
           // Check if this cell belongs to a recently solved crosser
@@ -423,7 +451,7 @@ export function Grid({
           );
 
           // Check if this is a recently revealed letter (intersection)
-          const cellKey = `${rowIndex}-${colIndex}`;
+          const cellKey = `${actualRow}-${actualCol}`;
           const isRecentlyRevealed = animState.recentlyRevealed.has(cellKey);
 
           // Determine animation type with priority
@@ -448,20 +476,20 @@ export function Grid({
             if (crosserId) {
               const crosser = puzzle.crossers.find((c) => c.id === crosserId);
               if (crosser) {
-                const positionInCrosser = rowIndex - crosser.startRow;
+                const positionInCrosser = actualRow - crosser.startRow;
                 animationDelay = positionInCrosser * 0.03; // 30ms stagger
               }
             }
           }
 
           // Determine if this cell should be focusable
-          const isFirstCell = navigableCells[0]?.row === rowIndex && navigableCells[0]?.col === colIndex;
-          const isFocused = focusedCell?.row === rowIndex && focusedCell?.col === colIndex;
+          const isFirstCell = navigableCells[0]?.row === actualRow && navigableCells[0]?.col === actualCol;
+          const isFocused = focusedCell?.row === actualRow && focusedCell?.col === actualCol;
           const tabIndexValue = isFocused || (focusedCell === null && isFirstCell) ? 0 : -1;
 
           return (
             <Cell
-              key={`${rowIndex}-${colIndex}`}
+              key={`${actualRow}-${actualCol}`}
               letter={cell.letter}
               status={cell.status}
               isSelected={isSelected}
@@ -470,9 +498,9 @@ export function Grid({
               animationDelay={animationDelay}
               onClick={handleClick}
               tabIndex={tabIndexValue}
-              onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
-              row={rowIndex}
-              col={colIndex}
+              onKeyDown={(e) => handleKeyDown(e, actualRow, actualCol)}
+              row={actualRow}
+              col={actualCol}
             />
           );
         }),
