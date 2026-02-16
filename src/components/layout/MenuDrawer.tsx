@@ -28,6 +28,14 @@ const drawerVariants = {
 };
 
 // SVG icons as components for cleanliness
+function ChevronLeftIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  );
+}
+
 function GearIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -133,7 +141,7 @@ export function MenuDrawer({
       {open && (
         <motion.div
           ref={drawerRef}
-          className="fixed inset-0 z-50 bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl flex flex-col"
+          className="fixed inset-0 z-50 h-dvh bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
           variants={drawerVariants}
           initial="hidden"
           animate="visible"
@@ -148,13 +156,10 @@ export function MenuDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors"
+              className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors focus:outline-none"
               aria-label="Close menu"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+              <ChevronLeftIcon />
             </button>
             <GistLogo />
           </header>

@@ -27,11 +27,10 @@ function getTodayDate(): string {
   return pacificDate;
 }
 
-function ArrowLeftIcon() {
+function ChevronLeftIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
+      <polyline points="15 18 9 12 15 6" />
     </svg>
   );
 }
@@ -145,7 +144,7 @@ export function HistoryView({ onClose }: HistoryViewProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-40 flex flex-col bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl"
+        className="fixed inset-0 z-40 h-dvh flex flex-col bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
         initial={{ opacity: 0, x: "-100%" }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: "-100%" }}
@@ -156,10 +155,10 @@ export function HistoryView({ onClose }: HistoryViewProps) {
           <button
             type="button"
             onClick={onClose}
-            className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors"
+            className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors focus:outline-none"
             aria-label="Back to game"
           >
-            <ArrowLeftIcon />
+            <ChevronLeftIcon />
           </button>
           <h1 className="text-heading-3 font-serif text-ink dark:text-ink-dark">
             Puzzle History

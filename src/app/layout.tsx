@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Serif, IBM_Plex_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { AnalyticsProvider } from "@/components/providers/AnalyticsProvider";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import "./globals.css";
@@ -128,6 +129,7 @@ export default function RootLayout({
           {children}
           <CookieBanner />
         </AnalyticsProvider>
+        <Analytics />
       </body>
     </html>
   );

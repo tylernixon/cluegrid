@@ -208,10 +208,10 @@ export function ActiveCluePanel({
       </AnimatePresence>
 
       {/* Bottom row: dots, status, and present letters */}
-      <div className="flex items-center justify-between mt-2 gap-2">
-        {/* Compact status (left) */}
+      <div className="flex items-center mt-2 gap-2">
+        {/* Compact status (left) - fixed width for balance */}
         <div
-          className="flex items-center gap-2 text-xs text-ink-tertiary dark:text-ink-tertiary-dark"
+          className="flex items-center gap-2 text-xs text-ink-tertiary dark:text-ink-tertiary-dark min-w-[72px]"
           role="status"
           aria-label={`${guessesRemaining} guesses remaining. ${hintsUsed} of ${crossers.length} hints used.`}
         >
@@ -233,8 +233,8 @@ export function ActiveCluePanel({
           )}
         </div>
 
-        {/* Dot indicators (center) */}
-        <div className="flex items-center justify-center gap-1.5">
+        {/* Dot indicators (center) - flex-1 to center */}
+        <div className="flex-1 flex items-center justify-center gap-1.5">
           {allTargets.map((targetId, i) => {
             const isActive = targetId === selectedTarget;
             const targetSolved = solvedWords.has(targetId);
@@ -258,21 +258,17 @@ export function ActiveCluePanel({
           })}
         </div>
 
-        {/* Present letters (right) */}
-        <div className="flex items-center gap-1">
-          {presentLetters.length > 0 ? (
-            presentLetters.map((letter) => (
-              <span
-                key={letter}
-                className="w-6 h-6 flex items-center justify-center rounded-sm bg-present dark:bg-present-dark text-white text-xs font-mono font-semibold"
-                title={`${letter} is in the word`}
-              >
-                {letter}
-              </span>
-            ))
-          ) : (
-            <span className="w-6" /> /* Spacer for balance */
-          )}
+        {/* Present letters (right) - fixed width for balance */}
+        <div className="flex items-center justify-end gap-1 min-w-[72px]">
+          {presentLetters.length > 0 && presentLetters.map((letter) => (
+            <span
+              key={letter}
+              className="w-6 h-6 flex items-center justify-center rounded-sm bg-present dark:bg-present-dark text-white text-xs font-mono font-semibold"
+              title={`${letter} is in the word`}
+            >
+              {letter}
+            </span>
+          ))}
         </div>
       </div>
     </motion.div>

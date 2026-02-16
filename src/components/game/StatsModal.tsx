@@ -32,11 +32,6 @@ export function StatsModal({ open, onClose }: StatsModalProps) {
   return (
     <Modal open={open} onClose={onClose} title="Statistics">
       <div className="text-center">
-        {/* Title */}
-        <h2 className="text-heading-2 text-ink dark:text-ink-dark mb-6">
-          Statistics
-        </h2>
-
         {/* Stats grid */}
         <div
           className="grid grid-cols-4 gap-4 mb-8"
