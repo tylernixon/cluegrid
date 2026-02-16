@@ -89,7 +89,7 @@ export function ModalShell({
 
           {/* Content - scrolls if needed, centered when short */}
           <div className={`overflow-y-auto ${centerContent ? "grid place-items-center" : ""}`}>
-            <div className="w-full">{children}</div>
+            <div className="w-full max-w-lg mx-auto">{children}</div>
           </div>
 
           {/* Footer pinned bottom - no border */}
