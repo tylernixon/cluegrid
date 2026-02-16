@@ -89,7 +89,7 @@ export function BadgeDisplay({ earnedBadges }: BadgeDisplayProps) {
   const earnedMap = new Map(earnedBadges.map((b) => [b.id, b]));
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-3 gap-3 pt-1 pr-1">
       {ALL_BADGE_IDS.map((id) => {
         const def = BADGE_DEFINITIONS[id];
         const earned = earnedMap.get(id);
