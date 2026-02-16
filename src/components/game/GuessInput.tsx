@@ -27,9 +27,13 @@ export function GuessInput({
     prevGuessLengthRef.current = currentGuess.length;
   }, [currentGuess.length]);
 
+  // The active cell is the next empty cell (where the user will type next)
+  const activeIndex = currentGuess.length;
+
   const cells = Array.from({ length: targetLength }, (_, i) => {
     const letter = currentGuess[i] ?? "";
     const isFilled = letter !== "";
+    const isActive = i === activeIndex && activeIndex < targetLength;
     const isJustFilled = i === justFilledIndex && !prefersReducedMotion;
 
     // Settle animation for newly filled cells (180ms)
@@ -42,19 +46,32 @@ export function GuessInput({
       ease: EASE.settle,
     } : {};
 
+    // Determine cell styling based on state
+    let cellClass = "";
+    if (isFilled) {
+      cellClass = "border-border-active dark:border-border-active-dark bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark";
+    } else if (isActive) {
+      // Active cell (cursor position) - accent border with brighter background
+      cellClass = "border-accent dark:border-accent-dark bg-surface dark:bg-surface-dark text-ink-tertiary dark:text-ink-tertiary-dark";
+    } else {
+      cellClass = "border-border dark:border-border-dark bg-surface-raised/50 dark:bg-surface-raised-dark/50 text-ink-tertiary dark:text-ink-tertiary-dark";
+    }
+
     return (
       <motion.div
         key={i}
-        className={`flex items-center justify-center w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] rounded-sm border-2 font-mono text-grid select-none
-          ${
-            isFilled
-              ? "border-border-active dark:border-border-active-dark bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark"
-              : "border-border dark:border-border-dark bg-surface-raised/50 dark:bg-surface-raised-dark/50 text-ink-tertiary dark:text-ink-tertiary-dark"
-          }
-        `}
+        className={`flex items-center justify-center w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] rounded-sm border-2 font-mono text-grid select-none relative ${cellClass}`}
         animate={settleAnimation}
         transition={settleTransition}
       >
+        {/* Subtle pulsing ring for active cell */}
+        {isActive && !prefersReducedMotion && (
+          <motion.span
+            className="absolute inset-[-2px] rounded-md border-2 border-accent/40 dark:border-accent-dark/40 pointer-events-none"
+            animate={{ opacity: [0.4, 0.8, 0.4] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+          />
+        )}
         {letter}
       </motion.div>
     );
