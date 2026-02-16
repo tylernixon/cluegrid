@@ -21,6 +21,8 @@ const config: Config = {
         correct: { DEFAULT: "#4A8B6E", dark: "#4A9B7E" },
         // Revealed/hint letters - teal shade to indicate "given as hint"
         revealed: { DEFAULT: "#4A8B8B", dark: "#4A9B9B" },
+        // Crosser solved - slightly lighter grey for solved crosser cells (not main row)
+        "crosser-solved": { DEFAULT: "#E8E4DE", dark: "#2A2A34" },
         present: { DEFAULT: "#C4944A", dark: "#D4A45A" },
         absent: { DEFAULT: "#B8B0A6", dark: "#3A3A42" },
         accent: { DEFAULT: "#5B7FA6", dark: "#7B9FC6" },

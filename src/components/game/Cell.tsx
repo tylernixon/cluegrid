@@ -33,6 +33,9 @@ const statusClasses: Record<string, string> = {
     "bg-correct dark:bg-correct-dark border-correct dark:border-correct-dark text-white",
   typing:
     "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-ink dark:text-ink-dark",
+  // Crosser solved - for solved crosser cells not on main word row
+  crosserSolved:
+    "bg-crosser-solved dark:bg-crosser-solved-dark border-crosser-solved dark:border-crosser-solved-dark text-white",
 };
 
 export function Cell({
@@ -53,7 +56,14 @@ export function Cell({
   const base =
     "flex items-center justify-center w-[52px] h-[52px] sm:w-[56px] sm:h-[56px] md:w-[60px] md:h-[60px] rounded-sm border-2 font-mono text-grid select-none transition-colors duration-150";
 
-  const statusClass = statusClasses[status] ?? statusClasses.empty;
+  // For crosser cells (not main word row) that are solved, use the lighter grey style
+  // Green is reserved only for the main word row
+  const effectiveStatus =
+    !isMainWordRow && (status === "correct" || status === "lockedCorrect")
+      ? "crosserSolved"
+      : status;
+
+  const statusClass = statusClasses[effectiveStatus] ?? statusClasses.empty;
 
   const mainRowClass = isMainWordRow ? "font-bold" : "";
 
@@ -110,20 +120,10 @@ export function Cell({
     transition: { duration: TIMING.fast, ease: EASE.out },
   } : {};
 
-  // Gradient for main word row solved/revealed letters - uses green, blue, and yellow
-  // Applies to: correct, revealed, lockedCorrect on main word row
-  const mainRowSolvedStatuses = ["correct", "revealed", "lockedCorrect"];
-  const shouldShowMainRowGradient = isMainWordRow && mainRowSolvedStatuses.includes(status);
-  const mainRowGradientStyle = shouldShowMainRowGradient ? {
-    background: "linear-gradient(135deg, #5B7FA6 0%, #4A8B6E 50%, #C9A227 100%)",
-    borderColor: "#4A7A8A",
-  } : undefined;
-
   return (
     <motion.button
       type="button"
       className={`${base} ${statusClass} ${mainRowClass} ${focusClass} relative`}
-      style={mainRowGradientStyle}
       onClick={onClick}
       onKeyDown={onKeyDown}
       tabIndex={tabIndex}
