@@ -557,7 +557,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
                   id="gridRows"
                   type="number"
                   min={3}
-                  max={10}
+                  max={15}
                   value={gridRows}
                   onChange={(e) => setGridRows(parseInt(e.target.value) || 5)}
                   disabled={!isEditable}
@@ -573,7 +573,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
                   id="gridCols"
                   type="number"
                   min={3}
-                  max={10}
+                  max={15}
                   value={gridCols}
                   onChange={(e) => setGridCols(parseInt(e.target.value) || 5)}
                   disabled={!isEditable}

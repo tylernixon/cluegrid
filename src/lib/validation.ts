@@ -32,8 +32,8 @@ export const CreatePuzzleSchema = z.object({
     .regex(/^[A-Z]+$/, 'mainWord must be uppercase letters'),
   mainWordRow: z.number().int().min(0),
   mainWordCol: z.number().int().min(0).default(0),
-  gridRows: z.number().int().min(3).max(10),
-  gridCols: z.number().int().min(3).max(10),
+  gridRows: z.number().int().min(3).max(15),
+  gridCols: z.number().int().min(3).max(15),
   crossers: z
     .array(
       z.object({
