@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  /* Set both html and body backgrounds to prevent iOS Safari safe-area bleed */
+  html {
+    @apply bg-canvas;
+  }
+
+  .dark html {
+    @apply bg-canvas-dark;
+  }
+
   body {
     @apply bg-canvas text-ink antialiased;
   }

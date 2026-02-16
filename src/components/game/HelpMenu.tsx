@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface HelpMenuProps {
@@ -64,7 +65,9 @@ export function HelpMenu({ open, onClose, onViewTutorial, onStartWalkthrough }: 
     onStartWalkthrough();
   }, [onClose, onStartWalkthrough]);
 
-  return (
+  if (!open) return null;
+
+  const helpContent = (
     <AnimatePresence>
       {open && (
         <>
@@ -81,7 +84,10 @@ export function HelpMenu({ open, onClose, onViewTutorial, onStartWalkthrough }: 
 
           {/* Action sheet */}
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-[env(safe-area-inset-bottom)] pb-4"
+            className="fixed bottom-0 left-0 right-0 z-50 px-4"
+            style={{
+              paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
+            }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -167,4 +173,7 @@ export function HelpMenu({ open, onClose, onViewTutorial, onStartWalkthrough }: 
       )}
     </AnimatePresence>
   );
+
+  // Portal to body to escape any parent transforms/constraints
+  return createPortal(helpContent, document.body);
 }

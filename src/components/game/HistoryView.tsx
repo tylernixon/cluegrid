@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { HistoryCalendar } from "./HistoryCalendar";
 import { HistoryPuzzleCard } from "./HistoryPuzzleCard";
@@ -141,10 +142,39 @@ export function HistoryView({ onClose }: HistoryViewProps) {
     ? entries.find((e) => e.date === selectedDate) ?? null
     : null;
 
-  return (
-    <AnimatePresence>
+  // Lock body scroll when history view is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  const historyContent = (
+    <div
+      className="fixed inset-0 z-40"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Puzzle History"
+    >
+      {/* LAYER 1: Blurred backdrop - absolute full-bleed, NO safe area padding */}
       <motion.div
-        className="fixed inset-0 z-40 w-screen h-dvh flex flex-col bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
+        className="absolute inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+      />
+
+      {/* LAYER 2: Content wrapper - absolute full-bleed with safe area padding */}
+      <motion.div
+        className="absolute inset-0 flex flex-col"
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
+        }}
         initial={{ opacity: 0, x: "-100%" }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: "-100%" }}
@@ -279,6 +309,9 @@ export function HistoryView({ onClose }: HistoryViewProps) {
           />
         )}
       </motion.div>
-    </AnimatePresence>
+    </div>
   );
+
+  // Portal to body to escape any parent transforms/constraints
+  return createPortal(historyContent, document.body);
 }

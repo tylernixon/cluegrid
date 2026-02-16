@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence, type PanInfo } from "framer-motion";
 import { GistLogo } from "@/components/GistLogo";
 
@@ -138,7 +139,7 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
     }),
   };
 
-  return (
+  const modalContent = (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80" role="dialog" aria-modal="true" aria-label="How to play">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -355,4 +356,7 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
       </motion.div>
     </div>
   );
+
+  // Portal to body to escape any parent transforms/constraints
+  return createPortal(modalContent, document.body);
 }

@@ -60,15 +60,15 @@ export function ModalShell({
       aria-modal="true"
       aria-label={title}
     >
-      {/* LAYER 1: Blurred backdrop - full screen, NO safe area padding */}
+      {/* LAYER 1: Blurred backdrop - absolute full-bleed, NO safe area padding */}
       <div
-        className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        className="absolute inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
         onClick={onClose}
       />
 
-      {/* LAYER 2: Content wrapper - safe area padding applied here */}
+      {/* LAYER 2: Content wrapper - absolute full-bleed with safe area padding */}
       <div
-        className="fixed inset-0 flex flex-col"
+        className="absolute inset-0 flex flex-col"
         style={{
           paddingTop: 'env(safe-area-inset-top)',
           paddingBottom: 'env(safe-area-inset-bottom)',

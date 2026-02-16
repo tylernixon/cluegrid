@@ -134,9 +134,9 @@ export function MenuDrawer({
       aria-label="Navigation menu"
       tabIndex={-1}
     >
-      {/* LAYER 1: Blurred backdrop - edge-to-edge, NO safe area padding */}
+      {/* LAYER 1: Blurred backdrop - absolute full-bleed, NO safe area padding */}
       <motion.div
-        className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        className="absolute inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -144,9 +144,9 @@ export function MenuDrawer({
         onClick={onClose}
       />
 
-      {/* LAYER 2: Content with safe area padding */}
+      {/* LAYER 2: Content wrapper - absolute full-bleed with safe area padding */}
       <motion.div
-        className="fixed inset-0 h-[100dvh]"
+        className="absolute inset-0"
         style={{
           paddingTop: 'env(safe-area-inset-top)',
           paddingBottom: 'env(safe-area-inset-bottom)',
