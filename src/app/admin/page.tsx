@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
+import { DayPicker } from "react-day-picker";
+import { format, parse } from "date-fns";
+import "react-day-picker/style.css";
 
 interface GeneratedCrosser {
   word: string;
@@ -317,45 +320,86 @@ export default function AdminPage() {
                 <option value="5">5</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md ${
-                  scheduledDates.has(date) ? "border-yellow-400 bg-yellow-50" : ""
-                }`}
-              />
-              {scheduledDates.has(date) && (
-                <p className="text-xs text-yellow-600 mt-1">
-                  ⚠️ A puzzle ({scheduledDates.get(date)}) exists for this date
-                </p>
-              )}
-            </div>
-            {/* Upcoming scheduled dates */}
-            {scheduledDates.size > 0 && (
-              <div className="col-span-2">
-                <p className="text-xs text-gray-500 mb-1">Scheduled dates:</p>
-                <div className="flex flex-wrap gap-1">
-                  {Array.from(scheduledDates.entries())
-                    .sort(([a], [b]) => a.localeCompare(b))
-                    .slice(0, 14)
-                    .map(([d, status]) => (
-                      <span
-                        key={d}
-                        className={`text-xs px-2 py-0.5 rounded ${
-                          status === "published"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {d.slice(5)} {status === "published" ? "●" : "○"}
-                      </span>
-                    ))}
-                </div>
+            {/* Calendar Date Picker - spans full width */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <div className="bg-white border rounded-lg p-2 inline-block">
+                <DayPicker
+                  mode="single"
+                  selected={date ? parse(date, "yyyy-MM-dd", new Date()) : undefined}
+                  onSelect={(day) => day && setDate(format(day, "yyyy-MM-dd"))}
+                  disabled={Array.from(scheduledDates.entries())
+                    .filter(([, status]) => status === "published")
+                    .map(([d]) => parse(d, "yyyy-MM-dd", new Date()))}
+                  modifiers={{
+                    scheduled: Array.from(scheduledDates.entries())
+                      .filter(([, status]) => status !== "published")
+                      .map(([d]) => parse(d, "yyyy-MM-dd", new Date())),
+                    published: Array.from(scheduledDates.entries())
+                      .filter(([, status]) => status === "published")
+                      .map(([d]) => parse(d, "yyyy-MM-dd", new Date())),
+                  }}
+                  modifiersStyles={{
+                    scheduled: {
+                      position: "relative",
+                    },
+                    published: {
+                      backgroundColor: "#dcfce7",
+                      color: "#166534",
+                    },
+                  }}
+                  components={{
+                    DayButton: ({ day, modifiers, ...props }) => {
+                      const isScheduled = modifiers.scheduled;
+                      const isPublished = modifiers.published;
+                      return (
+                        <button {...props} style={{ position: "relative" }}>
+                          {day.date.getDate()}
+                          {(isScheduled || isPublished) && (
+                            <span
+                              style={{
+                                position: "absolute",
+                                bottom: "2px",
+                                left: "50%",
+                                transform: "translateX(-50%)",
+                                width: "4px",
+                                height: "4px",
+                                borderRadius: "50%",
+                                backgroundColor: isPublished ? "#166534" : "#9ca3af",
+                              }}
+                            />
+                          )}
+                        </button>
+                      );
+                    },
+                  }}
+                  styles={{
+                    months: { display: "flex", gap: "1rem" },
+                    month_caption: { fontWeight: 600, marginBottom: "0.5rem" },
+                    weekdays: { fontSize: "0.75rem", color: "#6b7280" },
+                    day: { width: "36px", height: "36px" },
+                    selected: { backgroundColor: "#2563eb", color: "white", borderRadius: "6px" },
+                    today: { fontWeight: "bold", color: "#2563eb" },
+                    disabled: { opacity: 0.4, cursor: "not-allowed" },
+                  }}
+                />
               </div>
-            )}
+              <div className="mt-2 flex items-center gap-4 text-xs text-gray-600">
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-700" />
+                  Published
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-gray-400" />
+                  Draft
+                </div>
+                {date && scheduledDates.has(date) && (
+                  <span className="text-yellow-600 font-medium">
+                    ⚠️ {scheduledDates.get(date)} puzzle exists
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <button onClick={handleGenerate} disabled={isGenerating} className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300 font-medium">
