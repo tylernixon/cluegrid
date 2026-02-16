@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuItem } from "./MenuItem";
 import { GistLogo } from "@/components/GistLogo";
@@ -12,20 +13,6 @@ interface MenuDrawerProps {
   onOpenStats: () => void;
   onOpenHistory: () => void;
 }
-
-const drawerVariants = {
-  hidden: { opacity: 0, x: "-100%" },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { type: "spring" as const, damping: 30, stiffness: 300 },
-  },
-  exit: {
-    opacity: 0,
-    x: "-100%",
-    transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-};
 
 // SVG icons as components for cleanliness
 function ChevronLeftIcon() {
@@ -89,7 +76,7 @@ export function MenuDrawer({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  // Focus management: focus the drawer and trap focus when open
+  // Focus management
   useEffect(() => {
     if (!open) return;
 
@@ -124,7 +111,7 @@ export function MenuDrawer({
     };
   }, [open]);
 
-  // Prevent body scroll when drawer is open
+  // Prevent body scroll
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -136,27 +123,49 @@ export function MenuDrawer({
     };
   }, [open]);
 
-  return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          ref={drawerRef}
-          className="fixed inset-0 z-50 w-screen h-dvh bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
-          variants={drawerVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Navigation menu"
-          tabIndex={-1}
-        >
-          {/* Header */}
-          <header className="relative flex items-center justify-center h-14 px-4 shrink-0">
+  if (!open) return null;
+
+  const drawerContent = (
+    <div
+      ref={drawerRef}
+      className="fixed inset-0 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation menu"
+      tabIndex={-1}
+    >
+      {/* LAYER 1: Blurred backdrop - edge-to-edge, NO safe area padding */}
+      <motion.div
+        className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={onClose}
+      />
+
+      {/* LAYER 2: Content with safe area padding */}
+      <motion.div
+        className="fixed inset-0 h-[100dvh]"
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
+        }}
+        initial={{ opacity: 0, x: "-20%" }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: "-20%" }}
+        transition={{ type: "spring", damping: 30, stiffness: 300 }}
+      >
+        {/* 3-row grid: header / content / footer */}
+        <div className="h-full grid grid-rows-[auto_minmax(0,1fr)_auto] px-4">
+          {/* Header - row 1 */}
+          <header className="relative flex items-center justify-center py-4 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="absolute left-4 w-10 h-10 flex items-center justify-center text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark transition-colors focus:outline-none"
+              className="absolute left-0 w-10 h-10 flex items-center justify-center text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark transition-colors focus:outline-none"
               aria-label="Close menu"
             >
               <ChevronLeftIcon />
@@ -164,37 +173,48 @@ export function MenuDrawer({
             <GistLogo />
           </header>
 
-          {/* Menu items - centered under logo */}
-          <nav className="flex-1 py-4" aria-label="Main navigation">
-            <div className="max-w-xs mx-auto px-4">
-            <MenuItem
-              icon={<GearIcon />}
-              label="Settings"
-              onClick={() => {
-                onClose();
-                onOpenSettings();
-              }}
-            />
-            <MenuItem
-              icon={<ChartIcon />}
-              label="Stats"
-              onClick={() => {
-                onClose();
-                onOpenStats();
-              }}
-            />
-            <MenuItem
-              icon={<CalendarIcon />}
-              label="History"
-              onClick={() => {
-                onClose();
-                onOpenHistory();
-              }}
-            />
+          {/* Content - row 2 (centered) */}
+          <nav className="overflow-y-auto grid place-items-center" aria-label="Main navigation">
+            <div className="max-w-xs w-full">
+              <MenuItem
+                icon={<GearIcon />}
+                label="Settings"
+                onClick={() => {
+                  onClose();
+                  onOpenSettings();
+                }}
+              />
+              <MenuItem
+                icon={<ChartIcon />}
+                label="Stats"
+                onClick={() => {
+                  onClose();
+                  onOpenStats();
+                }}
+              />
+              <MenuItem
+                icon={<CalendarIcon />}
+                label="History"
+                onClick={() => {
+                  onClose();
+                  onOpenHistory();
+                }}
+              />
             </div>
           </nav>
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+          {/* Footer - row 3 (empty but exists for consistency) */}
+          <div className="py-3 shrink-0" />
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // Portal to body to escape parent transforms/constraints
+  return createPortal(
+    <AnimatePresence>
+      {open && drawerContent}
+    </AnimatePresence>,
+    document.body
   );
 }
