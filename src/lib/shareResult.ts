@@ -182,8 +182,32 @@ export async function shareResult(
   }
 
   // Fallback to clipboard
-  await navigator.clipboard.writeText(shareText);
-  return "copied";
+  try {
+    await navigator.clipboard.writeText(shareText);
+    return "copied";
+  } catch (clipboardErr) {
+    // Final fallback: use deprecated execCommand for older browsers/iOS quirks
+    const textarea = document.createElement("textarea");
+    textarea.value = shareText;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    textarea.style.top = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    try {
+      const success = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      if (success) {
+        return "copied";
+      }
+      throw new Error("execCommand copy failed");
+    } catch {
+      document.body.removeChild(textarea);
+      throw clipboardErr;
+    }
+  }
 }
 
 /**
