@@ -98,7 +98,7 @@ function TourCell({
   onClick,
 }: {
   letter: string;
-  status: "empty" | "correct" | "revealed" | "typing" | "solved";
+  status: "empty" | "correct" | "revealed" | "typing" | "solved" | "crosserSolved";
   isHighlighted: boolean;
   isMainRow: boolean;
   onClick?: () => void;
@@ -109,6 +109,8 @@ function TourCell({
     revealed: "bg-revealed dark:bg-revealed-dark border-revealed dark:border-revealed-dark text-white",
     typing: "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-ink dark:text-ink-dark",
     solved: "bg-correct dark:bg-correct-dark border-correct dark:border-correct-dark text-white",
+    // Crosser solved - faint green (32% opacity) for solved crosser cells not on main row
+    crosserSolved: "bg-crosser-solved dark:bg-crosser-solved-dark border-correct/30 dark:border-correct-dark/30 text-white",
   };
 
   return (
@@ -450,7 +452,7 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
     const { rows, cols } = puzzle.gridSize;
     const cells: (({
       letter: string;
-      status: "empty" | "correct" | "revealed" | "typing" | "solved";
+      status: "empty" | "correct" | "revealed" | "typing" | "solved" | "crosserSolved";
       isMainRow: boolean;
       belongsTo: string[];
     }) | null)[][] = Array.from({ length: rows }, () =>
@@ -513,11 +515,12 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
         }
 
         let letter = "";
-        let status: "empty" | "correct" | "revealed" | "typing" | "solved" = "empty";
+        let status: "empty" | "correct" | "revealed" | "typing" | "solved" | "crosserSolved" = "empty";
 
         if (isSolved) {
           letter = crosser.word[i]!;
-          status = "solved";
+          // Use grey for solved crosser cells (not on main row)
+          status = "crosserSolved";
         } else if (selectedTarget === crosser.id && currentGuess[i]) {
           letter = currentGuess[i]!;
           status = "typing";

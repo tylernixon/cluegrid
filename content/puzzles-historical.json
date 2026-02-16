@@ -1,587 +1,599 @@
 [
   {
     "date": "2026-01-01",
-    "mainWord": "PARTY",
-    "theme": "New Year's Eve",
-    "themeHint": "Celebration at midnight",
-    "difficulty": 3,
+    "mainWord": "FRESH",
+    "theme": "Tabula rasa",
+    "themeHint": "What yesterday's regrets became at midnight",
+    "difficulty": 4,
     "crossers": [
-      { "word": "POPPER", "clue": "Confetti explodes from this at midnight", "position": 0, "intersectionIndex": 0 },
-      { "word": "HAPPY", "clue": "How everyone feels when the clock strikes twelve", "position": 1, "intersectionIndex": 1 },
-      { "word": "CHEER", "clue": "Shouted with raised glasses", "position": 2, "intersectionIndex": 4 },
-      { "word": "COUNTDOWN", "clue": "Ten, nine, eight... the final moments", "position": 4, "intersectionIndex": 8 }
+      { "word": "FLARE", "clue": "Sudden burst of brilliance", "position": 0, "intersectionIndex": 0 },
+      { "word": "GROVE", "clue": "Where trees hold meetings", "position": 1, "intersectionIndex": 1 },
+      { "word": "FLESH", "clue": "What bones wear underneath", "position": 2, "intersectionIndex": 2 },
+      { "word": "HASTE", "clue": "Speed without caution", "position": 4, "intersectionIndex": 0 }
     ]
   },
   {
     "date": "2026-01-02",
-    "mainWord": "FROST",
-    "theme": "Winter Cold",
-    "themeHint": "January's icy touch",
-    "difficulty": 3,
+    "mainWord": "STILL",
+    "theme": "The pause between breaths",
+    "themeHint": "Where motion goes to sleep",
+    "difficulty": 4,
     "crossers": [
-      { "word": "FROZEN", "clue": "What water becomes in winter", "position": 0, "intersectionIndex": 0 },
-      { "word": "COLD", "clue": "Temperature that makes you shiver", "position": 2, "intersectionIndex": 1 },
-      { "word": "MIST", "clue": "Icy breath visible in the air", "position": 4, "intersectionIndex": 3 }
+      { "word": "MIST", "clue": "Air with secrets", "position": 0, "intersectionIndex": 2 },
+      { "word": "TWIST", "clue": "When straight gets complicated", "position": 1, "intersectionIndex": 0 },
+      { "word": "CHILL", "clue": "Temperature of calm", "position": 2, "intersectionIndex": 2 },
+      { "word": "QUILL", "clue": "Feather turned to purpose", "position": 4, "intersectionIndex": 3 }
     ]
   },
   {
     "date": "2026-01-03",
-    "mainWord": "GOALS",
-    "theme": "New Year's Resolutions",
-    "themeHint": "Fresh start ambitions",
-    "difficulty": 3,
+    "mainWord": "CLIMB",
+    "theme": "Against gravity's wishes",
+    "themeHint": "What Sisyphus never stopped doing",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CHANGE", "clue": "What you want to make in the new year", "position": 0, "intersectionIndex": 5 },
-      { "word": "PROMISE", "clue": "A commitment you make to yourself", "position": 1, "intersectionIndex": 5 },
-      { "word": "HEALTH", "clue": "Top of the list for many resolutions", "position": 3, "intersectionIndex": 3 },
-      { "word": "START", "clue": "Fresh beginning on January first", "position": 4, "intersectionIndex": 0 }
+      { "word": "SCALE", "clue": "Fish armor or a mountain verb", "position": 0, "intersectionIndex": 1 },
+      { "word": "PLAN", "clue": "Strategy before action", "position": 1, "intersectionIndex": 1 },
+      { "word": "GRIM", "clue": "When joy abandons faces", "position": 2, "intersectionIndex": 2 },
+      { "word": "PLUMB", "clue": "Finding true depth", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-04",
-    "mainWord": "COUCH",
-    "theme": "Lazy Day",
-    "themeHint": "Weekend relaxation spot",
-    "difficulty": 3,
+    "mainWord": "DRIFT",
+    "theme": "Surrender to current",
+    "themeHint": "What snow and thoughts have in common",
+    "difficulty": 4,
     "crossers": [
-      { "word": "COMFORT", "clue": "Feeling of ease when you sink in", "position": 0, "intersectionIndex": 0 },
-      { "word": "LOUNGE", "clue": "To recline and relax", "position": 1, "intersectionIndex": 1 },
-      { "word": "CUSHION", "clue": "Soft padding to sit on", "position": 2, "intersectionIndex": 1 },
-      { "word": "BLANKET", "clue": "Warm cover for napping", "position": 4, "intersectionIndex": 6 }
+      { "word": "FLOOD", "clue": "Water forgetting its banks", "position": 0, "intersectionIndex": 4 },
+      { "word": "GRIT", "clue": "Sand or determination", "position": 1, "intersectionIndex": 1 },
+      { "word": "SHIFT", "clue": "Change without warning", "position": 2, "intersectionIndex": 2 },
+      { "word": "SWIFT", "clue": "Bird named for speed", "position": 3, "intersectionIndex": 3 }
     ]
   },
   {
     "date": "2026-01-05",
-    "mainWord": "SALAD",
-    "theme": "Healthy Eating",
-    "themeHint": "Fresh vegetables on a plate",
-    "difficulty": 3,
+    "mainWord": "GRASP",
+    "theme": "The moment before possession",
+    "themeHint": "What slips away when you try too hard",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CRISP", "clue": "How fresh lettuce should feel", "position": 0, "intersectionIndex": 3 },
-      { "word": "KALE", "clue": "Trendy leafy green vegetable", "position": 1, "intersectionIndex": 1 },
-      { "word": "OLIVE", "clue": "Often pressed for dressing oil", "position": 2, "intersectionIndex": 4 },
-      { "word": "TOSSED", "clue": "Mixed together in a bowl", "position": 4, "intersectionIndex": 4 }
+      { "word": "GLOW", "clue": "Light without heat", "position": 0, "intersectionIndex": 0 },
+      { "word": "DARE", "clue": "Courage with risk", "position": 1, "intersectionIndex": 2 },
+      { "word": "TOAST", "clue": "Bread's second chance", "position": 2, "intersectionIndex": 2 },
+      { "word": "CRISP", "clue": "Sound of autumn leaves", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-06",
-    "mainWord": "SKATE",
-    "theme": "Ice Rink",
-    "themeHint": "Gliding on frozen water",
-    "difficulty": 3,
+    "mainWord": "GLIDE",
+    "theme": "Friction's opposite",
+    "themeHint": "How swans lie about effort",
+    "difficulty": 4,
     "crossers": [
-      { "word": "SMOOTH", "clue": "The surface should be this for gliding", "position": 0, "intersectionIndex": 0 },
-      { "word": "HOCKEY", "clue": "Sport with pucks and sticks on ice", "position": 1, "intersectionIndex": 3 },
-      { "word": "BLADE", "clue": "Sharp metal edge under your boot", "position": 2, "intersectionIndex": 2 },
-      { "word": "FREEZE", "clue": "What happens to water to make the rink", "position": 4, "intersectionIndex": 4 }
+      { "word": "GLOW", "clue": "Warmth made visible", "position": 0, "intersectionIndex": 0 },
+      { "word": "BLAME", "clue": "Fault's address", "position": 1, "intersectionIndex": 1 },
+      { "word": "SPINE", "clue": "Backbone's whole length", "position": 2, "intersectionIndex": 2 },
+      { "word": "PRIDE", "clue": "Before the fall comes this", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-07",
-    "mainWord": "CHESS",
-    "theme": "Board Games",
-    "themeHint": "Strategic indoor entertainment",
-    "difficulty": 3,
+    "mainWord": "BLUFF",
+    "theme": "Confidence without cards",
+    "themeHint": "What poker faces hide",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CHECK", "clue": "A warning to the king", "position": 0, "intersectionIndex": 0 },
-      { "word": "QUEEN", "clue": "Most powerful piece on the board", "position": 2, "intersectionIndex": 3 },
-      { "word": "BISHOP", "clue": "This piece moves diagonally", "position": 4, "intersectionIndex": 2 }
+      { "word": "BLINK", "clue": "Eye's quick reset", "position": 0, "intersectionIndex": 0 },
+      { "word": "CLEAR", "clue": "When clouds step aside", "position": 1, "intersectionIndex": 1 },
+      { "word": "SCUFF", "clue": "Mark from careless walking", "position": 2, "intersectionIndex": 2 },
+      { "word": "STUFF", "clue": "What fills empty spaces", "position": 4, "intersectionIndex": 3 }
     ]
   },
   {
     "date": "2026-01-08",
-    "mainWord": "NOVEL",
-    "theme": "Reading",
-    "themeHint": "A long story between covers",
-    "difficulty": 3,
+    "mainWord": "TRACE",
+    "theme": "Ghosts of presence",
+    "themeHint": "What footprints leave behind",
+    "difficulty": 4,
     "crossers": [
-      { "word": "SPINE", "clue": "The bound edge you see on a shelf", "position": 1, "intersectionIndex": 4 },
-      { "word": "PLOT", "clue": "The story that unfolds chapter by chapter", "position": 2, "intersectionIndex": 2 },
-      { "word": "TALE", "clue": "A story told from beginning to end", "position": 4, "intersectionIndex": 2 }
+      { "word": "STEEP", "clue": "Tea's patient requirement", "position": 0, "intersectionIndex": 1 },
+      { "word": "ARROW", "clue": "Direction with intent", "position": 1, "intersectionIndex": 1 },
+      { "word": "SPACE", "clue": "Room between things", "position": 2, "intersectionIndex": 2 },
+      { "word": "PEACE", "clue": "War's exhausted conclusion", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-09",
-    "mainWord": "COCOA",
-    "theme": "Hot Drinks",
-    "themeHint": "Warming beverage on a cold day",
-    "difficulty": 3,
+    "mainWord": "STEEP",
+    "theme": "Patience in liquid form",
+    "themeHint": "What tea leaves teach about waiting",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CREAM", "clue": "Whipped topping that floats on top", "position": 0, "intersectionIndex": 0 },
-      { "word": "WARM", "clue": "The temperature you want your drink", "position": 1, "intersectionIndex": 4 },
-      { "word": "BROWN", "clue": "Color of chocolate powder", "position": 3, "intersectionIndex": 4 }
+      { "word": "STOMP", "clue": "Heavy footfall", "position": 0, "intersectionIndex": 0 },
+      { "word": "AFTER", "clue": "Following in time", "position": 1, "intersectionIndex": 2 },
+      { "word": "SLEEP", "clue": "Where dreams hold court", "position": 2, "intersectionIndex": 2 },
+      { "word": "CREEP", "clue": "How shadows extend", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-10",
-    "mainWord": "DREAM",
-    "theme": "Sleep",
-    "themeHint": "What happens when you close your eyes",
-    "difficulty": 3,
+    "mainWord": "WEAVE",
+    "theme": "Chaos into pattern",
+    "themeHint": "How spiders tell their stories",
+    "difficulty": 4,
     "crossers": [
-      { "word": "DOZE", "clue": "To drift off lightly", "position": 0, "intersectionIndex": 0 },
-      { "word": "TIRED", "clue": "How you feel at bedtime", "position": 2, "intersectionIndex": 2 },
-      { "word": "ALARM", "clue": "Wakes you from slumber each morning", "position": 3, "intersectionIndex": 2 },
-      { "word": "BED", "clue": "Where you rest your head at night", "position": 4, "intersectionIndex": 2 }
+      { "word": "SWARM", "clue": "When many move as one", "position": 0, "intersectionIndex": 1 },
+      { "word": "DREAM", "clue": "Night's alternate reality", "position": 1, "intersectionIndex": 2 },
+      { "word": "HEAVE", "clue": "Throw with effort", "position": 2, "intersectionIndex": 2 },
+      { "word": "NERVE", "clue": "Courage or anatomy", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-11",
-    "mainWord": "PIANO",
-    "theme": "Music",
-    "themeHint": "Keys that make melodies",
-    "difficulty": 3,
+    "mainWord": "WOUND",
+    "theme": "Clocks and scars",
+    "themeHint": "What springs and hearts both carry",
+    "difficulty": 4,
     "crossers": [
-      { "word": "PEDAL", "clue": "Press with your foot to sustain notes", "position": 0, "intersectionIndex": 0 },
-      { "word": "IVORY", "clue": "Traditional material for white keys", "position": 1, "intersectionIndex": 0 },
-      { "word": "GRAND", "clue": "Large type with horizontal strings", "position": 3, "intersectionIndex": 3 },
-      { "word": "SONATA", "clue": "Classical composition for this instrument", "position": 4, "intersectionIndex": 1 }
+      { "word": "SWORN", "clue": "Promise made permanent", "position": 0, "intersectionIndex": 1 },
+      { "word": "FLOOR", "clue": "Ground's indoor cousin", "position": 1, "intersectionIndex": 2 },
+      { "word": "FOUND", "clue": "Lost's happy ending", "position": 2, "intersectionIndex": 2 },
+      { "word": "STAND", "clue": "What courage does", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-12",
-    "mainWord": "CABIN",
-    "theme": "Mountain Getaway",
-    "themeHint": "A cozy retreat in the woods",
-    "difficulty": 3,
+    "mainWord": "PERCH",
+    "theme": "Between flight and fall",
+    "themeHint": "Where birds practice patience",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CEDAR", "clue": "Fragrant wood used for rustic walls", "position": 0, "intersectionIndex": 0 },
-      { "word": "LAKE", "clue": "Nearby water for fishing and swimming", "position": 2, "intersectionIndex": 2 },
-      { "word": "FIRE", "clue": "Crackling warmth in the hearth", "position": 3, "intersectionIndex": 1 },
-      { "word": "RUSTIC", "clue": "Simple and charmingly old-fashioned", "position": 4, "intersectionIndex": 4 }
+      { "word": "GRASP", "clue": "Understanding's tight grip", "position": 0, "intersectionIndex": 4 },
+      { "word": "STERN", "clue": "Strict without softness", "position": 1, "intersectionIndex": 2 },
+      { "word": "MARCH", "clue": "Walking with purpose", "position": 2, "intersectionIndex": 2 },
+      { "word": "BEACH", "clue": "Where land surrenders to sea", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-13",
-    "mainWord": "STORM",
-    "theme": "Bad Weather",
-    "themeHint": "Nature's fury from the sky",
-    "difficulty": 3,
+    "mainWord": "CLOAK",
+    "theme": "Visibility's enemy",
+    "themeHint": "What shadows wear to work",
+    "difficulty": 4,
     "crossers": [
-      { "word": "FLASH", "clue": "What lightning does before thunder", "position": 0, "intersectionIndex": 3 },
-      { "word": "BOLT", "clue": "Zigzag of electricity from clouds", "position": 2, "intersectionIndex": 1 },
-      { "word": "ALERT", "clue": "Warning issued when it's severe", "position": 4, "intersectionIndex": 4 }
+      { "word": "BASIC", "clue": "Foundation of understanding", "position": 0, "intersectionIndex": 4 },
+      { "word": "FLOCK", "clue": "Birds traveling together", "position": 1, "intersectionIndex": 1 },
+      { "word": "CROAK", "clue": "Frog's complaint", "position": 2, "intersectionIndex": 2 },
+      { "word": "SNEAK", "clue": "Movement avoiding notice", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-14",
-    "mainWord": "BRAKE",
-    "theme": "Driving",
-    "themeHint": "Controlling your vehicle",
-    "difficulty": 3,
+    "mainWord": "PROSE",
+    "theme": "Sentences unchained",
+    "themeHint": "Poetry's practical sibling",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CAB", "clue": "Part of the car where you sit", "position": 0, "intersectionIndex": 2 },
-      { "word": "TIRE", "clue": "Rubber that grips the road", "position": 2, "intersectionIndex": 3 },
-      { "word": "SLOW", "clue": "What you do at a yellow light", "position": 3, "intersectionIndex": 3 },
-      { "word": "PEDAL", "clue": "Press this with your foot to stop", "position": 4, "intersectionIndex": 4 }
+      { "word": "GRASP", "clue": "Reaching to hold", "position": 0, "intersectionIndex": 4 },
+      { "word": "CRATE", "clue": "Box for shipping", "position": 1, "intersectionIndex": 1 },
+      { "word": "THOSE", "clue": "Not these but...", "position": 2, "intersectionIndex": 2 },
+      { "word": "TENSE", "clue": "Grammar's time keeper", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-15",
-    "mainWord": "HONEY",
-    "theme": "Sweet Things",
-    "themeHint": "Nature's golden nectar",
-    "difficulty": 3,
+    "mainWord": "GRAIN",
+    "theme": "The smallest truth",
+    "themeHint": "What beaches and photographs share",
+    "difficulty": 4,
     "crossers": [
-      { "word": "HIVE", "clue": "Where busy workers store their gold", "position": 0, "intersectionIndex": 0 },
-      { "word": "COMB", "clue": "Hexagonal wax structure full of sweetness", "position": 1, "intersectionIndex": 1 },
-      { "word": "QUEEN", "clue": "Most important bee in the colony", "position": 4, "intersectionIndex": 4 }
+      { "word": "MAGIC", "clue": "Where rules bend", "position": 0, "intersectionIndex": 2 },
+      { "word": "BREAK", "clue": "When things snap", "position": 1, "intersectionIndex": 1 },
+      { "word": "AGAIN", "clue": "Repetition's request", "position": 2, "intersectionIndex": 0 },
+      { "word": "DRAIN", "clue": "Where water exits", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-16",
-    "mainWord": "PASTA",
-    "theme": "Italian Food",
-    "themeHint": "Noodles with sauce",
-    "difficulty": 3,
+    "mainWord": "SHELF",
+    "theme": "Where ideas wait",
+    "themeHint": "Limbo for unfinished projects",
+    "difficulty": 4,
     "crossers": [
-      { "word": "PENNE", "clue": "Tube-shaped noodles with angled ends", "position": 0, "intersectionIndex": 0 },
-      { "word": "BASIL", "clue": "Fragrant herb in pesto sauce", "position": 1, "intersectionIndex": 1 },
-      { "word": "TOMATO", "clue": "Red fruit in marinara", "position": 3, "intersectionIndex": 0 },
-      { "word": "PARMESAN", "clue": "Hard cheese grated on top", "position": 4, "intersectionIndex": 1 }
+      { "word": "STEAM", "clue": "Hot water's escape", "position": 0, "intersectionIndex": 0 },
+      { "word": "HARSH", "clue": "Without gentleness", "position": 1, "intersectionIndex": 0 },
+      { "word": "SHELL", "clue": "Empty after inhabitant leaves", "position": 2, "intersectionIndex": 2 },
+      { "word": "SCARF", "clue": "Neck's winter friend", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-17",
-    "mainWord": "EAGLE",
-    "theme": "Birds of Prey",
-    "themeHint": "Majestic hunter of the skies",
-    "difficulty": 3,
+    "mainWord": "BRINK",
+    "theme": "The edge before falling",
+    "themeHint": "Where courage meets its test",
+    "difficulty": 4,
     "crossers": [
-      { "word": "NEST", "clue": "Built high on cliffs for the young", "position": 0, "intersectionIndex": 3 },
-      { "word": "TALON", "clue": "Sharp curved claws for catching prey", "position": 1, "intersectionIndex": 1 },
-      { "word": "BALD", "clue": "Type with white-feathered head", "position": 3, "intersectionIndex": 3 },
-      { "word": "SOAR", "clue": "Gliding on thermal currents", "position": 4, "intersectionIndex": 3 }
+      { "word": "BULB", "clue": "Where light begins", "position": 0, "intersectionIndex": 0 },
+      { "word": "GROWL", "clue": "Anger's low voice", "position": 1, "intersectionIndex": 1 },
+      { "word": "BRINE", "clue": "Ocean's salty essence", "position": 2, "intersectionIndex": 2 },
+      { "word": "THINK", "clue": "Mind at work", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-18",
-    "mainWord": "MOVIE",
-    "theme": "Cinema",
-    "themeHint": "Stories on the big screen",
-    "difficulty": 3,
+    "mainWord": "SPARK",
+    "theme": "Potential in miniature",
+    "themeHint": "What every fire remembers being",
+    "difficulty": 4,
     "crossers": [
-      { "word": "FILM", "clue": "Reels of images projected", "position": 0, "intersectionIndex": 3 },
-      { "word": "POPCORN", "clue": "Salty snack from concessions", "position": 1, "intersectionIndex": 1 },
-      { "word": "REVIEW", "clue": "Critics write these after watching", "position": 3, "intersectionIndex": 3 },
-      { "word": "SCREEN", "clue": "Giant display everyone faces", "position": 4, "intersectionIndex": 2 }
+      { "word": "TENSE", "clue": "Muscles before action", "position": 0, "intersectionIndex": 3 },
+      { "word": "GRASP", "clue": "Reaching understanding", "position": 1, "intersectionIndex": 4 },
+      { "word": "ALARM", "clue": "Warning bell", "position": 2, "intersectionIndex": 0 },
+      { "word": "CLERK", "clue": "Behind the counter", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-19",
-    "mainWord": "BEACH",
-    "theme": "Vacation Destination",
-    "themeHint": "Where sand meets sea",
-    "difficulty": 3,
+    "mainWord": "SWELL",
+    "theme": "Growing beyond bounds",
+    "themeHint": "What pride and oceans do together",
+    "difficulty": 4,
     "crossers": [
-      { "word": "SUNBURN", "clue": "Red skin from too much sun", "position": 0, "intersectionIndex": 4 },
-      { "word": "SHELL", "clue": "Treasures left by the tide", "position": 1, "intersectionIndex": 2 },
-      { "word": "WAVE", "clue": "Rolling water that crashes", "position": 3, "intersectionIndex": 4 },
-      { "word": "SANDCASTLE", "clue": "Built with a bucket and shovel", "position": 4, "intersectionIndex": 5 }
+      { "word": "STORM", "clue": "Weather's fury", "position": 0, "intersectionIndex": 0 },
+      { "word": "DWELL", "clue": "To reside within", "position": 1, "intersectionIndex": 1 },
+      { "word": "SWEET", "clue": "Sugar's signature taste", "position": 2, "intersectionIndex": 2 },
+      { "word": "SHELL", "clue": "Protection for the soft", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-20",
-    "mainWord": "CROWN",
-    "theme": "Royalty",
-    "themeHint": "Symbol of a monarch",
-    "difficulty": 3,
+    "mainWord": "CREST",
+    "theme": "The highest point of passage",
+    "themeHint": "Where waves learn to break",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CASTLE", "clue": "Stone fortress where royalty lives", "position": 0, "intersectionIndex": 0 },
-      { "word": "THRONE", "clue": "Ornate seat of power", "position": 2, "intersectionIndex": 2 },
-      { "word": "JEWEL", "clue": "Precious gem set in gold", "position": 3, "intersectionIndex": 3 },
-      { "word": "REIGN", "clue": "Period of a monarch's rule", "position": 4, "intersectionIndex": 3 }
+      { "word": "CATCH", "clue": "When hands meet what's thrown", "position": 0, "intersectionIndex": 0 },
+      { "word": "ARISE", "clue": "How morning begins", "position": 1, "intersectionIndex": 1 },
+      { "word": "CHEST", "clue": "Where hearts are kept", "position": 2, "intersectionIndex": 2 },
+      { "word": "TOAST", "clue": "Bread's warm transformation", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-21",
-    "mainWord": "SMILE",
-    "theme": "Happiness",
-    "themeHint": "Expression of joy",
-    "difficulty": 3,
+    "mainWord": "KNACK",
+    "theme": "Talent without instruction",
+    "themeHint": "What naturals never explain",
+    "difficulty": 4,
     "crossers": [
-      { "word": "GRIN", "clue": "Wide expression showing teeth", "position": 0, "intersectionIndex": 3 },
-      { "word": "CHIME", "clue": "Happy ringing sound", "position": 2, "intersectionIndex": 2 },
-      { "word": "GLAD", "clue": "Feeling of pleasure and contentment", "position": 3, "intersectionIndex": 1 },
-      { "word": "BEAM", "clue": "To radiate happiness", "position": 4, "intersectionIndex": 3 }
+      { "word": "BLANK", "clue": "Canvas before art", "position": 0, "intersectionIndex": 4 },
+      { "word": "SNARE", "clue": "Trap waiting patiently", "position": 1, "intersectionIndex": 1 },
+      { "word": "EXACT", "clue": "Precisely right", "position": 2, "intersectionIndex": 2 },
+      { "word": "WRECK", "clue": "When things fall apart", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-22",
-    "mainWord": "BREAD",
-    "theme": "Bakery",
-    "themeHint": "Staff of life from the oven",
-    "difficulty": 3,
+    "mainWord": "LODGE",
+    "theme": "Stuck by choice",
+    "themeHint": "What complaints and splinters have in common",
+    "difficulty": 4,
     "crossers": [
-      { "word": "RYE", "clue": "Dark variety for sandwiches", "position": 1, "intersectionIndex": 0 },
-      { "word": "YEAST", "clue": "Makes the dough rise", "position": 2, "intersectionIndex": 3 },
-      { "word": "TOAST", "clue": "Golden brown from the toaster", "position": 4, "intersectionIndex": 4 }
+      { "word": "SPOIL", "clue": "When food forgets freshness", "position": 0, "intersectionIndex": 4 },
+      { "word": "FLOOR", "clue": "Where we stand", "position": 1, "intersectionIndex": 2 },
+      { "word": "DODGE", "clue": "Quick evasion", "position": 2, "intersectionIndex": 2 },
+      { "word": "BADGE", "clue": "Symbol of belonging", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-23",
-    "mainWord": "TIGER",
-    "theme": "Big Cats",
-    "themeHint": "Striped jungle predator",
-    "difficulty": 3,
+    "mainWord": "SWORN",
+    "theme": "Words that bind",
+    "themeHint": "What oaths make of promises",
+    "difficulty": 4,
     "crossers": [
-      { "word": "STRIPE", "clue": "Black bands on orange fur", "position": 0, "intersectionIndex": 1 },
-      { "word": "WILD", "clue": "Untamed and fierce", "position": 1, "intersectionIndex": 1 },
-      { "word": "JUNGLE", "clue": "Dense forest habitat", "position": 3, "intersectionIndex": 4 },
-      { "word": "ROAR", "clue": "Thunderous sound from the predator", "position": 4, "intersectionIndex": 0 }
+      { "word": "STARE", "clue": "Eyes that linger", "position": 0, "intersectionIndex": 0 },
+      { "word": "DWARF", "clue": "Small but mighty", "position": 1, "intersectionIndex": 1 },
+      { "word": "THORN", "clue": "Rose's hidden defense", "position": 2, "intersectionIndex": 2 },
+      { "word": "ACORN", "clue": "Oak's beginning", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-24",
-    "mainWord": "GLOBE",
-    "theme": "Geography",
-    "themeHint": "Spinning sphere of countries",
-    "difficulty": 3,
+    "mainWord": "BLOOM",
+    "theme": "Eruption in slow motion",
+    "themeHint": "What patience grows into",
+    "difficulty": 4,
     "crossers": [
-      { "word": "SPIN", "clue": "What Earth does on its axis", "position": 0, "intersectionIndex": 4 },
-      { "word": "ATLAS", "clue": "Book of maps", "position": 2, "intersectionIndex": 2 },
-      { "word": "WORLD", "clue": "All the countries together", "position": 3, "intersectionIndex": 4 },
-      { "word": "EQUATOR", "clue": "Invisible line around the middle", "position": 4, "intersectionIndex": 0 }
+      { "word": "BLAZE", "clue": "Fire's fierce display", "position": 0, "intersectionIndex": 0 },
+      { "word": "FLOOR", "clue": "Ground inside", "position": 1, "intersectionIndex": 1 },
+      { "word": "GLOOM", "clue": "Light's quiet absence", "position": 2, "intersectionIndex": 2 },
+      { "word": "BROOM", "clue": "Cleaning's humble tool", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-25",
-    "mainWord": "FLAME",
-    "theme": "Fire",
-    "themeHint": "Dancing heat and light",
-    "difficulty": 3,
+    "mainWord": "PLUMB",
+    "theme": "Finding true vertical",
+    "themeHint": "What gravity teaches builders",
+    "difficulty": 4,
     "crossers": [
-      { "word": "FLICKER", "clue": "How candlelight dances", "position": 0, "intersectionIndex": 0 },
-      { "word": "BLAZE", "clue": "A roaring inferno", "position": 2, "intersectionIndex": 1 },
-      { "word": "SMOKE", "clue": "Gray wisps rising upward", "position": 3, "intersectionIndex": 3 },
-      { "word": "EMBER", "clue": "Glowing coal after fire dies", "position": 4, "intersectionIndex": 0 }
+      { "word": "CLASP", "clue": "Jewelry's embrace", "position": 0, "intersectionIndex": 4 },
+      { "word": "BLAME", "clue": "Where fault lands", "position": 1, "intersectionIndex": 1 },
+      { "word": "THUMB", "clue": "Opposable advantage", "position": 2, "intersectionIndex": 2 },
+      { "word": "CRUMB", "clue": "Bread's small remains", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-26",
-    "mainWord": "PLANT",
-    "theme": "Gardening",
-    "themeHint": "Growing green things",
-    "difficulty": 3,
+    "mainWord": "CRISP",
+    "theme": "Sharp clarity",
+    "themeHint": "How autumn air announces itself",
+    "difficulty": 4,
     "crossers": [
-      { "word": "POT", "clue": "Container with soil inside", "position": 0, "intersectionIndex": 0 },
-      { "word": "BLOOM", "clue": "When flowers open up", "position": 2, "intersectionIndex": 4 },
-      { "word": "WATER", "clue": "Essential liquid for growth", "position": 4, "intersectionIndex": 4 }
+      { "word": "BASIC", "clue": "Fundamental truth", "position": 0, "intersectionIndex": 4 },
+      { "word": "FRAME", "clue": "Structure holding art", "position": 1, "intersectionIndex": 1 },
+      { "word": "DRIP", "clue": "Water's slow escape", "position": 2, "intersectionIndex": 2 },
+      { "word": "CLASP", "clue": "Holding tight", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-27",
-    "mainWord": "MEDAL",
-    "theme": "Olympics",
-    "themeHint": "Award for athletic achievement",
-    "difficulty": 3,
+    "mainWord": "GRAFT",
+    "theme": "Foreign made native",
+    "themeHint": "How gardens cheat biology",
+    "difficulty": 4,
     "crossers": [
-      { "word": "TEAM", "clue": "Group competing for their country", "position": 0, "intersectionIndex": 3 },
-      { "word": "PODIUM", "clue": "Where champions stand", "position": 1, "intersectionIndex": 3 },
-      { "word": "GOLD", "clue": "First place color", "position": 2, "intersectionIndex": 3 },
-      { "word": "TORCH", "clue": "Flame carried to open games", "position": 4, "intersectionIndex": 4 }
+      { "word": "STAGE", "clue": "Where performances live", "position": 0, "intersectionIndex": 3 },
+      { "word": "FRAME", "clue": "Around the picture", "position": 1, "intersectionIndex": 1 },
+      { "word": "DRAFT", "clue": "First version or cold wind", "position": 2, "intersectionIndex": 2 },
+      { "word": "CRAFT", "clue": "Skill with hands", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-28",
-    "mainWord": "OCEAN",
-    "theme": "The Sea",
-    "themeHint": "Vast blue expanse",
-    "difficulty": 3,
+    "mainWord": "RIDGE",
+    "theme": "The knife edge path",
+    "themeHint": "Where two slopes argue",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CORAL", "clue": "Colorful reef structure", "position": 1, "intersectionIndex": 1 },
-      { "word": "WHALE", "clue": "Massive mammal that breaches", "position": 2, "intersectionIndex": 4 },
-      { "word": "TIDE", "clue": "Rising and falling water", "position": 3, "intersectionIndex": 4 },
-      { "word": "SHORE", "clue": "Where waves meet land", "position": 4, "intersectionIndex": 4 }
+      { "word": "GRAIN", "clue": "Wood's natural pattern", "position": 0, "intersectionIndex": 1 },
+      { "word": "BRIDE", "clue": "Wedding's centerpiece", "position": 1, "intersectionIndex": 2 },
+      { "word": "CEDAR", "clue": "Fragrant wood", "position": 2, "intersectionIndex": 2 },
+      { "word": "WEDGE", "clue": "Thin end that opens gaps", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-29",
-    "mainWord": "MAGIC",
-    "theme": "Illusions",
-    "themeHint": "Now you see it, now you don't",
-    "difficulty": 3,
+    "mainWord": "BLEND",
+    "theme": "Boundaries dissolved",
+    "themeHint": "What smoothies do to ingredients",
+    "difficulty": 4,
     "crossers": [
-      { "word": "WAND", "clue": "Wave this to cast a spell", "position": 0, "intersectionIndex": 3 },
-      { "word": "TRICK", "clue": "A clever deception", "position": 2, "intersectionIndex": 4 },
-      { "word": "HAT", "clue": "Where rabbits appear from", "position": 3, "intersectionIndex": 2 },
-      { "word": "CARD", "clue": "Pick one from the deck", "position": 4, "intersectionIndex": 0 }
+      { "word": "CLIMB", "clue": "Upward motion", "position": 0, "intersectionIndex": 4 },
+      { "word": "FLARE", "clue": "Sudden brightness", "position": 1, "intersectionIndex": 1 },
+      { "word": "TREND", "clue": "Direction of the crowd", "position": 2, "intersectionIndex": 2 },
+      { "word": "FIEND", "clue": "Devoted fan or demon", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-30",
-    "mainWord": "CLOCK",
-    "theme": "Time",
-    "themeHint": "Tick tock on the wall",
-    "difficulty": 3,
+    "mainWord": "FAINT",
+    "theme": "Almost not there",
+    "themeHint": "How whispers and memories fade",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CUCKOO", "clue": "Type with a bird that pops out", "position": 0, "intersectionIndex": 0 },
-      { "word": "ALARM", "clue": "Buzzes to wake you up", "position": 1, "intersectionIndex": 1 },
-      { "word": "HANDS", "clue": "Point to numbers on the face", "position": 3, "intersectionIndex": 4 },
-      { "word": "CHIME", "clue": "Sound on the hour", "position": 4, "intersectionIndex": 3 }
+      { "word": "CLIFF", "clue": "Edge of the world", "position": 0, "intersectionIndex": 4 },
+      { "word": "PAINT", "clue": "Color in a can", "position": 1, "intersectionIndex": 1 },
+      { "word": "SAINT", "clue": "Halo wearer", "position": 2, "intersectionIndex": 2 },
+      { "word": "PRINT", "clue": "Mark left behind", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-01-31",
-    "mainWord": "BLOOM",
-    "theme": "Spring Flowers",
-    "themeHint": "Petals opening in the garden",
-    "difficulty": 3,
+    "mainWord": "HINGE",
+    "theme": "The point of turning",
+    "themeHint": "What doors and decisions share",
+    "difficulty": 4,
     "crossers": [
-      { "word": "BULB", "clue": "Plant in fall, see in spring", "position": 0, "intersectionIndex": 0 },
-      { "word": "TULIP", "clue": "Dutch flower in many colors", "position": 2, "intersectionIndex": 3 },
-      { "word": "PETAL", "clue": "Colorful part of the flower", "position": 3, "intersectionIndex": 4 },
-      { "word": "STEM", "clue": "Green stalk holding it up", "position": 4, "intersectionIndex": 3 }
+      { "word": "GRAPH", "clue": "Data made visible", "position": 0, "intersectionIndex": 4 },
+      { "word": "BRING", "clue": "To carry toward", "position": 1, "intersectionIndex": 2 },
+      { "word": "TINGE", "clue": "Slight coloring", "position": 2, "intersectionIndex": 2 },
+      { "word": "BINGE", "clue": "Excess in consumption", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-01",
-    "mainWord": "HEART",
-    "theme": "Valentine's Day",
-    "themeHint": "Symbol of love",
-    "difficulty": 3,
+    "mainWord": "PULSE",
+    "theme": "Rhythm beneath skin",
+    "themeHint": "What life uses to count time",
+    "difficulty": 4,
     "crossers": [
-      { "word": "HUG", "clue": "Warm embrace from a loved one", "position": 0, "intersectionIndex": 0 },
-      { "word": "SWEET", "clue": "Term of endearment, like candy", "position": 1, "intersectionIndex": 3 },
-      { "word": "ARROW", "clue": "Cupid shoots this", "position": 2, "intersectionIndex": 0 },
-      { "word": "BEAT", "clue": "What it does faster around your crush", "position": 4, "intersectionIndex": 3 }
+      { "word": "STOMP", "clue": "Heavy footfall", "position": 0, "intersectionIndex": 4 },
+      { "word": "BRUSH", "clue": "Painter's extension", "position": 1, "intersectionIndex": 2 },
+      { "word": "PULSE", "clue": "Heartbeat's mark", "position": 2, "intersectionIndex": 2 },
+      { "word": "RINSE", "clue": "Final wash", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-02",
-    "mainWord": "CANDY",
-    "theme": "Sweets",
-    "themeHint": "Sugar treats in wrappers",
-    "difficulty": 3,
+    "mainWord": "SHADE",
+    "theme": "Light's absence portrait",
+    "themeHint": "What trees offer and artists seek",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CANE", "clue": "Striped holiday variety", "position": 0, "intersectionIndex": 0 },
-      { "word": "BAR", "clue": "Rectangular chocolate shape", "position": 3, "intersectionIndex": 2 },
-      { "word": "STICKY", "clue": "How your hands feel after", "position": 4, "intersectionIndex": 4 }
+      { "word": "TENSE", "clue": "Tight with worry", "position": 0, "intersectionIndex": 3 },
+      { "word": "CRASH", "clue": "Sudden collision", "position": 1, "intersectionIndex": 4 },
+      { "word": "GRADE", "clue": "Measure of quality", "position": 2, "intersectionIndex": 2 },
+      { "word": "BLADE", "clue": "Cutting's edge", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-03",
-    "mainWord": "SCARF",
-    "theme": "Winter Accessories",
-    "themeHint": "Keeping warm in the cold",
-    "difficulty": 3,
+    "mainWord": "THAW",
+    "theme": "Winter's surrender",
+    "themeHint": "What cold hearts fear and rivers await",
+    "difficulty": 4,
     "crossers": [
-      { "word": "FROST", "clue": "What forms on windows in winter", "position": 0, "intersectionIndex": 3 },
-      { "word": "NECK", "clue": "Body part you wrap it around", "position": 2, "intersectionIndex": 4 },
-      { "word": "WRAP", "clue": "How you wear it - wound around", "position": 3, "intersectionIndex": 3 },
-      { "word": "COZY", "clue": "Feeling of warmth and comfort", "position": 4, "intersectionIndex": 4 }
+      { "word": "EARTH", "clue": "Ground beneath feet", "position": 0, "intersectionIndex": 3 },
+      { "word": "CHAIR", "clue": "Sitting's partner", "position": 1, "intersectionIndex": 1 },
+      { "word": "GNAW", "clue": "Persistent chewing", "position": 2, "intersectionIndex": 2 }
     ]
   },
   {
     "date": "2026-02-04",
-    "mainWord": "SUPER",
-    "theme": "Big Game",
-    "themeHint": "Championship Sunday",
-    "difficulty": 3,
+    "mainWord": "TRUCE",
+    "theme": "Violence taking a breath",
+    "themeHint": "What enemies call peace without meaning it",
+    "difficulty": 4,
     "crossers": [
-      { "word": "STADIUM", "clue": "Massive venue for the game", "position": 0, "intersectionIndex": 0 },
-      { "word": "PUNT", "clue": "Kicking the ball away", "position": 2, "intersectionIndex": 0 },
-      { "word": "CHEER", "clue": "What fans do for their team", "position": 3, "intersectionIndex": 3 },
-      { "word": "JERSEY", "clue": "Numbered shirt fans wear", "position": 4, "intersectionIndex": 4 }
+      { "word": "TRAIT", "clue": "Personal characteristic", "position": 0, "intersectionIndex": 0 },
+      { "word": "FRAME", "clue": "Structure holding things", "position": 1, "intersectionIndex": 1 },
+      { "word": "PRUNE", "clue": "Cutting for growth", "position": 2, "intersectionIndex": 2 },
+      { "word": "DANCE", "clue": "Movement to rhythm", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-05",
-    "mainWord": "QUILT",
-    "theme": "Cozy Crafts",
-    "themeHint": "Stitched warmth for your bed",
-    "difficulty": 3,
+    "mainWord": "PARCH",
+    "theme": "Thirst embodied",
+    "themeHint": "What deserts do to throats",
+    "difficulty": 4,
     "crossers": [
-      { "word": "SQUARE", "clue": "Fabric shape sewn together", "position": 0, "intersectionIndex": 0 },
-      { "word": "THREAD", "clue": "Connects all the pieces", "position": 3, "intersectionIndex": 4 },
-      { "word": "COTTON", "clue": "Soft material for the filling", "position": 4, "intersectionIndex": 4 }
+      { "word": "STRAP", "clue": "Belt's cousin", "position": 0, "intersectionIndex": 4 },
+      { "word": "MARSH", "clue": "Wet land between", "position": 1, "intersectionIndex": 1 },
+      { "word": "PARKA", "clue": "Winter's armor", "position": 2, "intersectionIndex": 2 },
+      { "word": "BEACH", "clue": "Sand meets sea", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-06",
-    "mainWord": "PIZZA",
-    "theme": "Delivery Food",
-    "themeHint": "Hot pie at your door",
-    "difficulty": 3,
+    "mainWord": "PLUCK",
+    "theme": "Courage in small portions",
+    "themeHint": "What strings and heroes both need",
+    "difficulty": 4,
     "crossers": [
-      { "word": "PIE", "clue": "Another name for this round food", "position": 0, "intersectionIndex": 0 },
-      { "word": "SLICE", "clue": "Triangular piece of the whole", "position": 2, "intersectionIndex": 4 },
-      { "word": "BOX", "clue": "Square container it arrives in", "position": 3, "intersectionIndex": 2 },
-      { "word": "OVEN", "clue": "Where it bakes at high heat", "position": 4, "intersectionIndex": 4 }
+      { "word": "CLASP", "clue": "Secure fastening", "position": 0, "intersectionIndex": 4 },
+      { "word": "BLAME", "clue": "Finger pointing", "position": 1, "intersectionIndex": 1 },
+      { "word": "STUCK", "clue": "Unable to move", "position": 2, "intersectionIndex": 2 },
+      { "word": "TRUCK", "clue": "Heavy hauler", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-07",
-    "mainWord": "ROBOT",
-    "theme": "Technology",
-    "themeHint": "Mechanical helper",
-    "difficulty": 3,
+    "mainWord": "CLASP",
+    "theme": "Holding without letting go",
+    "themeHint": "What hands and jewelry understand",
+    "difficulty": 4,
     "crossers": [
-      { "word": "WIRE", "clue": "Carries signals and power inside", "position": 0, "intersectionIndex": 4 },
-      { "word": "MOTOR", "clue": "What makes it move", "position": 1, "intersectionIndex": 1 },
-      { "word": "SENSOR", "clue": "Detects the environment", "position": 3, "intersectionIndex": 4 },
-      { "word": "METAL", "clue": "Shiny material of the body", "position": 4, "intersectionIndex": 2 }
+      { "word": "BASIC", "clue": "Foundation of knowledge", "position": 0, "intersectionIndex": 4 },
+      { "word": "FLAME", "clue": "Fire's visible form", "position": 1, "intersectionIndex": 1 },
+      { "word": "GLASS", "clue": "Transparent barrier", "position": 2, "intersectionIndex": 2 },
+      { "word": "GRASP", "clue": "Understanding's grip", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-08",
-    "mainWord": "DANCE",
-    "theme": "Party Activities",
-    "themeHint": "Moving to the music",
-    "difficulty": 3,
+    "mainWord": "GLEAM",
+    "theme": "Light finding surfaces",
+    "themeHint": "What polished things confess",
+    "difficulty": 4,
     "crossers": [
-      { "word": "DISCO", "clue": "Ball spinning with lights", "position": 0, "intersectionIndex": 0 },
-      { "word": "SALSA", "clue": "Latin rhythm with quick steps", "position": 2, "intersectionIndex": 4 },
-      { "word": "WALTZ", "clue": "One-two-three, one-two-three", "position": 4, "intersectionIndex": 4 }
+      { "word": "AGING", "clue": "Time's slow work", "position": 0, "intersectionIndex": 4 },
+      { "word": "BLAME", "clue": "Fault's address", "position": 1, "intersectionIndex": 1 },
+      { "word": "STEAM", "clue": "Water becoming air", "position": 2, "intersectionIndex": 2 },
+      { "word": "DREAM", "clue": "Night's theater", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-09",
-    "mainWord": "CLOUD",
-    "theme": "Sky Watching",
-    "themeHint": "Floating shapes above",
-    "difficulty": 3,
+    "mainWord": "STARK",
+    "theme": "Stripped of pretense",
+    "themeHint": "How winter shows landscapes",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CUMULUS", "clue": "Puffy white type on sunny days", "position": 0, "intersectionIndex": 0 },
-      { "word": "RAIN", "clue": "Falls when they turn gray", "position": 2, "intersectionIndex": 4 },
-      { "word": "FLUFFY", "clue": "Like cotton balls drifting by", "position": 3, "intersectionIndex": 4 },
-      { "word": "DRIFT", "clue": "Slowly moving across the blue", "position": 4, "intersectionIndex": 0 }
+      { "word": "STACK", "clue": "Piled high", "position": 0, "intersectionIndex": 0 },
+      { "word": "EXTRA", "clue": "Beyond what's needed", "position": 1, "intersectionIndex": 2 },
+      { "word": "SHARK", "clue": "Ocean's apex predator", "position": 2, "intersectionIndex": 2 },
+      { "word": "SPARK", "clue": "Fire's first whisper", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-10",
-    "mainWord": "BRUSH",
-    "theme": "Art Supplies",
-    "themeHint": "Tools for creating",
-    "difficulty": 3,
+    "mainWord": "FORGE",
+    "theme": "Heat making truth",
+    "themeHint": "Where metal learns its shape",
+    "difficulty": 4,
     "crossers": [
-      { "word": "PAINT", "clue": "Colorful liquid for canvas", "position": 0, "intersectionIndex": 4 },
-      { "word": "STROKE", "clue": "Single sweep across canvas", "position": 2, "intersectionIndex": 3 },
-      { "word": "HAIR", "clue": "Fine fibers that hold pigment", "position": 4, "intersectionIndex": 0 }
+      { "word": "DWARF", "clue": "Mythical craftsman", "position": 0, "intersectionIndex": 4 },
+      { "word": "SHORE", "clue": "Where land stops", "position": 1, "intersectionIndex": 2 },
+      { "word": "GORGE", "clue": "Valley carved deep", "position": 2, "intersectionIndex": 2 },
+      { "word": "MERGE", "clue": "Two becoming one", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-11",
-    "mainWord": "GRAPE",
-    "theme": "Vineyard",
-    "themeHint": "From vine to wine",
-    "difficulty": 3,
+    "mainWord": "CRUMB",
+    "theme": "What remains of plenty",
+    "themeHint": "Bread's final testament",
+    "difficulty": 4,
     "crossers": [
-      { "word": "GROW", "clue": "What vines do on trellises", "position": 0, "intersectionIndex": 0 },
-      { "word": "CRUSH", "clue": "First step in making wine", "position": 2, "intersectionIndex": 4 },
-      { "word": "PURPLE", "clue": "Common color of the fruit", "position": 3, "intersectionIndex": 0 },
-      { "word": "VINE", "clue": "Climbing plant bearing fruit", "position": 4, "intersectionIndex": 4 }
+      { "word": "BASIC", "clue": "Fundamental element", "position": 0, "intersectionIndex": 4 },
+      { "word": "ARROW", "clue": "Point in flight", "position": 1, "intersectionIndex": 1 },
+      { "word": "PLUMB", "clue": "True vertical", "position": 2, "intersectionIndex": 2 },
+      { "word": "THUMB", "clue": "Approval's digit", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-12",
-    "mainWord": "SPARK",
-    "theme": "Electricity",
-    "themeHint": "Sudden flash of energy",
-    "difficulty": 3,
+    "mainWord": "TWINE",
+    "theme": "Weakness braided strong",
+    "themeHint": "How fibers learn teamwork",
+    "difficulty": 4,
     "crossers": [
-      { "word": "SHOCK", "clue": "Jolt from touching a live wire", "position": 0, "intersectionIndex": 0 },
-      { "word": "PLUG", "clue": "Insert into the outlet", "position": 1, "intersectionIndex": 0 },
-      { "word": "WIRE", "clue": "Copper conductor of current", "position": 3, "intersectionIndex": 3 },
-      { "word": "ZAPS", "clue": "Quick bursts of electricity", "position": 4, "intersectionIndex": 3 }
+      { "word": "STOMP", "clue": "Heavy footwork", "position": 0, "intersectionIndex": 1 },
+      { "word": "SWIRL", "clue": "Circular motion", "position": 1, "intersectionIndex": 1 },
+      { "word": "SPINE", "clue": "Backbone's length", "position": 2, "intersectionIndex": 2 },
+      { "word": "SHINE", "clue": "Light reflected", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-13",
-    "mainWord": "ROSES",
-    "theme": "Valentine Flowers",
-    "themeHint": "Romantic blooms in red",
-    "difficulty": 3,
+    "mainWord": "CHARM",
+    "theme": "Magic disguised as personality",
+    "themeHint": "What snakes and salesmen share",
+    "difficulty": 4,
     "crossers": [
-      { "word": "DOZEN", "clue": "Traditional bouquet count", "position": 1, "intersectionIndex": 1 },
-      { "word": "THORN", "clue": "Sharp point on the stem", "position": 3, "intersectionIndex": 4 },
-      { "word": "VASE", "clue": "Glass container for cut flowers", "position": 4, "intersectionIndex": 3 }
+      { "word": "BASIC", "clue": "Fundamental truth", "position": 0, "intersectionIndex": 4 },
+      { "word": "SHARE", "clue": "Dividing kindly", "position": 1, "intersectionIndex": 1 },
+      { "word": "ALARM", "clue": "Warning's voice", "position": 2, "intersectionIndex": 2 },
+      { "word": "STORM", "clue": "Weather's rage", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-14",
-    "mainWord": "CUPID",
-    "theme": "Valentine's Day",
-    "themeHint": "Cherub of romance",
-    "difficulty": 3,
+    "mainWord": "ARROW",
+    "theme": "Direction with purpose",
+    "themeHint": "What Cupid borrows from hunters",
+    "difficulty": 4,
     "crossers": [
-      { "word": "CHERUB", "clue": "Winged baby angel", "position": 0, "intersectionIndex": 0 },
-      { "word": "ARROW", "clue": "Shot to make people fall in love", "position": 2, "intersectionIndex": 4 },
-      { "word": "LOVE", "clue": "The feeling he spreads", "position": 3, "intersectionIndex": 2 },
-      { "word": "BLIND", "clue": "Love is sometimes said to be this", "position": 4, "intersectionIndex": 3 }
+      { "word": "DRAMA", "clue": "Theater's essence", "position": 0, "intersectionIndex": 2 },
+      { "word": "BREAK", "clue": "When things snap", "position": 1, "intersectionIndex": 1 },
+      { "word": "ERROR", "clue": "Mistake made", "position": 2, "intersectionIndex": 2 },
+      { "word": "THROW", "clue": "Launch by hand", "position": 4, "intersectionIndex": 4 }
     ]
   },
   {
     "date": "2026-02-15",
-    "mainWord": "MONTH",
-    "theme": "Calendar",
-    "themeHint": "Measuring time in chunks",
-    "difficulty": 3,
+    "mainWord": "LIMBO",
+    "theme": "Neither here nor there",
+    "themeHint": "Where waiting becomes residence",
+    "difficulty": 4,
     "crossers": [
-      { "word": "MARCH", "clue": "Comes in like a lion", "position": 0, "intersectionIndex": 0 },
-      { "word": "APRIL", "clue": "Showers bring May flowers", "position": 1, "intersectionIndex": 4 },
-      { "word": "LUNAR", "clue": "Based on cycles of the moon", "position": 3, "intersectionIndex": 4 },
-      { "word": "DATE", "clue": "Number on each square", "position": 4, "intersectionIndex": 3 }
+      { "word": "SPOIL", "clue": "When freshness fails", "position": 0, "intersectionIndex": 4 },
+      { "word": "CRISP", "clue": "Sharp and fresh", "position": 1, "intersectionIndex": 2 },
+      { "word": "MAMBO", "clue": "Cuban dance rhythm", "position": 2, "intersectionIndex": 2 },
+      { "word": "COMBO", "clue": "Things paired together", "position": 4, "intersectionIndex": 4 }
     ]
   }
 ]

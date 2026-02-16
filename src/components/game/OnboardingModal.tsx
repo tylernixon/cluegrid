@@ -19,7 +19,7 @@ function DemoCell({
   size = "normal",
 }: {
   letter?: string;
-  status?: "empty" | "correct" | "present" | "revealed" | "main";
+  status?: "empty" | "correct" | "present" | "revealed" | "main" | "crosserSolved";
   highlight?: boolean;
   size?: "small" | "normal";
 }) {
@@ -31,6 +31,8 @@ function DemoCell({
     present: "bg-present dark:bg-present-dark border-present dark:border-present-dark text-white",
     revealed: "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-accent dark:text-accent-dark",
     main: "bg-surface-raised dark:bg-surface-raised-dark border-border-active dark:border-border-active-dark font-bold",
+    // Crosser solved - faint green (32% opacity) for solved crosser cells not on main row
+    crosserSolved: "bg-crosser-solved dark:bg-crosser-solved-dark border-correct/30 dark:border-correct-dark/30 text-white",
   };
 
   return (
@@ -232,34 +234,34 @@ export function OnboardingModal({ open, onClose, forceShow = false }: Onboarding
 
                   {/* Visual grid showing vertical hint intersecting horizontal main word */}
                   <div className="flex flex-col items-center gap-1 mb-4">
-                    {/* C */}
+                    {/* C - grey because it's a crosser cell, not main row */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="C" status="correct" size="small" />
+                      <DemoCell letter="C" status="crosserSolved" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
-                    {/* L */}
+                    {/* L - grey because it's a crosser cell, not main row */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="L" status="correct" size="small" />
+                      <DemoCell letter="L" status="crosserSolved" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
-                    {/* Main word row - A is revealed at intersection */}
+                    {/* Main word row - A is revealed at intersection (green) */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="?" status="main" size="small" highlight />
-                      <DemoCell letter="A" status="revealed" size="small" highlight />
+                      <DemoCell letter="A" status="correct" size="small" highlight />
                       <DemoCell letter="?" status="main" size="small" highlight />
                     </div>
-                    {/* W */}
+                    {/* W - grey because it's a crosser cell, not main row */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="W" status="correct" size="small" />
+                      <DemoCell letter="W" status="crosserSolved" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
-                    {/* S */}
+                    {/* S - grey because it's a crosser cell, not main row */}
                     <div className="flex gap-1 justify-center">
                       <DemoCell letter="" status="empty" size="small" />
-                      <DemoCell letter="S" status="correct" size="small" />
+                      <DemoCell letter="S" status="crosserSolved" size="small" />
                       <DemoCell letter="" status="empty" size="small" />
                     </div>
                   </div>
