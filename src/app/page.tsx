@@ -166,7 +166,7 @@ export default function Home() {
       </a>
 
       {/* Header */}
-      <header className="flex items-center justify-between h-14 border-b border-border dark:border-border-dark px-4 shrink-0">
+      <header className="flex items-center justify-between h-14 px-4 shrink-0">
         <HamburgerMenu
           onOpenStats={() => setShowStatsModal(true)}
           onOpenSettings={() => setShowSettingsModal(true)}
