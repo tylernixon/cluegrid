@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 interface ModalShellProps {
   open: boolean;
@@ -28,39 +29,50 @@ export function ModalShell({
   footer,
   centerContent = true,
 }: ModalShellProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  // Handle escape key
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    },
+    [onClose]
+  );
 
+  // Lock body scroll and listen for escape
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
     if (open) {
-      if (!dialog.open) dialog.showModal();
-    } else {
-      dialog.close();
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", handleKeyDown);
+      };
     }
-  }, [open]);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
-    function handleClose() {
-      onClose();
-    }
-
-    dialog.addEventListener("close", handleClose);
-    return () => dialog.removeEventListener("close", handleClose);
-  }, [onClose]);
+  }, [open, handleKeyDown]);
 
   if (!open) return null;
 
-  return (
-    <dialog
-      ref={dialogRef}
-      className="fixed inset-0 z-50 m-0 p-0 w-full h-full max-w-none max-h-none bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl backdrop:bg-black/50"
+  const modalContent = (
+    <div
+      className="fixed inset-0 z-50"
+      role="dialog"
+      aria-modal="true"
       aria-label={title}
     >
+      {/* Edge-to-edge blurred backdrop - directly on body via portal */}
+      <div
+        className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl"
+        onClick={onClose}
+        style={{
+          // Extend into safe areas
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+      />
+
       {/* Full-screen modal surface with safe area padding */}
       <div
         className="fixed inset-0 h-[100dvh] px-4"
@@ -94,12 +106,15 @@ export function ModalShell({
 
           {/* Footer pinned bottom - no border */}
           {footer && (
-            <div className="py-3 shrink-0">
+            <div className="py-3 shrink-0 max-w-lg mx-auto w-full">
               {footer}
             </div>
           )}
         </div>
       </div>
-    </dialog>
+    </div>
   );
+
+  // Portal to body to escape any parent transforms/constraints
+  return createPortal(modalContent, document.body);
 }
