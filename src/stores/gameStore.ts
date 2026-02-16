@@ -1282,12 +1282,73 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   selectTarget: (targetId: "main" | string) => {
-    const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters, guesses } = get();
+    const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters, guesses, currentGuess } = get();
 
     if (isLoading) return;
     if (status !== "playing") return;
     if (solvedWords.has(targetId)) return;
     if (targetId === selectedTarget) return;
+
+    // Prevent accidental target switches when user has typed letters
+    // Check if current guess has any non-locked letters filled in
+    const hasTypedLetters = currentGuess.replace(/ /g, "").length > 0;
+    if (hasTypedLetters) {
+      // Check if ALL non-space characters are locked positions (revealed or correct feedback)
+      const locked = new Set<number>();
+      let targetLength = 5;
+
+      if (selectedTarget === "main") {
+        targetLength = puzzle.mainWord.word.length;
+        const mainRow = puzzle.mainWord.row;
+        const mainCol = puzzle.mainWord.col;
+        for (const rl of revealedLetters) {
+          if (rl.row === mainRow) {
+            const position = rl.col - mainCol;
+            if (position >= 0 && position < targetLength) {
+              locked.add(position);
+            }
+          }
+        }
+      } else {
+        const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
+        if (crosser) {
+          targetLength = crosser.word.length;
+          for (const rl of revealedLetters) {
+            if (rl.col === crosser.startCol) {
+              const position = rl.row - crosser.startRow;
+              if (position >= 0 && position < targetLength) {
+                locked.add(position);
+              }
+            }
+          }
+        }
+      }
+
+      // Also lock positions from previous correct feedback
+      const targetGuesses = guesses.filter((g) => g.targetId === selectedTarget);
+      for (const guess of targetGuesses) {
+        for (let i = 0; i < guess.feedback.length; i++) {
+          const fb = guess.feedback[i];
+          if (fb && fb.status === "correct") {
+            locked.add(i);
+          }
+        }
+      }
+
+      // Check if user has typed any NEW letters (not just locked ones)
+      let hasUserTypedNewLetters = false;
+      for (let i = 0; i < currentGuess.length; i++) {
+        if (currentGuess[i] !== " " && !locked.has(i)) {
+          hasUserTypedNewLetters = true;
+          break;
+        }
+      }
+
+      if (hasUserTypedNewLetters) {
+        console.log("[selectTarget] Blocked - user has typed letters, preventing accidental switch");
+        return;
+      }
+    }
 
     // Compute locked positions for the new target (revealed letters + correct feedback)
     const locked = new Map<number, string>();
