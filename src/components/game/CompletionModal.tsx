@@ -127,15 +127,14 @@ export function CompletionModal({
   // ============================================
   if (status === "won") {
     return (
-      <Modal open={open} onClose={onClose} title="Solved!">
-        <div className="flex flex-col min-h-[60vh]">
-          {/* Main content - centered */}
-          <div className="flex-1 flex flex-col items-center justify-center text-center">
-            {/* Theme reveal */}
-            {puzzle.theme && (
-              <div
-                className={`px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-              >
+      <Modal open={open} onClose={onClose} title="Solved!" showBackButton={false}>
+        <div className="grid grid-rows-[auto_1fr_auto] min-h-[70vh]">
+          {/* Top: Theme reveal */}
+          {puzzle.theme && (
+            <div
+              className={`text-center transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
+              <div className="inline-block px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50">
                 <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
                   {isArchiveMode ? "Theme" : "Today\u0027s theme"}
                 </p>
@@ -143,16 +142,19 @@ export function CompletionModal({
                   {puzzle.theme}
                 </p>
               </div>
-            )}
+            </div>
+          )}
 
+          {/* Middle: Centered content (tiles + stats) */}
+          <div className="flex flex-col items-center justify-center text-center py-6">
             {/* Visual results - show the solved word in tiles */}
             <div
-              className={`mt-6 transition-all duration-500 delay-200 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`transition-all duration-500 delay-200 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
                 Your solve
               </p>
-              <div className="inline-flex gap-1.5 justify-center">
+              <div className="flex gap-1.5 justify-center">
                 {puzzle.mainWord.word.split("").map((letter, i) => (
                   <div
                     key={i}
@@ -209,7 +211,7 @@ export function CompletionModal({
             {/* Streak milestone celebration */}
             {currentStreak > 0 && currentStreak % 7 === 0 && (
               <div
-                className={`mt-4 px-4 py-2 rounded-lg bg-present/10 dark:bg-present-dark/10 border border-present/30 dark:border-present-dark/30 inline-block transition-all duration-500 delay-400 ${hasAnimated ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+                className={`mt-4 px-4 py-2 rounded-lg bg-present/10 dark:bg-present-dark/10 border border-present/30 dark:border-present-dark/30 transition-all duration-500 delay-400 ${hasAnimated ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
               >
                 <p className="text-body-small text-present dark:text-present-dark font-medium">
                   {currentStreak === 7
@@ -221,7 +223,7 @@ export function CompletionModal({
 
             {/* Grace save indicator */}
             {streakSavedByGrace && (
-              <div className="mt-3 px-3 py-1.5 rounded-lg bg-accent/10 dark:bg-accent-dark/10 inline-block">
+              <div className="mt-3 px-3 py-1.5 rounded-lg bg-accent/10 dark:bg-accent-dark/10">
                 <p className="text-caption text-accent dark:text-accent-dark">
                   Streak saved by grace
                 </p>
@@ -229,12 +231,12 @@ export function CompletionModal({
             )}
           </div>
 
-          {/* Bottom section - countdown and actions */}
-          <div className="mt-auto pt-6">
+          {/* Bottom: Countdown and actions */}
+          <div className="text-center">
             {/* Next puzzle countdown (daily mode only) */}
             {!isArchiveMode && countdown && (
               <div
-                className={`mb-6 text-center transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+                className={`mb-6 transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
               >
                 <div className="flex items-center justify-center gap-2 text-ink-secondary dark:text-ink-secondary-dark">
                   <ClockIcon className="w-4 h-4" />
@@ -248,7 +250,7 @@ export function CompletionModal({
               </div>
             )}
 
-            {/* Actions - Share is primary */}
+            {/* Actions */}
             <div
               className={`flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
@@ -263,7 +265,7 @@ export function CompletionModal({
               {isArchiveMode && onReturnToDaily ? (
                 <button
                   type="button"
-                  className="px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-xl font-semibold text-body hover:brightness-110 transition-all active:scale-[0.97]"
+                  className="flex-1 max-w-[160px] px-6 py-3 bg-surface-raised/80 dark:bg-surface-raised-dark/80 backdrop-blur-sm text-ink dark:text-ink-dark border border-border dark:border-border-dark rounded-xl font-semibold text-body hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-all active:scale-[0.97]"
                   onClick={onReturnToDaily}
                 >
                   Back to today
@@ -271,7 +273,7 @@ export function CompletionModal({
               ) : (
                 <button
                   type="button"
-                  className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
+                  className="flex-1 max-w-[160px] px-6 py-3 bg-surface-raised/80 dark:bg-surface-raised-dark/80 backdrop-blur-sm text-ink dark:text-ink-dark border border-border dark:border-border-dark rounded-xl font-semibold text-body hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-all active:scale-[0.97]"
                   onClick={onClose}
                 >
                   Done
@@ -288,8 +290,8 @@ export function CompletionModal({
   // FAILURE STATE - Gentle, not punishing
   // ============================================
   return (
-    <Modal open={open} onClose={onClose} title="So close!">
-      <div className="text-center">
+    <Modal open={open} onClose={onClose} title="So close!" showBackButton={false}>
+      <div className="grid grid-rows-[1fr_auto] min-h-[70vh] text-center">
         {/* Gentle loss message */}
         <div
           className={`transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
@@ -402,9 +404,9 @@ export function CompletionModal({
           </div>
         )}
 
-        {/* Actions */}
+        {/* Actions - bottom aligned */}
         <div
-          className={`mt-6 flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          className={`flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
         >
           <ShareButton
             puzzle={puzzle}
@@ -417,7 +419,7 @@ export function CompletionModal({
           {isArchiveMode && onReturnToDaily ? (
             <button
               type="button"
-              className="px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-xl font-semibold text-body hover:brightness-110 transition-all active:scale-[0.97]"
+              className="flex-1 max-w-[160px] px-6 py-3 bg-surface-raised/80 dark:bg-surface-raised-dark/80 backdrop-blur-sm text-ink dark:text-ink-dark border border-border dark:border-border-dark rounded-xl font-semibold text-body hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-all active:scale-[0.97]"
               onClick={onReturnToDaily}
             >
               Back to today
@@ -425,7 +427,7 @@ export function CompletionModal({
           ) : (
             <button
               type="button"
-              className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
+              className="flex-1 max-w-[160px] px-6 py-3 bg-surface-raised/80 dark:bg-surface-raised-dark/80 backdrop-blur-sm text-ink dark:text-ink-dark border border-border dark:border-border-dark rounded-xl font-semibold text-body hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-all active:scale-[0.97]"
               onClick={onClose}
             >
               Done
