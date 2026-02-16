@@ -48,10 +48,13 @@ export function Modal({ open, onClose, children, title }: ModalProps) {
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 z-50 w-screen h-dvh max-w-none max-h-none m-0 p-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl backdrop:bg-transparent overflow-y-auto"
+      className="fixed inset-0 z-50 w-screen min-h-[100dvh] max-w-none max-h-none m-0 p-0 bg-transparent backdrop:bg-transparent overflow-y-auto"
       aria-label={title}
     >
-      <div className="min-h-dvh w-full flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+      {/* Background layer with blur - covers safe zones */}
+      <div className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl" />
+      {/* Content layer with safe area padding */}
+      <div className="relative min-h-dvh w-full flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         {/* Header with centered title */}
         <header className="relative flex items-center justify-center h-14 px-4 shrink-0">
           <button

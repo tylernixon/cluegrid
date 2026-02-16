@@ -128,153 +128,156 @@ export function CompletionModal({
   if (status === "won") {
     return (
       <Modal open={open} onClose={onClose} title="Solved!">
-        <div className="text-center">
-          {/* Theme reveal */}
-          {puzzle.theme && (
+        <div className="flex flex-col min-h-[60vh]">
+          {/* Main content - centered */}
+          <div className="flex-1 flex flex-col items-center justify-center text-center">
+            {/* Theme reveal */}
+            {puzzle.theme && (
+              <div
+                className={`px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              >
+                <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
+                  {isArchiveMode ? "Theme" : "Today\u0027s theme"}
+                </p>
+                <p className="text-heading-3 text-ink dark:text-ink-dark">
+                  {puzzle.theme}
+                </p>
+              </div>
+            )}
+
+            {/* Visual results - show the solved word in tiles */}
             <div
-              className={`px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`mt-6 transition-all duration-500 delay-200 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
-              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
-                {isArchiveMode ? "Theme" : "Today\u0027s theme"}
+              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
+                Your solve
               </p>
-              <p className="text-heading-3 text-ink dark:text-ink-dark">
-                {puzzle.theme}
-              </p>
-            </div>
-          )}
-
-          {/* Stats row - guesses, clues, streak */}
-          <div
-            className={`mt-6 flex items-center justify-center gap-6 transition-all duration-500 delay-200 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          >
-            {/* Guess count */}
-            <div className="text-center">
-              <p className="text-stat text-ink dark:text-ink-dark">{guesses.length}</p>
-              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
-                {guesses.length === 1 ? "Guess" : "Guesses"}
-              </p>
+              <div className="inline-flex gap-1.5 justify-center">
+                {puzzle.mainWord.word.split("").map((letter, i) => (
+                  <div
+                    key={i}
+                    className="w-10 h-10 rounded-lg bg-correct dark:bg-correct-dark flex items-center justify-center text-white font-mono text-lg font-bold"
+                    style={{ animationDelay: `${i * 60}ms` }}
+                  >
+                    {letter}
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Divider */}
-            <div className="w-px h-12 bg-border dark:bg-border-dark" />
+            {/* Stats row - guesses, hints, streak */}
+            <div
+              className={`mt-8 flex items-center justify-center gap-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
+              {/* Guess count */}
+              <div className="text-center">
+                <p className="text-stat text-ink dark:text-ink-dark">{guesses.length}</p>
+                <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
+                  {guesses.length === 1 ? "Guess" : "Guesses"}
+                </p>
+              </div>
 
-            {/* Hints used */}
-            <div className="text-center">
-              <p className="text-stat text-ink dark:text-ink-dark">
-                {hintsUsed}/{totalCrossers}
-              </p>
-              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
-                Hints
-              </p>
-            </div>
+              {/* Divider */}
+              <div className="w-px h-12 bg-border dark:bg-border-dark" />
 
-            {/* Streak (if active) */}
-            {currentStreak > 0 && (
-              <>
-                <div className="w-px h-12 bg-border dark:bg-border-dark" />
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <FireIcon className="w-6 h-6 text-present dark:text-present-dark animate-streak-glow" />
+              {/* Hints used */}
+              <div className="text-center">
+                <p className="text-stat text-ink dark:text-ink-dark">
+                  {hintsUsed}/{totalCrossers}
+                </p>
+                <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
+                  Hints
+                </p>
+              </div>
+
+              {/* Streak (if active) - no icon */}
+              {currentStreak > 0 && (
+                <>
+                  <div className="w-px h-12 bg-border dark:bg-border-dark" />
+                  <div className="text-center">
                     <p className="text-stat text-present dark:text-present-dark">
                       {currentStreak}
                     </p>
+                    <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
+                      Streak
+                    </p>
                   </div>
-                  <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider">
-                    Streak
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Streak milestone celebration */}
-          {currentStreak > 0 && currentStreak % 7 === 0 && (
-            <div
-              className={`mt-4 px-4 py-2 rounded-lg bg-present/10 dark:bg-present-dark/10 border border-present/30 dark:border-present-dark/30 inline-block transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
-            >
-              <p className="text-body-small text-present dark:text-present-dark font-medium">
-                {currentStreak === 7
-                  ? "One week strong!"
-                  : `${Math.floor(currentStreak / 7)} weeks strong!`}
-              </p>
+                </>
+              )}
             </div>
-          )}
 
-          {/* Grace save indicator */}
-          {streakSavedByGrace && (
-            <div className="mt-3 px-3 py-1.5 rounded-lg bg-accent/10 dark:bg-accent-dark/10 inline-block">
-              <p className="text-caption text-accent dark:text-accent-dark">
-                Streak saved by grace
-              </p>
-            </div>
-          )}
-
-          {/* Visual results - show the solved word in tiles */}
-          <div
-            className={`mt-6 transition-all duration-500 delay-300 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          >
-            <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
-              Your solve
-            </p>
-            <div className="inline-flex gap-1.5 justify-center">
-              {puzzle.mainWord.word.split("").map((letter, i) => (
-                <div
-                  key={i}
-                  className="w-10 h-10 rounded-lg bg-correct dark:bg-correct-dark flex items-center justify-center text-white font-mono text-lg font-bold"
-                  style={{ animationDelay: `${i * 60}ms` }}
-                >
-                  {letter}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Next puzzle countdown (daily mode only) */}
-          {!isArchiveMode && countdown && (
-            <div
-              className={`mt-6 pt-6 border-t border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
-            >
-              <div className="flex items-center justify-center gap-2 text-ink-secondary dark:text-ink-secondary-dark">
-                <ClockIcon className="w-4 h-4" />
-                <p className="text-body-small">Next puzzle in</p>
+            {/* Streak milestone celebration */}
+            {currentStreak > 0 && currentStreak % 7 === 0 && (
+              <div
+                className={`mt-4 px-4 py-2 rounded-lg bg-present/10 dark:bg-present-dark/10 border border-present/30 dark:border-present-dark/30 inline-block transition-all duration-500 delay-400 ${hasAnimated ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+              >
+                <p className="text-body-small text-present dark:text-present-dark font-medium">
+                  {currentStreak === 7
+                    ? "One week strong!"
+                    : `${Math.floor(currentStreak / 7)} weeks strong!`}
+                </p>
               </div>
-              <p className="text-heading-2 text-ink dark:text-ink-dark font-mono mt-1 tabular-nums">
-                {String(countdown.hours).padStart(2, "0")}:
-                {String(countdown.minutes).padStart(2, "0")}:
-                {String(countdown.seconds).padStart(2, "0")}
-              </p>
-            </div>
-          )}
-
-          {/* Actions - Share is primary */}
-          <div
-            className={`mt-6 flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          >
-            <ShareButton
-              puzzle={puzzle}
-              guesses={guesses}
-              solvedWords={solvedWords}
-              won={true}
-              size="large"
-              className="flex-1 max-w-[160px] justify-center rounded-xl shadow-md !bg-correct dark:!bg-correct-dark hover:!brightness-110"
-            />
-            {isArchiveMode && onReturnToDaily ? (
-              <button
-                type="button"
-                className="px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-xl font-semibold text-body hover:brightness-110 transition-all active:scale-[0.97]"
-                onClick={onReturnToDaily}
-              >
-                Back to today
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
-                onClick={onClose}
-              >
-                Done
-              </button>
             )}
+
+            {/* Grace save indicator */}
+            {streakSavedByGrace && (
+              <div className="mt-3 px-3 py-1.5 rounded-lg bg-accent/10 dark:bg-accent-dark/10 inline-block">
+                <p className="text-caption text-accent dark:text-accent-dark">
+                  Streak saved by grace
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom section - countdown and actions */}
+          <div className="mt-auto pt-6">
+            {/* Next puzzle countdown (daily mode only) */}
+            {!isArchiveMode && countdown && (
+              <div
+                className={`mb-6 text-center transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+              >
+                <div className="flex items-center justify-center gap-2 text-ink-secondary dark:text-ink-secondary-dark">
+                  <ClockIcon className="w-4 h-4" />
+                  <p className="text-body-small">Next puzzle in</p>
+                </div>
+                <p className="text-heading-2 text-ink dark:text-ink-dark font-mono mt-1 tabular-nums">
+                  {String(countdown.hours).padStart(2, "0")}:
+                  {String(countdown.minutes).padStart(2, "0")}:
+                  {String(countdown.seconds).padStart(2, "0")}
+                </p>
+              </div>
+            )}
+
+            {/* Actions - Share is primary */}
+            <div
+              className={`flex gap-3 justify-center transition-all duration-500 delay-[600ms] ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
+              <ShareButton
+                puzzle={puzzle}
+                guesses={guesses}
+                solvedWords={solvedWords}
+                won={true}
+                size="large"
+                className="flex-1 max-w-[160px] justify-center rounded-xl shadow-md !bg-correct dark:!bg-correct-dark hover:!brightness-110"
+              />
+              {isArchiveMode && onReturnToDaily ? (
+                <button
+                  type="button"
+                  className="px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-xl font-semibold text-body hover:brightness-110 transition-all active:scale-[0.97]"
+                  onClick={onReturnToDaily}
+                >
+                  Back to today
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
+                  onClick={onClose}
+                >
+                  Done
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </Modal>
