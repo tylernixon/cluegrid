@@ -51,8 +51,8 @@ export function GuessInput({
     if (isFilled) {
       cellClass = "border-border-active dark:border-border-active-dark bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark";
     } else if (isActive) {
-      // Active cell (cursor position) - accent border with brighter background
-      cellClass = "border-accent dark:border-accent-dark bg-surface dark:bg-surface-dark text-ink-tertiary dark:text-ink-tertiary-dark";
+      // Active cell (cursor position) - subtle yellow/present highlight
+      cellClass = "border-present dark:border-present-dark bg-present/10 dark:bg-present-dark/10 text-ink-tertiary dark:text-ink-tertiary-dark";
     } else {
       cellClass = "border-border dark:border-border-dark bg-surface-raised/50 dark:bg-surface-raised-dark/50 text-ink-tertiary dark:text-ink-tertiary-dark";
     }
@@ -67,8 +67,8 @@ export function GuessInput({
         {/* Subtle pulsing ring for active cell */}
         {isActive && !prefersReducedMotion && (
           <motion.span
-            className="absolute inset-[-2px] rounded-md border-2 border-accent/40 dark:border-accent-dark/40 pointer-events-none"
-            animate={{ opacity: [0.4, 0.8, 0.4] }}
+            className="absolute inset-[-2px] rounded-md border-2 border-present/50 dark:border-present-dark/50 pointer-events-none"
+            animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
           />
         )}

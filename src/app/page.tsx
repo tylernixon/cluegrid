@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Grid } from "@/components/game/Grid";
-import { GridSkeleton } from "@/components/game/GridSkeleton";
+import { PuzzleLoadingState } from "@/components/game/PuzzleLoadingState";
 import { Keyboard } from "@/components/game/Keyboard";
 import { ActiveCluePanel } from "@/components/game/ActiveCluePanel";
 import { GuessHistory } from "@/components/game/GuessHistory";
@@ -209,7 +209,7 @@ export default function Home() {
         {/* Grid */}
         <div id="puzzle-grid" className="flex justify-center">
           {isLoading ? (
-            <GridSkeleton rows={5} cols={5} />
+            <PuzzleLoadingState />
           ) : (
             <Grid
               puzzle={puzzle}
