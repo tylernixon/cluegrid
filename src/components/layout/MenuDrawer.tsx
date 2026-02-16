@@ -3,6 +3,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import { MenuItem } from "./MenuItem";
+import { GistLogo } from "@/components/GistLogo";
 
 interface MenuDrawerProps {
   open: boolean;
@@ -182,9 +183,7 @@ export function MenuDrawer({
           >
             {/* Drawer header */}
             <div className="flex items-center justify-between h-14 px-4 border-b border-border dark:border-border-dark">
-              <span className="text-heading-3 font-serif text-ink dark:text-ink-dark">
-                Menu
-              </span>
+              <GistLogo />
               <button
                 type="button"
                 onClick={onClose}
@@ -225,13 +224,6 @@ export function MenuDrawer({
                 }}
               />
             </nav>
-
-            {/* Drawer footer */}
-            <div className="px-4 py-3 border-t border-border dark:border-border-dark">
-              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark text-center">
-                Gist
-              </p>
-            </div>
           </motion.div>
         </div>
       )}
