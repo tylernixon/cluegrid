@@ -14,6 +14,7 @@ import type {
 import { DIFFICULTY_GUESS_LIMITS, calculateStars } from "@/types";
 import type { GameResult } from "@/types";
 import { useStatsStore } from "./statsStore";
+import { useHistoryStore } from "./historyStore";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -271,6 +272,10 @@ interface GameStore {
   puzzleLoaded: boolean;
   isPreviewMode: boolean; // True when viewing a preview puzzle
 
+  // Archive mode (playing a past puzzle from history)
+  isArchiveMode: boolean;
+  archiveDate: string | null; // YYYY-MM-DD of the archived puzzle
+
   // Derived
   maxGuesses: () => number;
   guessesRemaining: () => number;
@@ -284,6 +289,8 @@ interface GameStore {
 
   // Actions
   fetchPuzzle: () => Promise<void>;
+  loadArchivePuzzle: (date: string) => Promise<void>;
+  exitArchiveMode: () => void;
   setDifficulty: (difficulty: Difficulty) => void;
   addLetter: (letter: string) => void;
   removeLetter: () => void;
@@ -345,6 +352,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   error: null,
   puzzleLoaded: false,
   isPreviewMode: false,
+
+  // Archive mode
+  isArchiveMode: false,
+  archiveDate: null,
 
   // -----------------------------------------------------------------------
   // Derived values
@@ -721,6 +732,140 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
   },
 
+  loadArchivePuzzle: async (date: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await fetch(`/api/puzzle/${date}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch archive puzzle: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const puzzle: PuzzleData = data.puzzle;
+
+      addPuzzleWordsToCache(puzzle.mainWord.word, puzzle.crossers);
+
+      // Check for an existing session for this archive puzzle
+      const session = loadSession(puzzle.id);
+
+      if (session) {
+        // Restore saved archive session
+        const selectedTarget = session.selectedTarget ?? "main";
+        const revealedLetters = session.revealedLetters ?? [];
+        const sessionGuesses = session.guesses ?? [];
+        const locked = new Map<number, string>();
+        let targetLength = 5;
+
+        if (selectedTarget === "main") {
+          targetLength = puzzle.mainWord.word.length;
+          const mainRow = puzzle.mainWord.row;
+          const mainCol = puzzle.mainWord.col;
+          for (const rl of revealedLetters) {
+            if (rl.row === mainRow) {
+              const position = rl.col - mainCol;
+              if (position >= 0 && position < targetLength) {
+                locked.set(position, rl.letter.toUpperCase());
+              }
+            }
+          }
+        } else {
+          const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
+          if (crosser) {
+            targetLength = crosser.word.length;
+            for (const rl of revealedLetters) {
+              if (rl.col === crosser.startCol) {
+                const position = rl.row - crosser.startRow;
+                if (position >= 0 && position < targetLength) {
+                  locked.set(position, rl.letter.toUpperCase());
+                }
+              }
+            }
+          }
+        }
+
+        const targetGuesses = sessionGuesses.filter((g) => g.targetId === selectedTarget);
+        for (const guess of targetGuesses) {
+          for (let i = 0; i < guess.feedback.length; i++) {
+            const fb = guess.feedback[i];
+            if (fb && fb.status === "correct") {
+              locked.set(i, fb.letter.toUpperCase());
+            }
+          }
+        }
+
+        const initialGuess = Array.from({ length: targetLength }, (_, i) =>
+          locked.has(i) ? locked.get(i)! : " "
+        ).join("");
+
+        set({
+          puzzle,
+          guesses: sessionGuesses,
+          currentGuess: initialGuess,
+          selectedTarget,
+          solvedWords: new Set(session.solvedWords ?? []),
+          revealedLetters,
+          status: session.status ?? "playing",
+          statsRecorded: session.statsRecorded ?? false,
+          difficulty: session.difficulty ?? loadDifficulty(),
+          hintsUsed: session.hintsUsed ?? 0,
+          mainGuessCount: session.mainGuessCount ?? 0,
+          isLoading: false,
+          puzzleLoaded: true,
+          isPreviewMode: false,
+          isArchiveMode: true,
+          archiveDate: date,
+        });
+      } else {
+        set({
+          puzzle,
+          guesses: [],
+          currentGuess: "",
+          selectedTarget: "main",
+          solvedWords: new Set<string>(),
+          revealedLetters: [],
+          status: "playing",
+          statsRecorded: false,
+          difficulty: loadDifficulty(),
+          hintsUsed: 0,
+          mainGuessCount: 0,
+          isLoading: false,
+          puzzleLoaded: true,
+          isPreviewMode: false,
+          isArchiveMode: true,
+          archiveDate: date,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch archive puzzle:", err);
+      set({
+        isLoading: false,
+        error: err instanceof Error ? err.message : "Failed to load archive puzzle",
+      });
+    }
+  },
+
+  exitArchiveMode: () => {
+    // Reset state so fetchPuzzle can reload the daily puzzle
+    set({
+      puzzleLoaded: false,
+      isArchiveMode: false,
+      archiveDate: null,
+      guesses: [],
+      currentGuess: "",
+      selectedTarget: "main",
+      solvedWords: new Set<string>(),
+      revealedLetters: [],
+      status: "playing",
+      statsRecorded: false,
+      hintsUsed: 0,
+      mainGuessCount: 0,
+      isLoading: true,
+      error: null,
+      showCompletionModal: false,
+    });
+  },
+
   addLetter: (letter: string) => {
     // Use functional update to avoid race conditions with rapid typing
     set((state) => {
@@ -1075,11 +1220,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ).join("");
     }
 
-    // Record stats if game is over (skip in preview mode)
+    // Record stats if game is over (skip in preview mode; include archive games)
     let newStatsRecorded = state.statsRecorded;
     if ((newStatus === "won" || newStatus === "lost") && !state.statsRecorded && !state.isPreviewMode) {
       const statsStore = useStatsStore.getState();
-      statsStore.recordGame(newStatus === "won", newMainGuessCount);
+      // Pass the archive date if in archive mode so stats use the correct date
+      const puzzleDateForStats = state.isArchiveMode ? (state.archiveDate ?? undefined) : undefined;
+      statsStore.recordGame(newStatus === "won", newMainGuessCount, puzzleDateForStats);
 
       // Check and award badges
       const gameResult: GameResult = {
@@ -1090,6 +1237,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
         starRating: calculateStars(newHintsUsed, state.puzzle.crossers.length),
       };
       statsStore.checkAndAwardBadges(gameResult);
+
+      // Record to history store
+      const historyStore = useHistoryStore.getState();
+      historyStore.recordGame({
+        puzzleId: state.puzzle.id,
+        puzzleDate: state.puzzle.date,
+        playedAt: new Date().toISOString(),
+        status: newStatus as "won" | "lost",
+        guessCount: newMainGuessCount,
+        hintsUsed: newHintsUsed,
+        starRating: gameResult.starRating,
+        difficulty: state.difficulty,
+        guessWords: newGuesses
+          .filter((g) => g.targetId === "main")
+          .map((g) => g.word),
+      });
 
       newStatsRecorded = true;
     }

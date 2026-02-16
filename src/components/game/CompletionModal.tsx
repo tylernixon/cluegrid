@@ -16,6 +16,9 @@ interface CompletionModalProps {
   guesses: Guess[];
   solvedWords: Set<string>;
   hintsUsed: number;
+  isArchiveMode?: boolean;
+  archiveDate?: string | null;
+  onReturnToDaily?: () => void;
 }
 
 // Countdown timer hook - counts down to midnight UTC
@@ -127,7 +130,12 @@ export function CompletionModal({
   guesses,
   solvedWords,
   hintsUsed,
+  isArchiveMode = false,
+  archiveDate: _archiveDate,
+  onReturnToDaily,
 }: CompletionModalProps) {
+  // archiveDate reserved for future "Playing: Feb 10" banner display
+  void _archiveDate;
   const [hasAnimated, setHasAnimated] = useState(false);
 
   const currentStreak = useStatsStore((s) => s.currentStreak);
@@ -191,7 +199,7 @@ export function CompletionModal({
               className={`mt-4 px-4 py-3 rounded-xl bg-gradient-to-br from-surface-raised to-surface dark:from-surface-raised-dark dark:to-surface-dark border border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-100 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark uppercase tracking-wider mb-1">
-                Today&apos;s theme
+                {isArchiveMode ? "Theme" : "Today\u0027s theme"}
               </p>
               <p className="text-heading-3 text-ink dark:text-ink-dark">
                 {puzzle.theme}
@@ -328,8 +336,8 @@ export function CompletionModal({
             </div>
           </div>
 
-          {/* Next puzzle countdown */}
-          {countdown && (
+          {/* Next puzzle countdown (daily mode only) */}
+          {!isArchiveMode && countdown && (
             <div
               className={`mt-6 pt-6 border-t border-border/50 dark:border-border-dark/50 transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
             >
@@ -357,13 +365,23 @@ export function CompletionModal({
               size="large"
               className="flex-1 max-w-[160px] justify-center rounded-xl shadow-md !bg-correct dark:!bg-correct-dark hover:!brightness-110"
             />
-            <button
-              type="button"
-              className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
-              onClick={onClose}
-            >
-              Done
-            </button>
+            {isArchiveMode && onReturnToDaily ? (
+              <button
+                type="button"
+                className="px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-xl font-semibold text-body hover:brightness-110 transition-all active:scale-[0.97]"
+                onClick={onReturnToDaily}
+              >
+                Back to today
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
+                onClick={onClose}
+              >
+                Done
+              </button>
+            )}
           </div>
         </div>
       </Modal>
@@ -463,14 +481,16 @@ export function CompletionModal({
         </div>
 
         {/* Encouragement */}
-        <p
-          className={`mt-6 text-body text-ink-secondary dark:text-ink-secondary-dark transition-all duration-500 delay-[400ms] ${hasAnimated ? "opacity-100" : "opacity-0"}`}
-        >
-          Come back tomorrow for a fresh puzzle
-        </p>
+        {!isArchiveMode && (
+          <p
+            className={`mt-6 text-body text-ink-secondary dark:text-ink-secondary-dark transition-all duration-500 delay-[400ms] ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+          >
+            Come back tomorrow for a fresh puzzle
+          </p>
+        )}
 
-        {/* Next puzzle countdown */}
-        {countdown && (
+        {/* Next puzzle countdown (daily mode only) */}
+        {!isArchiveMode && countdown && (
           <div
             className={`mt-4 transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
           >
@@ -498,13 +518,23 @@ export function CompletionModal({
             size="large"
             className="flex-1 max-w-[160px] justify-center rounded-xl shadow-md"
           />
-          <button
-            type="button"
-            className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
-            onClick={onClose}
-          >
-            Done
-          </button>
+          {isArchiveMode && onReturnToDaily ? (
+            <button
+              type="button"
+              className="px-6 py-3 bg-accent dark:bg-accent-dark text-white rounded-xl font-semibold text-body hover:brightness-110 transition-all active:scale-[0.97]"
+              onClick={onReturnToDaily}
+            >
+              Back to today
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="px-6 py-3 bg-surface-raised dark:bg-surface-raised-dark text-ink dark:text-ink-dark rounded-xl font-semibold text-body hover:bg-border/50 dark:hover:bg-border-dark/50 transition-all active:scale-[0.97] border border-border dark:border-border-dark"
+              onClick={onClose}
+            >
+              Done
+            </button>
+          )}
         </div>
       </div>
     </Modal>

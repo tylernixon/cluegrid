@@ -7,6 +7,8 @@ import { GistLogo } from "@/components/GistLogo";
 interface OnboardingModalProps {
   open: boolean;
   onClose: () => void;
+  /** When true, the modal was opened manually (e.g. from the help icon) rather than on first visit. */
+  forceShow?: boolean;
 }
 
 // Mini cell component for demo grids
@@ -66,9 +68,17 @@ const slides = [
   },
 ];
 
-export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
+export function OnboardingModal({ open, onClose, forceShow = false }: OnboardingModalProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("left");
+
+  // Reset to first slide when modal opens
+  useEffect(() => {
+    if (open) {
+      setCurrentSlide(0);
+      setDirection("left");
+    }
+  }, [open]);
 
   const goToSlide = useCallback((index: number) => {
     if (index < 0 || index >= slides.length) return;
@@ -89,9 +99,11 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
   );
 
   const handleComplete = useCallback(() => {
-    localStorage.setItem("gist-onboarding-seen", "true");
+    if (!forceShow) {
+      localStorage.setItem("gist-onboarding-seen", "true");
+    }
     onClose();
-  }, [onClose]);
+  }, [onClose, forceShow]);
 
   // Close on escape
   useEffect(() => {
@@ -125,7 +137,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80" role="dialog" aria-modal="true" aria-label="How to play">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -308,7 +320,7 @@ export function OnboardingModal({ open, onClose }: OnboardingModalProps) {
                 key={i}
                 type="button"
                 onClick={() => goToSlide(i)}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                className={`w-2 h-2 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A8B8D] focus-visible:ring-offset-2 ${
                   i === currentSlide
                     ? "bg-correct dark:bg-correct-dark w-4"
                     : "bg-border-active dark:bg-border-active-dark hover:bg-ink-tertiary dark:hover:bg-ink-tertiary-dark"

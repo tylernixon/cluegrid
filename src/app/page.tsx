@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Grid } from "@/components/game/Grid";
 import { GridSkeleton } from "@/components/game/GridSkeleton";
 import { Keyboard } from "@/components/game/Keyboard";
@@ -14,14 +14,29 @@ import { Confetti } from "@/components/game/Confetti";
 import { Toast } from "@/components/ui/Toast";
 import { HeaderFeedback } from "@/components/game/HeaderFeedback";
 import { OnboardingModal } from "@/components/game/OnboardingModal";
+import { HelpIcon } from "@/components/game/HelpIcon";
+import { HelpMenu } from "@/components/game/HelpMenu";
+import { HamburgerMenu } from "@/components/layout/HamburgerMenu";
 import { useGameStore } from "@/stores/gameStore";
 import { useStatsStore } from "@/stores/statsStore";
 import { useKeyboard } from "@/hooks/useKeyboard";
+
+// Lazy load heavy components that aren't needed on initial render
+const InteractiveTour = lazy(() =>
+  import("@/components/game/InteractiveTour").then((m) => ({ default: m.InteractiveTour }))
+);
+const HistoryView = lazy(() =>
+  import("@/components/game/HistoryView").then((m) => ({ default: m.HistoryView }))
+);
 
 export default function Home() {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showHelpMenu, setShowHelpMenu] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const [showHistoryView, setShowHistoryView] = useState(false);
 
   // Check if user has seen onboarding
   useEffect(() => {
@@ -43,6 +58,9 @@ export default function Home() {
   const showCompletionModal = useGameStore((s) => s.showCompletionModal);
   const isLoading = useGameStore((s) => s.isLoading);
   const isPreviewMode = useGameStore((s) => s.isPreviewMode);
+  const isArchiveMode = useGameStore((s) => s.isArchiveMode);
+  const archiveDate = useGameStore((s) => s.archiveDate);
+  const exitArchiveMode = useGameStore((s) => s.exitArchiveMode);
   const fetchPuzzle = useGameStore((s) => s.fetchPuzzle);
 
   // Fetch puzzle on mount
@@ -134,7 +152,7 @@ export default function Home() {
     onKey: handleKey,
     onEnter: handleEnter,
     onBackspace: handleBackspace,
-    disabled: !isPlaying || isLoading || isSubmitting,
+    disabled: !isPlaying || isLoading || isSubmitting || showTour,
   });
 
   return (
@@ -149,60 +167,40 @@ export default function Home() {
 
       {/* Header */}
       <header className="flex items-center justify-between h-14 border-b border-border dark:border-border-dark px-4 shrink-0">
-        {/* Settings button */}
-        <button
-          type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A8B8D] hover:text-[#3D5A5E] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A8B8D] focus-visible:ring-offset-2"
-          onClick={() => setShowSettingsModal(true)}
-          aria-label="Open settings"
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
-        </button>
+        <HamburgerMenu
+          onOpenStats={() => setShowStatsModal(true)}
+          onOpenSettings={() => setShowSettingsModal(true)}
+          onOpenHistory={() => setShowHistoryView(true)}
+        />
 
         <HeaderFeedback guesses={guesses} selectedTarget={selectedTarget} />
 
-        {/* Stats button */}
-        <button
-          type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A8B8D] hover:text-[#3D5A5E] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A8B8D] focus-visible:ring-offset-2"
-          onClick={() => setShowStatsModal(true)}
-          aria-label="View statistics"
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="3" y="12" width="4" height="9" rx="1" />
-            <rect x="10" y="7" width="4" height="14" rx="1" />
-            <rect x="17" y="3" width="4" height="18" rx="1" />
-          </svg>
-        </button>
+        <HelpIcon onClick={() => setShowHelpMenu(true)} />
       </header>
 
       {/* Preview mode banner */}
       {isPreviewMode && (
         <div className="bg-purple-600 text-white text-center py-2 px-4 text-sm font-medium">
           Preview Mode — Stats will not be saved
+        </div>
+      )}
+
+      {/* Archive mode banner */}
+      {isArchiveMode && archiveDate && (
+        <div className="bg-accent dark:bg-accent-dark text-white text-center py-2 px-4 text-sm font-medium flex items-center justify-center gap-3">
+          <span>
+            Playing: {new Date(archiveDate + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+          </span>
+          <button
+            type="button"
+            className="underline hover:no-underline text-white/90 hover:text-white"
+            onClick={() => {
+              exitArchiveMode();
+              fetchPuzzle();
+            }}
+          >
+            Back to today
+          </button>
         </div>
       )}
 
@@ -283,6 +281,13 @@ export default function Home() {
           guesses={guesses}
           solvedWords={solvedWords}
           hintsUsed={hintsUsed}
+          isArchiveMode={isArchiveMode}
+          archiveDate={archiveDate}
+          onReturnToDaily={() => {
+            setShowCompletionModal(false);
+            exitArchiveMode();
+            fetchPuzzle();
+          }}
         />
       )}
 
@@ -316,11 +321,43 @@ export default function Home() {
         onClose={() => setShowSettingsModal(false)}
       />
 
-      {/* Onboarding modal */}
+      {/* Onboarding modal (first visit) */}
       <OnboardingModal
         open={showOnboarding}
         onClose={() => setShowOnboarding(false)}
       />
+
+      {/* Help menu (action sheet) */}
+      <HelpMenu
+        open={showHelpMenu}
+        onClose={() => setShowHelpMenu(false)}
+        onViewTutorial={() => setShowHelpModal(true)}
+        onStartWalkthrough={() => setShowTour(true)}
+      />
+
+      {/* Help modal (view tutorial) */}
+      <OnboardingModal
+        open={showHelpModal}
+        onClose={() => setShowHelpModal(false)}
+        forceShow
+      />
+
+      {/* Interactive walkthrough tour (lazy loaded) */}
+      {showTour && (
+        <Suspense fallback={null}>
+          <InteractiveTour
+            open={showTour}
+            onClose={() => setShowTour(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* History view (lazy loaded, full-screen replacement) */}
+      {showHistoryView && (
+        <Suspense fallback={null}>
+          <HistoryView onClose={() => setShowHistoryView(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }
