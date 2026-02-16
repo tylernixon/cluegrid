@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { validatePuzzleIntersections } from '@/lib/puzzle';
+import { validatePuzzleIntersections, checkHorizontalConflicts } from '@/lib/puzzle';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 // ---------------------------------------------------------------------------
@@ -64,6 +64,38 @@ export default function PuzzleEditorPage() {
   const [aiCrosserCount, setAICrosserCount] = useState(4);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiError, setAIError] = useState<string | null>(null);
+
+  // Generated puzzle preview state
+  const [generatedPuzzle, setGeneratedPuzzle] = useState<{
+    mainWord: string;
+    mainWordRow: number;
+    mainWordCol: number;
+    gridRows: number;
+    gridCols: number;
+    crossers: { word: string; clue: string; startRow: number; startCol: number; intersectionIndex: number }[];
+    theme?: string;
+  } | null>(null);
+  const [generatedThemeHint, setGeneratedThemeHint] = useState<string | null>(null);
+
+  // Used dates (for disabling in date picker)
+  const [usedDates, setUsedDates] = useState<Set<string>>(new Set());
+
+  // Fetch used dates on mount
+  useEffect(() => {
+    const fetchUsedDates = async () => {
+      try {
+        const res = await authFetch('/api/admin/puzzles?limit=1000');
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.puzzles)) {
+          const dates = new Set<string>(data.puzzles.map((p: { date: string }) => p.date));
+          setUsedDates(dates);
+        }
+      } catch (err) {
+        console.error('Failed to fetch used dates:', err);
+      }
+    };
+    fetchUsedDates();
+  }, [authFetch]);
 
   // Validation
   const validation = useMemo(() => {
@@ -155,6 +187,28 @@ export default function PuzzleEditorPage() {
     [],
   );
 
+  // Apply generated puzzle to form
+  const applyGeneratedPuzzle = useCallback(() => {
+    if (!generatedPuzzle) return;
+
+    setMainWord(generatedPuzzle.mainWord);
+    setMainWordRow(generatedPuzzle.mainWordRow);
+    setMainWordCol(generatedPuzzle.mainWordCol);
+    setGridRows(generatedPuzzle.gridRows);
+    setGridCols(generatedPuzzle.gridCols);
+    setCrossers(generatedPuzzle.crossers);
+    setAuthor('AI Generated');
+    setGeneratedPuzzle(null);
+    setGeneratedThemeHint(null);
+    setSuccess('Puzzle applied! Review and adjust as needed.');
+  }, [generatedPuzzle]);
+
+  // Discard generated puzzle
+  const discardGeneratedPuzzle = useCallback(() => {
+    setGeneratedPuzzle(null);
+    setGeneratedThemeHint(null);
+  }, []);
+
   const handleAIGenerate = async () => {
     setAIError(null);
 
@@ -191,28 +245,26 @@ export default function PuzzleEditorPage() {
 
       const puzzle = data.puzzle;
 
-      // Fill in the form with generated data
-      if (puzzle.mainWord) setMainWord(puzzle.mainWord);
-      if (puzzle.mainWordRow !== undefined) setMainWordRow(puzzle.mainWordRow);
-      if (puzzle.mainWordCol !== undefined) setMainWordCol(puzzle.mainWordCol);
-      if (puzzle.gridRows) setGridRows(puzzle.gridRows);
-      if (puzzle.gridCols) setGridCols(puzzle.gridCols);
-
-      if (Array.isArray(puzzle.crossers)) {
-        setCrossers(
-          puzzle.crossers.map((c: { word: string; clue: string; startRow: number; startCol: number; intersectionIndex: number }) => ({
-            word: c.word,
-            clue: c.clue,
-            startRow: c.startRow,
-            startCol: c.startCol,
-            intersectionIndex: c.intersectionIndex,
-          })),
-        );
-      }
-
-      setAuthor('AI Generated');
+      // Store generated puzzle for preview instead of filling form immediately
+      setGeneratedPuzzle({
+        mainWord: puzzle.mainWord,
+        mainWordRow: puzzle.mainWordRow ?? 2,
+        mainWordCol: puzzle.mainWordCol ?? 0,
+        gridRows: puzzle.gridRows,
+        gridCols: puzzle.gridCols,
+        crossers: Array.isArray(puzzle.crossers)
+          ? puzzle.crossers.map((c: { word: string; clue: string; startRow: number; startCol: number; intersectionIndex: number }) => ({
+              word: c.word,
+              clue: c.clue,
+              startRow: c.startRow,
+              startCol: c.startCol,
+              intersectionIndex: c.intersectionIndex,
+            }))
+          : [],
+        theme: puzzle.theme,
+      });
+      setGeneratedThemeHint(aiTheme ? `Theme: ${aiTheme}` : null);
       setShowAIModal(false);
-      setSuccess('Puzzle generated with AI! Review and adjust as needed.');
     } catch (err) {
       setAIError('Network error. Please try again.');
       console.error(err);
@@ -341,9 +393,16 @@ export default function PuzzleEditorPage() {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    usedDates.has(date) ? 'border-yellow-400 bg-yellow-50' : 'border-gray-300'
+                  }`}
                   required
                 />
+                {usedDates.has(date) && (
+                  <p className="text-xs text-yellow-600 mt-1">
+                    A puzzle already exists for this date
+                  </p>
+                )}
               </div>
 
               <div>
@@ -416,7 +475,7 @@ export default function PuzzleEditorPage() {
                   id="gridRows"
                   type="number"
                   min={3}
-                  max={10}
+                  max={15}
                   value={gridRows}
                   onChange={(e) => setGridRows(parseInt(e.target.value) || 5)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -431,7 +490,7 @@ export default function PuzzleEditorPage() {
                   id="gridCols"
                   type="number"
                   min={3}
-                  max={10}
+                  max={15}
                   value={gridCols}
                   onChange={(e) => setGridCols(parseInt(e.target.value) || 5)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -724,6 +783,172 @@ export default function PuzzleEditorPage() {
           </div>
         </div>
       </div>
+
+      {/* Generated Puzzle Preview Panel */}
+      {generatedPuzzle && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Generated Puzzle</h3>
+                <button
+                  type="button"
+                  onClick={discardGeneratedPuzzle}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {generatedThemeHint && (
+                <p className="text-sm text-gray-600 mt-1 italic">{generatedThemeHint}</p>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Grid Preview */}
+                <div>
+                  <h4 className="font-medium text-gray-700 mb-3">
+                    Main Word: <span className="font-mono font-bold">{generatedPuzzle.mainWord}</span>
+                  </h4>
+                  <div
+                    className="inline-grid gap-1"
+                    style={{
+                      gridTemplateRows: `repeat(${generatedPuzzle.gridRows}, 36px)`,
+                      gridTemplateColumns: `repeat(${generatedPuzzle.gridCols}, 36px)`,
+                    }}
+                  >
+                    {(() => {
+                      const grid: { letter: string; isMain: boolean; isCrosser: boolean }[][] = Array.from(
+                        { length: generatedPuzzle.gridRows },
+                        () => Array.from({ length: generatedPuzzle.gridCols }, () => ({ letter: '', isMain: false, isCrosser: false }))
+                      );
+
+                      // Place main word
+                      for (let i = 0; i < generatedPuzzle.mainWord.length; i++) {
+                        const col = generatedPuzzle.mainWordCol + i;
+                        const targetRow = grid[generatedPuzzle.mainWordRow];
+                        if (targetRow?.[col]) {
+                          targetRow[col] = { letter: generatedPuzzle.mainWord[i] ?? '', isMain: true, isCrosser: false };
+                        }
+                      }
+
+                      // Place crossers
+                      for (const crosser of generatedPuzzle.crossers) {
+                        for (let i = 0; i < crosser.word.length; i++) {
+                          const row = crosser.startRow + i;
+                          const targetRow = grid[row];
+                          if (targetRow?.[crosser.startCol]) {
+                            const existing = targetRow[crosser.startCol];
+                            targetRow[crosser.startCol] = { letter: crosser.word[i] ?? '', isMain: existing?.isMain ?? false, isCrosser: true };
+                          }
+                        }
+                      }
+
+                      return grid.map((row, rowIndex) =>
+                        row.map((cell, colIndex) => (
+                          <div
+                            key={`${rowIndex}-${colIndex}`}
+                            className={`
+                              flex items-center justify-center text-xs font-mono font-bold rounded
+                              ${cell.letter ? 'border-2' : 'border border-dashed'}
+                              ${cell.isMain && cell.isCrosser
+                                ? 'bg-purple-100 border-purple-400 text-purple-700'
+                                : cell.isMain
+                                  ? 'bg-blue-100 border-blue-400 text-blue-700'
+                                  : cell.isCrosser
+                                    ? 'bg-green-100 border-green-400 text-green-700'
+                                    : 'bg-gray-50 border-gray-200 text-gray-300'
+                              }
+                            `}
+                          >
+                            {cell.letter}
+                          </div>
+                        ))
+                      );
+                    })()}
+                  </div>
+
+                  {/* Check for horizontal conflicts */}
+                  {(() => {
+                    const { warnings } = checkHorizontalConflicts(
+                      generatedPuzzle.mainWordRow,
+                      generatedPuzzle.gridCols,
+                      generatedPuzzle.crossers.map(c => ({
+                        word: c.word,
+                        startRow: c.startRow,
+                        startCol: c.startCol,
+                      }))
+                    );
+                    if (warnings.length > 0) {
+                      return (
+                        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <h5 className="text-sm font-medium text-yellow-800 mb-1">Possible row conflicts:</h5>
+                          <ul className="text-xs text-yellow-700 space-y-1">
+                            {warnings.map((warning, i) => (
+                              <li key={i}>{warning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
+                </div>
+
+                {/* Crossers List */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-700">Crossers</h4>
+                  {generatedPuzzle.crossers.map((crosser, index) => (
+                    <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-mono font-bold text-gray-900">{crosser.word}</span>
+                        <span className="text-xs text-gray-500">pos {crosser.startCol}</span>
+                      </div>
+                      <p className="text-sm text-gray-600">{crosser.clue}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-200 bg-gray-50">
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={discardGeneratedPuzzle}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  Discard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    discardGeneratedPuzzle();
+                    setShowAIModal(true);
+                  }}
+                  disabled={isGenerating}
+                  className="px-4 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Regenerate
+                </button>
+                <button
+                  type="button"
+                  onClick={applyGeneratedPuzzle}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium"
+                >
+                  Use This Puzzle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* AI Generation Modal */}
       {showAIModal && (

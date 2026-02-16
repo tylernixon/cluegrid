@@ -726,8 +726,8 @@ function parseAIResponse(text: string, request: AIGenerateRequest): AIGeneratedP
   }
 
   const duplicateIndices = Array.from(intersectionIndexCounts.entries())
-    .filter(([_, count]) => count > 1)
-    .map(([idx, _]) => idx);
+    .filter((entry) => entry[1] > 1)
+    .map((entry) => entry[0]);
 
   if (duplicateIndices.length > 0) {
     console.warn(
