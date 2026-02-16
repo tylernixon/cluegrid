@@ -21,8 +21,8 @@ const config: Config = {
         correct: { DEFAULT: "#4A8B6E", dark: "#4A9B7E" },
         // Revealed/hint letters - same green as correct to match logo
         revealed: { DEFAULT: "#4A8B6E", dark: "#4A9B7E" },
-        // Crosser solved - warm beige/tan for solved crosser cells (not main row)
-        "crosser-solved": { DEFAULT: "#E8DED2", dark: "#3D3832" },
+        // Crosser solved - matches logo "s" grey for solved crosser cells (not main row)
+        "crosser-solved": { DEFAULT: "#B8B0A6", dark: "#3A3A42" },
         present: { DEFAULT: "#C4944A", dark: "#D4A45A" },
         absent: { DEFAULT: "#B8B0A6", dark: "#3A3A42" },
         accent: { DEFAULT: "#5B7FA6", dark: "#7B9FC6" },

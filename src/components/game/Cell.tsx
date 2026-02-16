@@ -33,7 +33,7 @@ const statusClasses: Record<string, string> = {
     "bg-correct dark:bg-correct-dark border-correct dark:border-correct-dark text-white",
   typing:
     "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-ink dark:text-ink-dark",
-  // Crosser solved - for solved crosser cells not on main word row
+  // Crosser solved - for solved crosser cells not on main word row (matches logo "s" grey)
   crosserSolved:
     "bg-crosser-solved dark:bg-crosser-solved-dark border-crosser-solved dark:border-crosser-solved-dark text-white",
 };
