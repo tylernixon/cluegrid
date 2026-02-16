@@ -29,6 +29,7 @@ interface ScheduledPuzzle {
 export default function AdminPage() {
   const [theme, setTheme] = useState("");
   const [mainWord, setMainWord] = useState("");
+  const [themeHint, setThemeHint] = useState("");
   const [difficulty, setDifficulty] = useState("5");
   const [crosserCount, setCrosserCount] = useState("3");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -112,6 +113,7 @@ export default function AdminPage() {
         body: JSON.stringify({
           theme: theme.trim(),
           mainWord: mainWord.trim() || undefined,
+          themeHint: themeHint.trim() || undefined,
           difficulty,
           crosserCount,
           date,
@@ -120,7 +122,12 @@ export default function AdminPage() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Generation failed");
-      setPuzzle(data.puzzle);
+      // Override AI-generated themeHint if user provided one
+      const generatedPuzzle = data.puzzle;
+      if (themeHint.trim()) {
+        generatedPuzzle.themeHint = themeHint.trim();
+      }
+      setPuzzle(generatedPuzzle);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Generation failed");
     } finally {
@@ -301,6 +308,17 @@ export default function AdminPage() {
                 className="w-full px-3 py-2 border rounded-md uppercase"
               />
             </div>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Theme Hint (optional)</label>
+              <input
+                type="text"
+                value={themeHint}
+                onChange={(e) => setThemeHint(e.target.value)}
+                placeholder="e.g., 'Where sand meets the sea' - leave empty for AI"
+                className="w-full px-3 py-2 border rounded-md"
+              />
+              <p className="text-xs text-gray-500 mt-1">Short poetic hint shown to players (3-6 words)</p>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
               <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className="w-full px-3 py-2 border rounded-md">
@@ -460,7 +478,16 @@ export default function AdminPage() {
                 <div className="mb-4">
                   <span className="text-sm text-gray-500">Theme</span>
                   <p className="text-lg font-medium">{puzzle.theme}</p>
-                  {puzzle.themeHint && <p className="text-sm text-gray-600 italic">{puzzle.themeHint}</p>}
+                </div>
+                <div className="mb-4">
+                  <label className="text-sm text-gray-500 block mb-1">Theme Hint</label>
+                  <input
+                    type="text"
+                    value={puzzle.themeHint || ""}
+                    onChange={(e) => setPuzzle({ ...puzzle, themeHint: e.target.value })}
+                    placeholder="Short poetic hint for players"
+                    className="w-full px-3 py-2 border rounded-md text-sm italic"
+                  />
                 </div>
 
                 <h3 className="font-semibold mb-3">Crossers</h3>
