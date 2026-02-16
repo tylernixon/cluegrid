@@ -51,7 +51,7 @@ export function Modal({ open, onClose, children, title }: ModalProps) {
       className="fixed inset-0 z-50 w-screen min-h-[100dvh] max-w-none max-h-none m-0 p-0 bg-transparent backdrop:bg-transparent overflow-y-auto"
       aria-label={title}
     >
-      {/* Background layer with blur - covers safe zones */}
+      {/* Background layer with blur - covers full viewport including safe zones */}
       <div className="fixed inset-0 bg-canvas/80 dark:bg-canvas-dark/80 backdrop-blur-xl" />
       {/* Content layer with safe area padding */}
       <div className="relative min-h-dvh w-full flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
