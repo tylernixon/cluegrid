@@ -73,7 +73,7 @@ export function GuessHistory({ guesses, targetId }: GuessHistoryProps) {
 
   return (
     <div
-      className="flex flex-col gap-1 items-center"
+      className="flex flex-col gap-1 items-center mt-6"
       role="list"
       aria-label="Previous guesses"
     >
