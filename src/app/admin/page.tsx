@@ -29,7 +29,7 @@ interface ScheduledPuzzle {
 export default function AdminPage() {
   const [theme, setTheme] = useState("");
   const [mainWord, setMainWord] = useState("");
-  const [difficulty, setDifficulty] = useState("3");
+  const [difficulty, setDifficulty] = useState("5");
   const [crosserCount, setCrosserCount] = useState("3");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
 
