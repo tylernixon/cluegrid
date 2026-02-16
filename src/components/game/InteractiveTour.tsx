@@ -501,6 +501,11 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
         // If main word cell already exists at intersection, update belongsTo
         if (existing) {
           existing.belongsTo.push(crosser.id);
+          // If typing into this crosser, show the typed letter at intersection
+          if (!isSolved && selectedTarget === crosser.id && currentGuess[i]) {
+            existing.letter = currentGuess[i]!;
+            existing.status = "typing";
+          }
           if (isSolved && existing.status !== "solved") {
             // Keep intersection letter as revealed or solved
           }
@@ -552,13 +557,16 @@ export function InteractiveTour({ open, onClose }: InteractiveTourProps) {
     [step.highlight, revealedLetters],
   );
 
-  // Tooltip position: if highlighting grid, put tooltip below; if keyboard, above
+  // Tooltip position: always "top" if input allowed (so it doesn't cover keyboard)
+  // Otherwise: keyboard/clue-panel → top, other highlights → bottom, no highlight → center
   const tooltipPosition: "top" | "bottom" | "center" =
-    step.highlight === "keyboard" || step.highlight === "clue-panel"
+    step.allowInput
       ? "top"
-      : step.highlight
-        ? "bottom"
-        : "center";
+      : step.highlight === "keyboard" || step.highlight === "clue-panel"
+        ? "top"
+        : step.highlight
+          ? "bottom"
+          : "center";
 
   // Whether the Next button should show (not for input steps)
   const showNextButton = !step.allowInput;
