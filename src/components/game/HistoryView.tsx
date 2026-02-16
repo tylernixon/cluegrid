@@ -145,23 +145,23 @@ export function HistoryView({ onClose }: HistoryViewProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-40 flex flex-col bg-canvas dark:bg-canvas-dark"
-        initial={{ opacity: 0, x: "100%" }}
+        className="fixed inset-0 z-40 flex flex-col bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl"
+        initial={{ opacity: 0, x: "-100%" }}
         animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: "100%" }}
+        exit={{ opacity: 0, x: "-100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
         {/* Header */}
-        <header className="flex items-center h-14 border-b border-border dark:border-border-dark px-4 shrink-0">
+        <header className="relative flex items-center justify-center h-14 px-4 shrink-0">
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 flex items-center justify-center rounded-lg text-[#4A8B8D] hover:text-[#3D5A5E] hover:bg-surface-raised dark:hover:bg-surface-raised-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4A8B8D]"
+            className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors"
             aria-label="Back to game"
           >
             <ArrowLeftIcon />
           </button>
-          <h1 className="ml-2 text-heading-3 font-serif text-ink dark:text-ink-dark">
+          <h1 className="text-heading-3 font-serif text-ink dark:text-ink-dark">
             Puzzle History
           </h1>
         </header>

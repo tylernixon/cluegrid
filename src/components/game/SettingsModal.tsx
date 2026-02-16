@@ -61,10 +61,6 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
   return (
     <Modal open={open} onClose={handleClose} title="Settings">
       <div>
-        <h2 className="text-heading-2 text-ink dark:text-ink-dark mb-6">
-          Settings
-        </h2>
-
         {/* Theme selector */}
         <div className="mb-6">
           <h3 className="text-body font-semibold text-ink dark:text-ink-dark mb-3">
