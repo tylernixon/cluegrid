@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Using game feedback colors: green (correct), yellow (present), gray (absent)
+// Brand gradient: blue → green → yellow (green centered)
+const BRAND_GRADIENT = "linear-gradient(135deg, #5B7FA6 0%, #4A8B6E 50%, #C9A227 100%)";
+
 const LETTERS = [
-  { char: "g", color: "#4A8B6E" },  // correct (green)
-  { char: "i", color: "#C4944A" },  // present (yellow)
-  { char: "s", color: "#B8B0A6" },  // absent (gray)
-  { char: "t", color: "#4A8B6E" },  // correct (green)
+  { char: "g" },
+  { char: "i" },
+  { char: "s" },
+  { char: "t" },
 ];
 
 // Characters to cycle through for the slot-machine effect
@@ -20,11 +22,9 @@ interface GistLogoProps {
 
 function SlotLetter({
   targetChar,
-  color,
   delay
 }: {
   targetChar: string;
-  color: string;
   delay: number;
 }) {
   // Start with target char to avoid hydration mismatch (server/client must match)
@@ -72,7 +72,7 @@ function SlotLetter({
   return (
     <span
       className="w-7 h-7 flex items-center justify-center rounded text-white font-sans font-semibold text-lg overflow-hidden"
-      style={{ backgroundColor: color }}
+      style={{ background: BRAND_GRADIENT }}
     >
       <AnimatePresence mode="popLayout">
         <motion.span
@@ -100,7 +100,6 @@ export function GistLogo({ className }: GistLogoProps) {
         <SlotLetter
           key={letter.char}
           targetChar={letter.char}
-          color={letter.color}
           delay={index * 80} // Stagger the start of each letter
         />
       ))}

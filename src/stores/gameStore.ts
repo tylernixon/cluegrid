@@ -791,26 +791,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       guessArray[insertPos] = letter.toUpperCase();
       const newGuess = guessArray.join("");
 
-      // Check if all non-locked positions are now filled (auto-submit)
-      let allFilled = true;
-      for (let i = 0; i < targetLength; i++) {
-        if (!locked.has(i) && newGuess[i] === " ") {
-          allFilled = false;
-          break;
-        }
-      }
-
-      if (allFilled) {
-        // Schedule auto-submit after state update
-        setTimeout(() => {
-          const currentState = get();
-          // Only auto-submit if still on same target and guess matches
-          if (currentState.currentGuess === newGuess && currentState.selectedTarget === state.selectedTarget) {
-            currentState.submitGuess();
-          }
-        }, 50);
-      }
-
       return { currentGuess: newGuess };
     });
   },
