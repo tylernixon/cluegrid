@@ -144,7 +144,7 @@ export function HistoryView({ onClose }: HistoryViewProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-40 h-dvh flex flex-col bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
+        className="fixed inset-0 z-40 w-screen h-dvh flex flex-col bg-canvas/95 dark:bg-canvas-dark/95 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
         initial={{ opacity: 0, x: "-100%" }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: "-100%" }}
@@ -155,7 +155,7 @@ export function HistoryView({ onClose }: HistoryViewProps) {
           <button
             type="button"
             onClick={onClose}
-            className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors focus:outline-none"
+            className="absolute left-4 w-10 h-10 flex items-center justify-center text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark transition-colors focus:outline-none"
             aria-label="Back to game"
           >
             <ChevronLeftIcon />

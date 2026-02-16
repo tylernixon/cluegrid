@@ -48,15 +48,15 @@ export function Modal({ open, onClose, children, title }: ModalProps) {
   return (
     <dialog
       ref={dialogRef}
-      className="fixed inset-0 z-50 w-full h-dvh m-0 p-0 bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl backdrop:bg-transparent overflow-y-auto"
+      className="fixed inset-0 z-50 w-screen h-dvh max-w-none max-h-none m-0 p-0 bg-canvas/95 dark:bg-canvas-dark/95 backdrop:bg-black/50 overflow-y-auto"
       aria-label={title}
     >
-      <div className="min-h-dvh flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+      <div className="min-h-dvh w-full flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         {/* Header with centered title */}
         <header className="relative flex items-center justify-center h-14 px-4 shrink-0">
           <button
             type="button"
-            className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors focus:outline-none"
+            className="absolute left-4 w-10 h-10 flex items-center justify-center text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark transition-colors focus:outline-none"
             onClick={onClose}
             aria-label="Go back"
           >

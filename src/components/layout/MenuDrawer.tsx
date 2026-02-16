@@ -141,7 +141,7 @@ export function MenuDrawer({
       {open && (
         <motion.div
           ref={drawerRef}
-          className="fixed inset-0 z-50 h-dvh bg-canvas/40 dark:bg-canvas-dark/40 backdrop-blur-xl flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
+          className="fixed inset-0 z-50 w-screen h-dvh bg-canvas/95 dark:bg-canvas-dark/95 flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]"
           variants={drawerVariants}
           initial="hidden"
           animate="visible"
@@ -156,7 +156,7 @@ export function MenuDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="absolute left-4 w-10 h-10 flex items-center justify-center rounded-lg text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark hover:bg-surface-raised/50 dark:hover:bg-surface-raised-dark/50 transition-colors focus:outline-none"
+              className="absolute left-4 w-10 h-10 flex items-center justify-center text-ink-secondary dark:text-ink-secondary-dark hover:text-ink dark:hover:text-ink-dark transition-colors focus:outline-none"
               aria-label="Close menu"
             >
               <ChevronLeftIcon />
