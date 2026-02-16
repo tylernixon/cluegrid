@@ -110,12 +110,12 @@ export function Cell({
     transition: { duration: TIMING.fast, ease: EASE.out },
   } : {};
 
-  // Gradient for main word row solved/revealed letters - uses accent blue to correct green
+  // Gradient for main word row solved/revealed letters - uses green, blue, and yellow
   // Applies to: correct, revealed, lockedCorrect on main word row
   const mainRowSolvedStatuses = ["correct", "revealed", "lockedCorrect"];
   const shouldShowMainRowGradient = isMainWordRow && mainRowSolvedStatuses.includes(status);
   const mainRowGradientStyle = shouldShowMainRowGradient ? {
-    background: "linear-gradient(135deg, #5B7FA6 0%, #4A8B6E 100%)",
+    background: "linear-gradient(135deg, #4A8B6E 0%, #5B7FA6 50%, #C9A227 100%)",
     borderColor: "#4A7A8A",
   } : undefined;
 
