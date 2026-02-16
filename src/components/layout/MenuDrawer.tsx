@@ -144,6 +144,16 @@ export function MenuDrawer({
         onClick={onClose}
       />
 
+      {/* Edge gradients to blend any safe-area seams */}
+      <div
+        className="absolute inset-x-0 top-0 h-8 pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)' }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-8 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}
+      />
+
       {/* LAYER 2: Content wrapper - absolute full-bleed with safe area padding */}
       <motion.div
         className="absolute inset-0"
