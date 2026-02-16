@@ -191,7 +191,7 @@ export function HistoryView({ onClose }: HistoryViewProps) {
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
         {/* Header */}
-        <header className="relative flex items-center justify-center h-14 px-4 shrink-0">
+        <header className="relative flex items-center justify-center h-14 px-6 shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -207,7 +207,7 @@ export function HistoryView({ onClose }: HistoryViewProps) {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-lg mx-auto px-4 py-6">
+          <div className="max-w-lg mx-auto px-6 py-6">
             {/* Calendar */}
             <HistoryCalendar
               year={currentYear}

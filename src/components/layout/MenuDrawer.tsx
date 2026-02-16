@@ -169,7 +169,7 @@ export function MenuDrawer({
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
       >
         {/* 3-row grid: header / content / footer */}
-        <div className="h-full grid grid-rows-[auto_minmax(0,1fr)_auto] px-4">
+        <div className="h-full grid grid-rows-[auto_minmax(0,1fr)_auto] px-6">
           {/* Header - row 1 */}
           <header className="relative flex items-center justify-center py-4 shrink-0">
             <button

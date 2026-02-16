@@ -87,7 +87,7 @@ export function ModalShell({
         }}
       >
         {/* Inner content with additional app padding */}
-        <div className="flex-1 flex flex-col px-4 py-4 min-h-0">
+        <div className="flex-1 flex flex-col px-6 py-4 min-h-0">
           <div className="flex-1 grid grid-rows-[auto_minmax(0,1fr)_auto] min-h-0 max-w-lg mx-auto w-full">
             {/* Header pinned top */}
             <header className="relative flex items-center justify-center py-3 shrink-0">
