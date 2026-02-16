@@ -101,14 +101,14 @@ export function BadgeDisplay({ earnedBadges }: BadgeDisplayProps) {
               key={id}
               className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border w-[100px] shrink-0 transition-all ${
                 isEarned
-                  ? "bg-correct/10 dark:bg-correct-dark/10 border-correct/40 dark:border-correct-dark/40"
+                  ? "bg-present/10 dark:bg-present-dark/10 border-present/40 dark:border-present-dark/40"
                   : "bg-surface dark:bg-surface-dark border-border dark:border-border-dark"
               }`}
               title={`${def.name} - ${def.description}`}
             >
               {/* Earned checkmark */}
               {isEarned && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-correct dark:bg-correct-dark rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-present dark:bg-present-dark rounded-full flex items-center justify-center">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
@@ -116,7 +116,7 @@ export function BadgeDisplay({ earnedBadges }: BadgeDisplayProps) {
               )}
 
               {/* Icon */}
-              <span className={isEarned ? "text-correct dark:text-correct-dark" : "text-ink-tertiary dark:text-ink-tertiary-dark"}>
+              <span className={isEarned ? "text-present dark:text-present-dark" : "text-ink-tertiary dark:text-ink-tertiary-dark"}>
                 {BadgeIcons[id]}
               </span>
 
