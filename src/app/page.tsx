@@ -156,7 +156,7 @@ export default function Home() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen min-h-dvh bg-canvas dark:bg-canvas-dark">
+    <div className="flex flex-col h-[100dvh] bg-canvas dark:bg-canvas-dark">
       {/* Skip link for accessibility */}
       <a
         href="#puzzle-grid"
@@ -230,7 +230,7 @@ export default function Home() {
       </main>
 
       {/* Clue panel + Keyboard (sticky at bottom) */}
-      <div className="sticky bottom-0 bg-canvas/85 dark:bg-canvas-dark/85 backdrop-blur-md border-t border-border/50 dark:border-border-dark/50 shrink-0">
+      <div className="bg-canvas/85 dark:bg-canvas-dark/85 backdrop-blur-md border-t border-border/50 dark:border-border-dark/50 shrink-0">
         {/* Active clue panel */}
         {!isLoading && isPlaying && (
           <div className="px-4 pt-2 pb-1">
