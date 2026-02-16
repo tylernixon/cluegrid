@@ -165,8 +165,8 @@ export function MenuDrawer({
           </header>
 
           {/* Menu items - centered under logo */}
-          <nav className="flex-1 py-4 flex flex-col items-center" aria-label="Main navigation">
-            <div className="w-full max-w-xs px-4">
+          <nav className="flex-1 py-4" aria-label="Main navigation">
+            <div className="max-w-xs mx-auto px-4">
             <MenuItem
               icon={<GearIcon />}
               label="Settings"
