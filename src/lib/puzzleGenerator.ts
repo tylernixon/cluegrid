@@ -490,9 +490,14 @@ export async function generatePuzzleWithAI(request: AIGenerateRequest): Promise<
     );
   }
 
+  // Use extended thinking so Opus can carefully reason through crosser placement
   const message = await client.messages.create({
     model: 'claude-opus-4-6',
-    max_tokens: 2048,
+    max_tokens: 16000,
+    thinking: {
+      type: 'enabled',
+      budget_tokens: 10000,
+    },
     messages: [{ role: 'user', content: prompt }],
   });
 
@@ -535,10 +540,24 @@ IMPORTANT RULES:
 - Each crosser intersects the main word at a different letter position
 - The shared letter must appear in the crosser word at the "intersectionIndex" position
 - Spread crossers across different positions in the main word for visual balance
-- CRITICAL: Use DIFFERENT intersectionIndex values for each crosser to avoid overlapping rows
-  - Example: if one crosser has intersectionIndex=2, another should have intersectionIndex=0 or 4
-  - This prevents horizontal letter sequences that look like unintended words
 - Try to vary word lengths (mix of 4, 5, 6, 7 letter words) for visual interest
+
+CRITICAL - AVOIDING ROW COLLISIONS:
+When crossers have the same intersectionIndex, their letters appear on the same row.
+If those letters spell something that looks like a word (even gibberish), it confuses players.
+
+For example, with main word "UMAMI" at row 2:
+- If CAROB (intersectionIndex=2) and BRAIN (intersectionIndex=2) both have index 2:
+  - Row 0: C and B on same row → "CB" (OK)
+  - Row 1: A and R on same row → "AR" (looks like a word!)
+  - Row 4: O and I on same row → "OI" (looks like a word!)
+
+To avoid this, use DIFFERENT intersectionIndex values:
+- CAROB with intersectionIndex=0 starts at row 2
+- BRAIN with intersectionIndex=4 starts at row -2 (or pick a different word)
+
+Before finalizing, VERIFY that no two crossers share the same intersectionIndex value.
+If they must share, ensure the resulting horizontal letter pairs don't spell anything word-like.
 
 Respond ONLY with a JSON object in this exact format (no markdown, no explanation):
 {
@@ -579,10 +598,20 @@ Requirements:
 5. Crosser words should be 4-8 letters long.
 6. Each crosser must intersect the main word at a DIFFERENT position.
 7. Crosser words should loosely relate to the theme when possible.
-8. CRITICAL: Use DIFFERENT intersectionIndex values for each crosser to avoid overlapping rows
-   - Example: if one crosser has intersectionIndex=2, another should have intersectionIndex=0 or 4
-   - This prevents horizontal letter sequences that look like unintended words
-9. Try to vary word lengths (mix of 4, 5, 6, 7 letter words) for visual interest
+8. Try to vary word lengths (mix of 4, 5, 6, 7 letter words) for visual interest
+
+CRITICAL - AVOIDING ROW COLLISIONS:
+When crossers have the same intersectionIndex, their letters appear on the same row.
+If those letters spell something that looks like a word (even gibberish), it confuses players.
+
+For example, with main word at row 2:
+- If two crossers both have intersectionIndex=2, they both start at row 0
+- Their letters align horizontally: row 0 has letter from crosser A + letter from crosser B
+- If this spells "AR", "OI", "ED" etc., players might think it's a word!
+
+To avoid this, use DIFFERENT intersectionIndex values for each crosser.
+Before finalizing, VERIFY that no two crossers share the same intersectionIndex value.
+If they must share (rare), ensure the resulting horizontal letter pairs don't spell anything word-like.
 
 Difficulty level: ${difficulty}
 ${guidance}
@@ -687,6 +716,23 @@ function parseAIResponse(text: string, request: AIGenerateRequest): AIGeneratedP
 
   if (crossers.length === 0) {
     throw new Error('No valid crossers could be placed after validation');
+  }
+
+  // Check for row collisions (crossers with same intersectionIndex)
+  const intersectionIndexCounts = new Map<number, number>();
+  for (const crosser of crossers) {
+    const count = intersectionIndexCounts.get(crosser.intersectionIndex) ?? 0;
+    intersectionIndexCounts.set(crosser.intersectionIndex, count + 1);
+  }
+
+  const duplicateIndices = Array.from(intersectionIndexCounts.entries())
+    .filter(([_, count]) => count > 1)
+    .map(([idx, _]) => idx);
+
+  if (duplicateIndices.length > 0) {
+    console.warn(
+      `[PuzzleGenerator] Warning: ${duplicateIndices.length} intersectionIndex values are shared by multiple crossers: ${duplicateIndices.join(', ')}. This may cause horizontal letter conflicts.`
+    );
   }
 
   return {
