@@ -214,10 +214,15 @@ export async function shareResult(
  * Check if Web Share API is available and likely to work
  */
 function canUseWebShare(): boolean {
-  return (
-    typeof navigator !== "undefined" &&
-    typeof navigator.share === "function" &&
-    typeof navigator.canShare === "function" &&
-    navigator.canShare({ text: "test" })
-  );
+  try {
+    return (
+      typeof navigator !== "undefined" &&
+      typeof navigator.share === "function" &&
+      typeof navigator.canShare === "function" &&
+      navigator.canShare({ text: "test" })
+    );
+  } catch {
+    // navigator.canShare can throw on iOS Safari in certain contexts
+    return false;
+  }
 }
