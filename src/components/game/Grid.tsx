@@ -360,24 +360,7 @@ export function Grid({
   const mainRow = puzzle.mainWord.row;
   const mainCol = puzzle.mainWord.col;
 
-  // Grid-wide glow animation for final word solve
-  const gridGlowAnimation = victoryAnimating && !prefersReducedMotion
-    ? {
-        boxShadow: [
-          "0 0 0 0 rgba(34, 197, 94, 0)",
-          "0 0 24px 6px rgba(34, 197, 94, 0.25)",
-          "0 0 0 0 rgba(34, 197, 94, 0)",
-        ],
-      }
-    : {};
-
-  const gridGlowTransition = victoryAnimating
-    ? {
-        duration: 0.6,
-        ease: EASE.inOut,
-        delay: (puzzle.mainWord.word.length * VICTORY_STAGGER_MS) / 1000,
-      }
-    : {};
+  // Grid glow disabled - was too distracting on victory
 
   return (
     <motion.div
@@ -389,8 +372,6 @@ export function Grid({
       }}
       role="grid"
       aria-label="Puzzle grid"
-      animate={gridGlowAnimation}
-      transition={gridGlowTransition}
     >
       {grid.map((row, rowIndex) =>
         row.map((cell, colIndex) => {

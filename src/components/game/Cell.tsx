@@ -110,10 +110,20 @@ export function Cell({
     transition: { duration: TIMING.fast, ease: EASE.out },
   } : {};
 
+  // Gradient for main word row solved/revealed letters - uses accent blue to correct green
+  // Applies to: correct, revealed, lockedCorrect on main word row
+  const mainRowSolvedStatuses = ["correct", "revealed", "lockedCorrect"];
+  const shouldShowMainRowGradient = isMainWordRow && mainRowSolvedStatuses.includes(status);
+  const mainRowGradientStyle = shouldShowMainRowGradient ? {
+    background: "linear-gradient(135deg, #5B7FA6 0%, #4A8B6E 100%)",
+    borderColor: "#4A7A8A",
+  } : undefined;
+
   return (
     <motion.button
       type="button"
       className={`${base} ${statusClass} ${mainRowClass} ${focusClass} relative`}
+      style={mainRowGradientStyle}
       onClick={onClick}
       onKeyDown={onKeyDown}
       tabIndex={tabIndex}

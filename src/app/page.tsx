@@ -43,6 +43,7 @@ export default function Home() {
   const toastMessage = useGameStore((s) => s.toastMessage);
   const showCompletionModal = useGameStore((s) => s.showCompletionModal);
   const isLoading = useGameStore((s) => s.isLoading);
+  const isPreviewMode = useGameStore((s) => s.isPreviewMode);
   const fetchPuzzle = useGameStore((s) => s.fetchPuzzle);
 
   // Fetch puzzle on mount
@@ -200,6 +201,13 @@ export default function Home() {
           </svg>
         </button>
       </header>
+
+      {/* Preview mode banner */}
+      {isPreviewMode && (
+        <div className="bg-purple-600 text-white text-center py-2 px-4 text-sm font-medium">
+          Preview Mode — Stats will not be saved
+        </div>
+      )}
 
       {/* Main game area */}
       <main className="flex-1 flex flex-col items-center justify-start sm:justify-center overflow-y-auto px-4 pt-1 pb-2 gap-2">

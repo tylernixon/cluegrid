@@ -269,6 +269,7 @@ interface GameStore {
   isSubmitting: boolean; // True while submitGuess is in progress
   error: string | null;
   puzzleLoaded: boolean;
+  isPreviewMode: boolean; // True when viewing a preview puzzle
 
   // Derived
   maxGuesses: () => number;
@@ -343,6 +344,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   isSubmitting: false,
   error: null,
   puzzleLoaded: false,
+  isPreviewMode: false,
 
   // -----------------------------------------------------------------------
   // Derived values
@@ -505,15 +507,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const today = getTodayDate();
-      console.log("[fetchPuzzle] Fetching for date:", today);
-
-      // Check if URL has cache-bust param (e.g., ?t=123)
+      // Check if URL has preview param (admin preview mode)
       const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const shouldBustCache = urlParams?.has("t") || urlParams?.has("bust");
-      const bustParam = shouldBustCache ? "?bust" : "";
+      const previewId = urlParams?.get("preview");
+      const isPreviewMode = !!previewId;
 
-      const url = `/api/puzzle/${today}${bustParam}`;
+      let url: string;
+      if (previewId) {
+        // Preview mode - fetch specific puzzle by ID
+        url = `/api/puzzle/preview/${previewId}`;
+        console.log("[fetchPuzzle] Preview mode, fetching puzzle ID:", previewId);
+      } else {
+        // Normal mode - fetch today's puzzle
+        const today = getTodayDate();
+        console.log("[fetchPuzzle] Fetching for date:", today);
+        const shouldBustCache = urlParams?.has("t") || urlParams?.has("bust");
+        const bustParam = shouldBustCache ? "?bust" : "";
+        url = `/api/puzzle/${today}${bustParam}`;
+      }
+
       console.log("[fetchPuzzle] Fetching URL:", url);
       const response = await fetch(url);
       console.log("[fetchPuzzle] Response status:", response.status);
@@ -527,7 +539,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       addPuzzleWordsToCache(puzzle.mainWord.word, puzzle.crossers);
 
-      const session = loadSession(puzzle.id);
+      // In preview mode, don't load saved session - always start fresh
+      const session = isPreviewMode ? null : loadSession(puzzle.id);
 
       if (session) {
         // Compute pre-filled currentGuess with locked letters from revealed letters AND correct feedback
@@ -594,6 +607,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           mainGuessCount: session.mainGuessCount ?? 0,
           isLoading: false,
           puzzleLoaded: true,
+          isPreviewMode,
         });
       } else {
         set({
@@ -610,6 +624,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           mainGuessCount: 0,
           isLoading: false,
           puzzleLoaded: true,
+          isPreviewMode,
         });
       }
     } catch (err) {
@@ -1054,9 +1069,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ).join("");
     }
 
-    // Record stats if game is over
+    // Record stats if game is over (skip in preview mode)
     let newStatsRecorded = state.statsRecorded;
-    if ((newStatus === "won" || newStatus === "lost") && !state.statsRecorded) {
+    if ((newStatus === "won" || newStatus === "lost") && !state.statsRecorded && !state.isPreviewMode) {
       const statsStore = useStatsStore.getState();
       statsStore.recordGame(newStatus === "won", newMainGuessCount);
 
@@ -1086,8 +1101,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       mainGuessCount: newMainGuessCount,
     });
 
-    // Save session to localStorage
-    saveSession(get());
+    // Save session to localStorage (skip in preview mode)
+    if (!state.isPreviewMode) {
+      saveSession(get());
+    }
 
     // Show completion modal after a delay
     if (newStatus === "won" || newStatus === "lost") {

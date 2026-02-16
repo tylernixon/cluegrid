@@ -257,7 +257,15 @@ export default function PuzzleListPage() {
                     {puzzle.author || '-'}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-3">
+                      <a
+                        href={`/?preview=${puzzle.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-gray-600 hover:text-gray-800 font-medium"
+                      >
+                        Preview
+                      </a>
                       <Link
                         href={`/admin/puzzles/${puzzle.id}`}
                         className="text-sm text-blue-600 hover:text-blue-800 font-medium"
