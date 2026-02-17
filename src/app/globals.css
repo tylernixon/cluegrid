@@ -4,8 +4,10 @@
 
 @layer base {
   /* Set both html and body backgrounds to prevent iOS Safari safe-area bleed */
+  /* Disable double-tap zoom on iOS (reinforces viewport user-scalable=no) */
   html {
     @apply bg-canvas;
+    touch-action: manipulation;
   }
 
   .dark html {
