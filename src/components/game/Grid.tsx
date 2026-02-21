@@ -126,9 +126,27 @@ export function Grid({
 
   // Build the grid cell data
   const grid = useMemo(() => {
-    // Safety check for valid dimensions
-    const safeRows = Math.max(1, puzzle.gridSize?.rows || 5);
-    const safeCols = Math.max(1, puzzle.gridSize?.cols || 5);
+    // Calculate the actual required grid dimensions based on puzzle content
+    // This ensures all crosser cells are rendered even if gridSize was calculated incorrectly
+    const puzzleMainRow = puzzle.mainWord.row;
+    const puzzleMainCol = puzzle.mainWord.col;
+    const puzzleMainWordLength = puzzle.mainWord.word.length;
+
+    // Start with main word bounds
+    let requiredRows = puzzleMainRow + 1;
+    let requiredCols = puzzleMainCol + puzzleMainWordLength;
+
+    // Expand to include all crosser cells
+    for (const crosser of puzzle.crossers) {
+      const crosserEndRow = crosser.startRow + crosser.word.length;
+      const crosserCol = crosser.startCol + 1; // +1 because col is 0-indexed
+      requiredRows = Math.max(requiredRows, crosserEndRow);
+      requiredCols = Math.max(requiredCols, crosserCol);
+    }
+
+    // Use the larger of stored gridSize or calculated required size
+    const safeRows = Math.max(1, puzzle.gridSize?.rows || 5, requiredRows);
+    const safeCols = Math.max(1, puzzle.gridSize?.cols || 5, requiredCols);
 
     const cells: (CellInfo | null)[][] = Array.from(
       { length: safeRows },

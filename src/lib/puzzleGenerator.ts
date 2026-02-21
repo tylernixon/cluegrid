@@ -714,13 +714,16 @@ function parseAIResponse(text: string, request: AIGenerateRequest): AIGeneratedP
     throw new Error('No crossers in AI response');
   }
 
-  const mainWordRow = 2;
   const mainWordCol = 0;
 
-  let maxRow = mainWordRow;
-  let maxCol = mainWordCol + mainWord.length - 1;
-
-  const crossers: AIGeneratedCrosser[] = [];
+  // First pass: validate crossers and find maximum intersectionIndex
+  // This determines where the main word row needs to be positioned
+  const validCrossers: Array<{
+    word: string;
+    clue: string;
+    crossIdx: number;
+    mainIdx: number;
+  }> = [];
 
   for (const raw of parsed.crossers) {
     const word = raw.word.toUpperCase();
@@ -731,17 +734,31 @@ function parseAIResponse(text: string, request: AIGenerateRequest): AIGeneratedP
     if (crossIdx < 0 || crossIdx >= word.length) continue;
     if (mainWord[mainIdx] !== word[crossIdx]) continue;
 
+    validCrossers.push({ word, clue: raw.clue, crossIdx, mainIdx });
+  }
+
+  // Calculate mainWordRow dynamically to ensure all crossers fit
+  // It needs to be at least as large as the maximum intersectionIndex
+  const maxIntersectionIndex = Math.max(...validCrossers.map(c => c.crossIdx), 0);
+  const mainWordRow = maxIntersectionIndex + 1; // +1 so all crossers start at row 0 or later
+
+  let maxRow = mainWordRow;
+  let maxCol = mainWordCol + mainWord.length - 1;
+
+  const crossers: AIGeneratedCrosser[] = [];
+
+  // Second pass: calculate positions with the adjusted mainWordRow
+  for (const { word, clue, crossIdx, mainIdx } of validCrossers) {
     const startCol = mainWordCol + mainIdx;
     const startRow = mainWordRow - crossIdx;
     const endRow = startRow + word.length - 1;
-    if (startRow < 0) continue;
 
     maxRow = Math.max(maxRow, endRow);
     maxCol = Math.max(maxCol, startCol);
 
     crossers.push({
       word,
-      clue: raw.clue,
+      clue,
       intersectionIndex: crossIdx,
       mainWordLetterIndex: mainIdx,
       startRow,
