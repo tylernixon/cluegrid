@@ -34,17 +34,8 @@ const validatedWords = new Set<string>();
 async function validateWord(word: string): Promise<boolean> {
   const normalized = word.trim().toUpperCase();
 
-  console.log("[validateWord] Checking:", {
-    input: word,
-    normalized,
-    cacheSize: validatedWords.size,
-    inCache: validatedWords.has(normalized),
-    cacheContents: Array.from(validatedWords),
-  });
-
   // Check cache first
   if (validatedWords.has(normalized)) {
-    console.log("[validateWord] Found in cache, returning true");
     return true;
   }
 
@@ -73,15 +64,11 @@ async function validateWord(word: string): Promise<boolean> {
 function addPuzzleWordsToCache(mainWord: string, crossers: Array<{ word: string }>) {
   const normalizedMain = mainWord.trim().toUpperCase();
   validatedWords.add(normalizedMain);
-  console.log("[addPuzzleWordsToCache] Added main word:", normalizedMain);
 
   for (const c of crossers) {
     const normalizedCrosser = c.word.trim().toUpperCase();
     validatedWords.add(normalizedCrosser);
-    console.log("[addPuzzleWordsToCache] Added crosser:", normalizedCrosser);
   }
-
-  console.log("[addPuzzleWordsToCache] Cache now contains:", Array.from(validatedWords));
 }
 
 // ---------------------------------------------------------------------------
@@ -251,6 +238,7 @@ interface GameStore {
   puzzle: PuzzleData;
   guesses: Guess[];
   currentGuess: string;
+  draftGuesses: Map<string, string>; // Store typed letters per target so switching doesn't lose work
   selectedTarget: "main" | string;
   solvedWords: Set<string>;
   revealedLetters: RevealedLetter[];
@@ -332,6 +320,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   puzzle: MOCK_PUZZLE,
   guesses: [],
   currentGuess: "",
+  draftGuesses: new Map<string, string>(),
   selectedTarget: "main", // Main word is the primary target now
   solvedWords: new Set<string>(),
   revealedLetters: [],
@@ -625,6 +614,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           puzzle,
           guesses: [],
           currentGuess: "",
+          draftGuesses: new Map<string, string>(),
           selectedTarget: "main",
           solvedWords: new Set<string>(),
           revealedLetters: [],
@@ -716,6 +706,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           puzzle: MOCK_PUZZLE,
           guesses: [],
           currentGuess: "",
+          draftGuesses: new Map<string, string>(),
           selectedTarget: "main",
           solvedWords: new Set<string>(),
           revealedLetters: [],
@@ -821,6 +812,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           puzzle,
           guesses: [],
           currentGuess: "",
+          draftGuesses: new Map<string, string>(),
           selectedTarget: "main",
           solvedWords: new Set<string>(),
           revealedLetters: [],
@@ -853,6 +845,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       archiveDate: null,
       guesses: [],
       currentGuess: "",
+      draftGuesses: new Map<string, string>(),
       selectedTarget: "main",
       solvedWords: new Set<string>(),
       revealedLetters: [],
@@ -869,13 +862,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   addLetter: (letter: string) => {
     // Use functional update to avoid race conditions with rapid typing
     set((state) => {
-      console.log("[addLetter] Called with:", { letter, isLoading: state.isLoading, isSubmitting: state.isSubmitting, status: state.status, selectedTarget: state.selectedTarget, currentGuess: state.currentGuess });
       if (state.isLoading || state.isSubmitting) {
-        console.log("[addLetter] Blocked - loading or submitting");
         return state;
       }
       if (state.status !== "playing") {
-        console.log("[addLetter] Blocked - not playing");
         return state;
       }
 
@@ -943,7 +933,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       guessArray[insertPos] = letter.toUpperCase();
       const newGuess = guessArray.join("");
 
-      console.log("[addLetter] Success:", { insertPos, newGuess, selectedTarget: state.selectedTarget });
       return { currentGuess: newGuess };
     });
   },
@@ -1025,22 +1014,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   submitGuess: async () => {
     const state = get();
 
-    // Debug: trace the entire submission flow
-    console.log("[submitGuess] Starting submission:", {
-      currentGuess: state.currentGuess,
-      selectedTarget: state.selectedTarget,
-      isLoading: state.isLoading,
-      isSubmitting: state.isSubmitting,
-      status: state.status,
-      puzzleId: state.puzzle.id,
-    });
-
     if (state.isLoading || state.isSubmitting) {
-      console.log("[submitGuess] Blocked - isLoading or isSubmitting");
       return;
     }
     if (state.status !== "playing") {
-      console.log("[submitGuess] Blocked - status is not playing:", state.status);
       return;
     }
 
@@ -1051,7 +1028,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     // For main-word guesses, check the guess budget
     if (isMainGuess && state.guessesRemaining() <= 0) {
-      console.log("[submitGuess] Blocked - no guesses remaining");
       set({ isSubmitting: false, toastMessage: "No guesses remaining" });
       return;
     }
@@ -1062,17 +1038,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const hasUnfilledPositions = rawGuess.includes(" ") || rawGuess.length < requiredLength;
     const guess = rawGuess.replace(/ /g, ""); // Remove spaces for comparison
 
-    console.log("[submitGuess] Length check:", {
-      rawGuess,
-      guess,
-      guessLength: guess.length,
-      requiredLength,
-      hasUnfilledPositions,
-    });
-
     // Check if all positions are filled
     if (hasUnfilledPositions || guess.length < requiredLength) {
-      console.log("[submitGuess] Blocked - not enough letters");
       set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not enough letters" });
       setTimeout(() => set({ shakeTarget: null }), 300);
       return;
@@ -1090,38 +1057,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
       : state.puzzle.crossers.find((c) => c.id === state.selectedTarget)?.word ?? "";
     const answer = rawAnswer.trim().toUpperCase();
 
-    // Debug: detailed comparison logging
-    console.log("[submitGuess] Answer lookup:", {
-      selectedTarget: state.selectedTarget,
-      rawAnswer,
-      normalizedAnswer: answer,
-      mainWord: state.puzzle.mainWord.word,
-      crosserCount: state.puzzle.crossers.length,
-      crosserIds: state.puzzle.crossers.map(c => c.id),
-    });
-
-    console.log("[submitGuess] Comparison:", {
-      guess,
-      answer,
-      areEqual: guess === answer,
-      guessChars: guess.split('').map(c => c.charCodeAt(0)),
-      answerChars: answer.split('').map(c => c.charCodeAt(0)),
-    });
-
     // If the guess matches the answer, skip dictionary validation
     // (handles words not in dictionary but valid as puzzle answers)
     if (guess !== answer) {
-      console.log("[submitGuess] Guess does not match answer, validating against dictionary...");
       // Validate word against dictionary
       const isValid = await validateWord(guess);
-      console.log("[submitGuess] Dictionary validation result:", isValid);
       if (!isValid) {
         set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not in word list" });
         setTimeout(() => set({ shakeTarget: null }), 300);
         return;
       }
-    } else {
-      console.log("[submitGuess] Guess matches answer exactly, skipping dictionary validation");
     }
     const feedback = computeFeedback(guess, answer);
     const solved = guess === answer;
@@ -1265,10 +1210,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newStatsRecorded = true;
     }
 
+    // Clear draft for the submitted target (since we've submitted, no need to preserve)
+    const clearedDraftGuesses = new Map(state.draftGuesses);
+    clearedDraftGuesses.delete(state.selectedTarget);
+    // If target is switching, also clear the new target's draft
+    if (newSelectedTarget !== state.selectedTarget) {
+      clearedDraftGuesses.delete(newSelectedTarget);
+    }
+
     set({
       isSubmitting: false,
       guesses: newGuesses,
       currentGuess: newCurrentGuess,
+      draftGuesses: clearedDraftGuesses,
       solvedWords: newSolvedWords,
       revealedLetters: newRevealedLetters,
       status: newStatus,
@@ -1284,21 +1238,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Show completion modal after a delay
-    if (newStatus === "won" || newStatus === "lost") {
+    // Longer delay for wins to allow users to see the revealed puzzle answers
+    if (newStatus === "won") {
+      setTimeout(() => set({ showCompletionModal: true }), 1800);
+    } else if (newStatus === "lost") {
       setTimeout(() => set({ showCompletionModal: true }), 800);
     }
   },
 
   selectTarget: (targetId: "main" | string) => {
-    const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters, guesses } = get();
+    const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters, guesses, currentGuess, draftGuesses } = get();
 
     if (isLoading) return;
     if (status !== "playing") return;
     if (solvedWords.has(targetId)) return;
     if (targetId === selectedTarget) return;
 
-    // Allow users to freely switch between targets
-    // Previous typed letters will be replaced with locked positions for the new target
+    // Save current guess to draftGuesses before switching
+    // This preserves typed letters when switching between targets
+    const newDraftGuesses = new Map(draftGuesses);
+    newDraftGuesses.set(selectedTarget, currentGuess);
 
     // Compute locked positions for the new target (revealed letters + correct feedback)
     const locked = new Map<number, string>();
@@ -1342,14 +1301,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
       }
     }
 
-    // Build initial guess with locked letters pre-filled
-    // Use space for unfilled positions
-    const initialGuess = Array.from({ length: targetLength }, (_, i) =>
-      locked.has(i) ? locked.get(i)! : " "
-    ).join("");
+    // Check if we have a saved draft for this target
+    const savedDraft = newDraftGuesses.get(targetId);
+    let newGuess: string;
 
-    console.log("[selectTarget] Pre-filling guess:", { targetId, locked: Object.fromEntries(locked), initialGuess });
-    set({ selectedTarget: targetId, currentGuess: initialGuess });
+    if (savedDraft && savedDraft.length === targetLength) {
+      // Restore saved draft, but apply any locked letters on top
+      const guessArray = savedDraft.split("");
+      locked.forEach((letter, pos) => {
+        guessArray[pos] = letter;
+      });
+      newGuess = guessArray.join("");
+    } else {
+      // No saved draft - build from locked letters only
+      newGuess = Array.from({ length: targetLength }, (_, i) =>
+        locked.has(i) ? locked.get(i)! : " "
+      ).join("");
+    }
+
+    set({ selectedTarget: targetId, currentGuess: newGuess, draftGuesses: newDraftGuesses });
   },
 
   clearToast: () => set({ toastMessage: null }),
@@ -1369,6 +1339,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       guesses: [],
       currentGuess: "",
+      draftGuesses: new Map<string, string>(),
       selectedTarget: "main",
       solvedWords: new Set<string>(),
       revealedLetters: [],

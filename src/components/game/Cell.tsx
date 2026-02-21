@@ -5,7 +5,7 @@ import { TIMING, EASE } from "@/lib/motion";
 
 interface CellProps {
   letter: string;
-  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "lockedCorrect" | "typing";
+  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "lockedCorrect" | "typing" | "unsolvedReveal";
   isSelected: boolean;
   isActiveCursor?: boolean; // True only for the cell where the next letter will be typed
   isMainWordRow: boolean;
@@ -37,6 +37,9 @@ const statusClasses: Record<string, string> = {
   // Crosser solved - visible green for solved crosser cells not on main row
   crosserSolved:
     "bg-crosser-solved dark:bg-crosser-solved-dark border-correct/70 dark:border-correct-dark/70 text-white",
+  // Unsolved reveal - faded green for unsolved crossers shown after victory
+  unsolvedReveal:
+    "bg-correct/40 dark:bg-correct-dark/40 border-correct/50 dark:border-correct-dark/50 text-white/80",
 };
 
 export function Cell({
@@ -149,7 +152,7 @@ export function Cell({
         )}
         {isSelected && !isActiveCursor && (
           <motion.span
-            className="absolute inset-[-3px] rounded-md ring-1 ring-active/40 dark:ring-active-dark/40 pointer-events-none"
+            className="absolute inset-[-3px] rounded-md ring-2 ring-active/70 dark:ring-active-dark/70 pointer-events-none"
             {...ringMotionProps}
           />
         )}

@@ -20,7 +20,7 @@ interface GridProps {
 
 interface CellInfo {
   letter: string;
-  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "lockedCorrect" | "typing";
+  status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "lockedCorrect" | "typing" | "unsolvedReveal";
   belongsTo: ("main" | string)[];
   row: number;
   col: number;
@@ -259,6 +259,10 @@ export function Grid({
         if (isSolved) {
           letter = crosser.word[i]!;
           status = "correct";
+        } else if (isVictory) {
+          // On victory, reveal unsolved crosser letters in faded style
+          letter = crosser.word[i]!;
+          status = "unsolvedReveal";
         } else if (lockedFromGuess) {
           letter = lockedFromGuess;
           status = "lockedCorrect"; // Green - earned from your guess
@@ -273,7 +277,7 @@ export function Grid({
     }
 
     return cells;
-  }, [puzzle, revealedLetters, solvedWords, selectedTarget, currentGuess, guesses, rowOffset]);
+  }, [puzzle, revealedLetters, solvedWords, selectedTarget, currentGuess, guesses, rowOffset, isVictory]);
 
   // Build a flat list of navigable cells for keyboard navigation
   const navigableCells = useMemo(() => {
@@ -395,9 +399,19 @@ export function Grid({
 
   // Calculate the active cursor position (first empty slot in current target)
   const activeCursorPosition = useMemo(() => {
-    // Find the first unfilled position in the currentGuess
-    for (let i = 0; i < currentGuess.length; i++) {
-      if (currentGuess[i] === " " || currentGuess[i] === undefined) {
+    // Determine target length
+    let targetLength: number;
+    if (selectedTarget === "main") {
+      targetLength = puzzle.mainWord.word.length;
+    } else {
+      const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
+      targetLength = crosser?.word.length ?? 5;
+    }
+
+    // Find the first unfilled position
+    // Handle empty guess (position 0) or guess shorter than target
+    for (let i = 0; i < targetLength; i++) {
+      if (!currentGuess[i] || currentGuess[i] === " ") {
         // Convert position index to grid coordinates (with rowOffset applied)
         if (selectedTarget === "main") {
           return { row: mainRow, col: mainCol + i };
@@ -412,7 +426,7 @@ export function Grid({
     }
     // If all positions are filled, cursor is at the end (no active cursor shown)
     return null;
-  }, [currentGuess, selectedTarget, mainRow, mainCol, puzzle.crossers, rowOffset]);
+  }, [currentGuess, selectedTarget, mainRow, mainCol, puzzle.crossers, puzzle.mainWord.word.length, rowOffset]);
 
   // Calculate the actual bounds of the puzzle (excluding empty rows/cols)
   const bounds = useMemo(() => {
