@@ -862,6 +862,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   addLetter: (letter: string) => {
     // Use functional update to avoid race conditions with rapid typing
     set((state) => {
+      console.log("[addLetter] Called:", { letter, selectedTarget: state.selectedTarget, currentGuess: state.currentGuess });
       if (state.isLoading || state.isSubmitting) {
         return state;
       }
@@ -1261,10 +1262,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
   selectTarget: (targetId: "main" | string) => {
     const { status, solvedWords, isLoading, selectedTarget, puzzle, revealedLetters, guesses, currentGuess, draftGuesses } = get();
 
-    if (isLoading) return;
-    if (status !== "playing") return;
-    if (solvedWords.has(targetId)) return;
-    if (targetId === selectedTarget) return;
+    console.log("[selectTarget] Called with:", {
+      targetId,
+      currentSelectedTarget: selectedTarget,
+      isLoading,
+      status,
+      isSolved: solvedWords.has(targetId),
+      isSameTarget: targetId === selectedTarget,
+    });
+
+    if (isLoading) { console.log("[selectTarget] Blocked - isLoading"); return; }
+    if (status !== "playing") { console.log("[selectTarget] Blocked - status:", status); return; }
+    if (solvedWords.has(targetId)) { console.log("[selectTarget] Blocked - already solved"); return; }
+    if (targetId === selectedTarget) { console.log("[selectTarget] Blocked - same target"); return; }
 
     // Save current guess to draftGuesses before switching
     // This preserves typed letters when switching between targets
@@ -1331,6 +1341,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       ).join("");
     }
 
+    console.log("[selectTarget] Setting state:", { selectedTarget: targetId, currentGuess: newGuess });
     set({ selectedTarget: targetId, currentGuess: newGuess, draftGuesses: newDraftGuesses });
   },
 

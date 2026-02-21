@@ -487,7 +487,12 @@ export function Grid({
 
           // Handle click: toggle between words at intersection
           const handleClick = () => {
+            console.log("[Grid handleClick]", {
+              belongsTo: cell.belongsTo,
+              currentSelectedTarget: selectedTarget,
+            });
             if (cell.belongsTo.length === 1) {
+              console.log("[Grid handleClick] Single target, selecting:", cell.belongsTo[0]);
               onSelectTarget(cell.belongsTo[0]!);
             } else {
               // At intersection, toggle to the other word
@@ -495,8 +500,10 @@ export function Grid({
                 (w) => w !== selectedTarget,
               );
               if (otherWord) {
+                console.log("[Grid handleClick] Intersection, selecting other:", otherWord);
                 onSelectTarget(otherWord);
               } else {
+                console.log("[Grid handleClick] Intersection, selecting first:", cell.belongsTo[0]);
                 onSelectTarget(cell.belongsTo[0]!);
               }
             }
