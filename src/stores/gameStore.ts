@@ -1038,18 +1038,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const hasUnfilledPositions = rawGuess.includes(" ") || rawGuess.length < requiredLength;
     const guess = rawGuess.replace(/ /g, ""); // Remove spaces for comparison
 
-    // Debug: log validation state
-    console.log("[submitGuess] Validation:", {
-      currentGuess: state.currentGuess,
-      currentGuessChars: state.currentGuess.split('').map((c, i) => `${i}:'${c}'`),
-      rawGuess,
-      guess,
-      requiredLength,
-      hasUnfilledPositions,
-      selectedTarget: state.selectedTarget,
-      revealedLetters: state.revealedLetters,
-    });
-
     // Check if all positions are filled
     if (hasUnfilledPositions || guess.length < requiredLength) {
       set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not enough letters" });
@@ -1183,15 +1171,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       newCurrentGuess = Array.from({ length: targetLength }, (_, i) =>
         locked.has(i) ? locked.get(i)! : " "
       ).join("");
-
-      // Debug: log the computed guess after solving
-      console.log("[submitGuess] Auto-advance guess:", {
-        newSelectedTarget,
-        targetLength,
-        lockedPositions: Object.fromEntries(locked),
-        newCurrentGuess,
-        newRevealedLetters,
-      });
     }
 
     // Record stats if game is over (skip in preview mode; include archive games)
