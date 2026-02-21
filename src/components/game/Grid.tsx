@@ -353,8 +353,8 @@ export function Grid({
           e.preventDefault();
           nextCell = findAdjacentCell(row, col, "right");
           break;
-        case "Enter":
         case " ":
+          // Space toggles between words at intersection (Enter is reserved for submit)
           e.preventDefault();
           // Select the word at this cell
           const cell = grid[row]?.[col];
