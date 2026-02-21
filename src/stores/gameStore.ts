@@ -1038,6 +1038,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const hasUnfilledPositions = rawGuess.includes(" ") || rawGuess.length < requiredLength;
     const guess = rawGuess.replace(/ /g, ""); // Remove spaces for comparison
 
+    // Debug: log length check values
+    console.log("[submitGuess] Length check:", {
+      currentGuess: state.currentGuess,
+      rawGuess,
+      guess,
+      requiredLength,
+      rawGuessLength: rawGuess.length,
+      guessLength: guess.length,
+      hasUnfilledPositions,
+      selectedTarget: state.selectedTarget,
+    });
+
     // Check if all positions are filled
     if (hasUnfilledPositions || guess.length < requiredLength) {
       set({ isSubmitting: false, shakeTarget: state.selectedTarget, toastMessage: "Not enough letters" });
