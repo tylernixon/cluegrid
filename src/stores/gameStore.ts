@@ -869,8 +869,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   addLetter: (letter: string) => {
     // Use functional update to avoid race conditions with rapid typing
     set((state) => {
-      if (state.isLoading || state.isSubmitting) return state;
-      if (state.status !== "playing") return state;
+      console.log("[addLetter] Called with:", { letter, isLoading: state.isLoading, isSubmitting: state.isSubmitting, status: state.status, selectedTarget: state.selectedTarget, currentGuess: state.currentGuess });
+      if (state.isLoading || state.isSubmitting) {
+        console.log("[addLetter] Blocked - loading or submitting");
+        return state;
+      }
+      if (state.status !== "playing") {
+        console.log("[addLetter] Blocked - not playing");
+        return state;
+      }
 
       // Compute locked positions for current target (revealed letters + correct feedback)
       const locked = new Set<number>();
@@ -936,6 +943,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       guessArray[insertPos] = letter.toUpperCase();
       const newGuess = guessArray.join("");
 
+      console.log("[addLetter] Success:", { insertPos, newGuess, selectedTarget: state.selectedTarget });
       return { currentGuess: newGuess };
     });
   },
