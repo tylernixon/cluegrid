@@ -360,6 +360,27 @@ export function Grid({
   const mainRow = puzzle.mainWord.row;
   const mainCol = puzzle.mainWord.col;
 
+  // Calculate the active cursor position (first empty slot in current target)
+  const activeCursorPosition = useMemo(() => {
+    // Find the first unfilled position in the currentGuess
+    for (let i = 0; i < currentGuess.length; i++) {
+      if (currentGuess[i] === " " || currentGuess[i] === undefined) {
+        // Convert position index to grid coordinates
+        if (selectedTarget === "main") {
+          return { row: mainRow, col: mainCol + i };
+        } else {
+          const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
+          if (crosser) {
+            return { row: crosser.startRow + i, col: crosser.startCol };
+          }
+        }
+        break;
+      }
+    }
+    // If all positions are filled, cursor is at the end (no active cursor shown)
+    return null;
+  }, [currentGuess, selectedTarget, mainRow, mainCol, puzzle.crossers]);
+
   // Calculate the actual bounds of the puzzle (excluding empty rows/cols)
   const bounds = useMemo(() => {
     let minRow = puzzle.gridSize.rows;
@@ -487,12 +508,18 @@ export function Grid({
           const isFocused = focusedCell?.row === actualRow && focusedCell?.col === actualCol;
           const tabIndexValue = isFocused || (focusedCell === null && isFirstCell) ? 0 : -1;
 
+          // Check if this cell is the active cursor position
+          const isActiveCursor = activeCursorPosition !== null &&
+            activeCursorPosition.row === actualRow &&
+            activeCursorPosition.col === actualCol;
+
           return (
             <Cell
               key={`${actualRow}-${actualCol}`}
               letter={cell.letter}
               status={cell.status}
               isSelected={isSelected}
+              isActiveCursor={isActiveCursor}
               isMainWordRow={isMainWordRow}
               animate={animationType}
               animationDelay={animationDelay}

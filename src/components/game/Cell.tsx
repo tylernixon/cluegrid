@@ -7,6 +7,7 @@ interface CellProps {
   letter: string;
   status: "empty" | "filled" | "correct" | "present" | "absent" | "revealed" | "lockedCorrect" | "typing";
   isSelected: boolean;
+  isActiveCursor?: boolean; // True only for the cell where the next letter will be typed
   isMainWordRow: boolean;
   animate?: "pop" | "shake" | "bounce" | "settle" | "glow" | "reveal" | "solvedLock" | null;
   animationDelay?: number;
@@ -42,6 +43,7 @@ export function Cell({
   letter,
   status,
   isSelected,
+  isActiveCursor = false,
   isMainWordRow,
   animate,
   animationDelay = 0,
@@ -137,11 +139,17 @@ export function Cell({
       animate={animateValue}
       transition={transitionValue}
     >
-      {/* Selection ring with yellow glow effect */}
+      {/* Selection ring - bright yellow glow only for active cursor, fainter for other selected cells */}
       <AnimatePresence>
-        {isSelected && (
+        {isActiveCursor && (
           <motion.span
             className="absolute inset-[-3px] rounded-md ring-2 ring-active dark:ring-active-dark shadow-active-glow pointer-events-none"
+            {...ringMotionProps}
+          />
+        )}
+        {isSelected && !isActiveCursor && (
+          <motion.span
+            className="absolute inset-[-3px] rounded-md ring-1 ring-active/40 dark:ring-active-dark/40 pointer-events-none"
             {...ringMotionProps}
           />
         )}
