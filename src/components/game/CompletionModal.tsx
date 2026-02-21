@@ -110,6 +110,9 @@ export function CompletionModal({
   const totalCrossers = puzzle.crossers.length;
   const mainGuesses = guesses.filter((g) => g.targetId === "main");
 
+  // Find unsolved crossers to reveal after puzzle completion
+  const unsolvedCrossers = puzzle.crossers.filter((c) => !solvedWords.has(c.id));
+
   useEffect(() => {
     if (open && !hasAnimated) {
       const timer = setTimeout(() => setHasAnimated(true), 100);
@@ -271,6 +274,29 @@ export function CompletionModal({
               </p>
             </div>
           )}
+
+          {/* Reveal unsolved crossers */}
+          {unsolvedCrossers.length > 0 && (
+            <div
+              className={`mt-6 transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            >
+              <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
+                Missed crossers
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {unsolvedCrossers.map((crosser) => (
+                  <div
+                    key={crosser.id}
+                    className="px-3 py-1.5 rounded-lg bg-ink-tertiary/10 dark:bg-ink-tertiary-dark/10 border border-ink-tertiary/20 dark:border-ink-tertiary-dark/20"
+                  >
+                    <p className="text-body-small font-mono text-ink-secondary dark:text-ink-secondary-dark tracking-wider">
+                      {crosser.word}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </ModalShell>
     );
@@ -368,10 +394,33 @@ export function CompletionModal({
           </div>
         </div>
 
+        {/* Reveal unsolved crossers */}
+        {unsolvedCrossers.length > 0 && (
+          <div
+            className={`mt-6 transition-all duration-500 delay-400 ${hasAnimated ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          >
+            <p className="text-caption text-ink-tertiary dark:text-ink-tertiary-dark mb-3 uppercase tracking-wider">
+              Missed crossers
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {unsolvedCrossers.map((crosser) => (
+                <div
+                  key={crosser.id}
+                  className="px-3 py-1.5 rounded-lg bg-ink-tertiary/10 dark:bg-ink-tertiary-dark/10 border border-ink-tertiary/20 dark:border-ink-tertiary-dark/20"
+                >
+                  <p className="text-body-small font-mono text-ink-secondary dark:text-ink-secondary-dark tracking-wider">
+                    {crosser.word}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Encouragement */}
         {!isArchiveMode && (
           <p
-            className={`mt-6 text-body text-ink-secondary dark:text-ink-secondary-dark transition-all duration-500 delay-400 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
+            className={`mt-6 text-body text-ink-secondary dark:text-ink-secondary-dark transition-all duration-500 delay-500 ${hasAnimated ? "opacity-100" : "opacity-0"}`}
           >
             Come back tomorrow for a fresh puzzle
           </p>

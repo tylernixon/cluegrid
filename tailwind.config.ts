@@ -21,12 +21,14 @@ const config: Config = {
         correct: { DEFAULT: "#4A8B6E", dark: "#4A8B6E" },
         // Revealed/hint letters - solid green for main word row
         revealed: { DEFAULT: "#4A8B6E", dark: "#4A8B6E" },
-        // Crosser solved - very faint green (~12% opacity) for solved crosser cells (not main row)
-        "crosser-solved": { DEFAULT: "#4A8B6E20", dark: "#4A9B7E20" },
+        // Crosser solved - visible green (50% opacity) for solved crosser cells (not main row)
+        "crosser-solved": { DEFAULT: "#4A8B6E80", dark: "#4A9B7E80" },
         present: { DEFAULT: "#C4944A", dark: "#D4A45A" },
         absent: { DEFAULT: "#B8B0A6", dark: "#3A3A42" },
         accent: { DEFAULT: "#5B7FA6", dark: "#7B9FC6" },
         "accent-hover": { DEFAULT: "#4A6B8E", dark: "#8BAFD6" },
+        // Active state - gold/yellow for currently selected tile
+        active: { DEFAULT: "#D4A74A", dark: "#E4B75A" },
         error: "#C45A4A",
       },
       fontFamily: {
@@ -99,6 +101,8 @@ const config: Config = {
         md: "0 4px 12px rgba(0,0,0,0.08)",
         lg: "0 8px 32px rgba(0,0,0,0.12)",
         glow: "0 0 24px rgba(74,139,110,0.3)",
+        // Yellow/gold glow for active tile
+        "active-glow": "0 0 16px rgba(212,167,74,0.5), 0 0 32px rgba(212,167,74,0.3)",
         inset: "inset 0 0 0 1px rgba(0,0,0,0.05)",
       },
       animation: {

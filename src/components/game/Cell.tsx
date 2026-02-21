@@ -33,9 +33,9 @@ const statusClasses: Record<string, string> = {
     "bg-correct dark:bg-correct-dark border-correct dark:border-correct-dark text-white",
   typing:
     "bg-surface dark:bg-surface-dark border-accent dark:border-accent-dark text-ink dark:text-ink-dark",
-  // Crosser solved - faint green (32% opacity) for solved crosser cells not on main row
+  // Crosser solved - visible green for solved crosser cells not on main row
   crosserSolved:
-    "bg-crosser-solved dark:bg-crosser-solved-dark border-correct/30 dark:border-correct-dark/30 text-white",
+    "bg-crosser-solved dark:bg-crosser-solved-dark border-correct/70 dark:border-correct-dark/70 text-white",
 };
 
 export function Cell({
@@ -137,11 +137,11 @@ export function Cell({
       animate={animateValue}
       transition={transitionValue}
     >
-      {/* Selection ring with smooth fade animation */}
+      {/* Selection ring with yellow glow effect */}
       <AnimatePresence>
         {isSelected && (
           <motion.span
-            className="absolute inset-[-3px] rounded-md ring-2 ring-accent dark:ring-accent-dark pointer-events-none"
+            className="absolute inset-[-3px] rounded-md ring-2 ring-active dark:ring-active-dark shadow-active-glow pointer-events-none"
             {...ringMotionProps}
           />
         )}
