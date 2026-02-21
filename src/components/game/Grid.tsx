@@ -124,11 +124,22 @@ export function Grid({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVictory, puzzle.mainWord.length]);
 
+  // Calculate row offset to handle crossers with negative startRow values
+  // This ensures all cells are in positive row territory
+  const rowOffset = useMemo(() => {
+    let minRow = 0;
+    for (const crosser of puzzle.crossers) {
+      minRow = Math.min(minRow, crosser.startRow);
+    }
+    // If any crosser starts above row 0, we need to shift everything down
+    return minRow < 0 ? -minRow : 0;
+  }, [puzzle.crossers]);
+
   // Build the grid cell data
   const grid = useMemo(() => {
     // Calculate the actual required grid dimensions based on puzzle content
     // This ensures all crosser cells are rendered even if gridSize was calculated incorrectly
-    const puzzleMainRow = puzzle.mainWord.row;
+    const puzzleMainRow = puzzle.mainWord.row + rowOffset;
     const puzzleMainCol = puzzle.mainWord.col;
     const puzzleMainWordLength = puzzle.mainWord.word.length;
 
@@ -136,9 +147,10 @@ export function Grid({
     let requiredRows = puzzleMainRow + 1;
     let requiredCols = puzzleMainCol + puzzleMainWordLength;
 
-    // Expand to include all crosser cells
+    // Expand to include all crosser cells (applying rowOffset)
     for (const crosser of puzzle.crossers) {
-      const crosserEndRow = crosser.startRow + crosser.word.length;
+      const adjustedStartRow = crosser.startRow + rowOffset;
+      const crosserEndRow = adjustedStartRow + crosser.word.length;
       const crosserCol = crosser.startCol + 1; // +1 because col is 0-indexed
       requiredRows = Math.max(requiredRows, crosserEndRow);
       requiredCols = Math.max(requiredCols, crosserCol);
@@ -171,8 +183,9 @@ export function Grid({
       }
     }
 
-    // Place main word cells
-    const { row: mainRowIdx, col: mainCol, word: mainWord } = puzzle.mainWord;
+    // Place main word cells (apply rowOffset to handle negative crosser startRows)
+    const { row: rawMainRowIdx, col: mainCol, word: mainWord } = puzzle.mainWord;
+    const mainRowIdx = rawMainRowIdx + rowOffset;
     const mainLockedCorrect = lockedCorrectPositions.get("main") ?? new Map();
 
     for (let i = 0; i < mainWord.length; i++) {
@@ -183,8 +196,9 @@ export function Grid({
       const belongsTo = existing ? [...existing.belongsTo, "main" as const] : ["main" as const];
 
       // Check if this letter is revealed by a crosser solve (intersection hint)
+      // Note: revealedLetters use original coordinates, so compare with offset-adjusted position
       const revealed = revealedLetters.find(
-        (r) => r.row === mainRowIdx && r.col === col,
+        (r) => r.row + rowOffset === mainRowIdx && r.col === col,
       );
 
       // Check if this position is locked from a correct guess
@@ -214,14 +228,14 @@ export function Grid({
       cells[mainRowIdx][col] = { letter, status, belongsTo, row: mainRowIdx, col };
     }
 
-    // Place crosser cells
+    // Place crosser cells (apply rowOffset to handle negative startRows)
     for (const crosser of puzzle.crossers) {
       const isSolved = solvedWords.has(crosser.id);
       const isActiveTarget = selectedTarget === crosser.id;
       const crosserLockedCorrect = lockedCorrectPositions.get(crosser.id) ?? new Map();
 
       for (let i = 0; i < crosser.word.length; i++) {
-        const row = crosser.startRow + i;
+        const row = crosser.startRow + rowOffset + i;
         const col = crosser.startCol;
         if (row < 0 || row >= safeRows || col < 0 || col >= safeCols) continue;
         if (!cells[row]) continue;
@@ -259,7 +273,7 @@ export function Grid({
     }
 
     return cells;
-  }, [puzzle, revealedLetters, solvedWords, selectedTarget, currentGuess, guesses]);
+  }, [puzzle, revealedLetters, solvedWords, selectedTarget, currentGuess, guesses, rowOffset]);
 
   // Build a flat list of navigable cells for keyboard navigation
   const navigableCells = useMemo(() => {
@@ -375,7 +389,8 @@ export function Grid({
     [findAdjacentCell, grid, navigableCells, onSelectTarget, selectedTarget],
   );
 
-  const mainRow = puzzle.mainWord.row;
+  // Apply rowOffset to main word position for consistent coordinates
+  const mainRow = puzzle.mainWord.row + rowOffset;
   const mainCol = puzzle.mainWord.col;
 
   // Calculate the active cursor position (first empty slot in current target)
@@ -383,13 +398,13 @@ export function Grid({
     // Find the first unfilled position in the currentGuess
     for (let i = 0; i < currentGuess.length; i++) {
       if (currentGuess[i] === " " || currentGuess[i] === undefined) {
-        // Convert position index to grid coordinates
+        // Convert position index to grid coordinates (with rowOffset applied)
         if (selectedTarget === "main") {
           return { row: mainRow, col: mainCol + i };
         } else {
           const crosser = puzzle.crossers.find((c) => c.id === selectedTarget);
           if (crosser) {
-            return { row: crosser.startRow + i, col: crosser.startCol };
+            return { row: crosser.startRow + rowOffset + i, col: crosser.startCol };
           }
         }
         break;
@@ -397,7 +412,7 @@ export function Grid({
     }
     // If all positions are filled, cursor is at the end (no active cursor shown)
     return null;
-  }, [currentGuess, selectedTarget, mainRow, mainCol, puzzle.crossers]);
+  }, [currentGuess, selectedTarget, mainRow, mainCol, puzzle.crossers, rowOffset]);
 
   // Calculate the actual bounds of the puzzle (excluding empty rows/cols)
   const bounds = useMemo(() => {
@@ -515,7 +530,8 @@ export function Grid({
             if (crosserId) {
               const crosser = puzzle.crossers.find((c) => c.id === crosserId);
               if (crosser) {
-                const positionInCrosser = actualRow - crosser.startRow;
+                // Account for rowOffset when calculating position within crosser
+                const positionInCrosser = actualRow - (crosser.startRow + rowOffset);
                 animationDelay = positionInCrosser * 0.03; // 30ms stagger
               }
             }
