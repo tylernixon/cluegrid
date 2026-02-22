@@ -162,7 +162,7 @@ export function Keyboard({
                 key={key}
                 type="button"
                 data-key={key}
-                className={`${statusClass} ${focusClass} flex items-center justify-center h-[52px] rounded-md text-body-small font-semibold shadow-sm transition-transform active:scale-[0.96]
+                className={`${statusClass} ${focusClass} flex items-center justify-center h-[44px] rounded-md text-body-small font-semibold shadow-sm transition-transform active:scale-[0.96]
                   ${isSpecial ? "px-3 min-w-[56px]" : "min-w-[32px] flex-1 max-w-[44px]"}
                 `}
                 onClick={() => handleKey(key)}
