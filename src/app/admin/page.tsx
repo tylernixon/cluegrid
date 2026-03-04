@@ -47,7 +47,7 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchScheduledDates = async () => {
       try {
-        const response = await fetch("/api/admin/puzzles?limit=100");
+        const response = await fetch("/api/admin/puzzles?limit=100", { credentials: 'include' });
         if (response.ok) {
           const data = await response.json();
           const dates = new Map<string, string>();
@@ -80,6 +80,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/generate", {
         method: "POST",
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           theme: theme.trim(),
@@ -169,6 +170,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/puzzles", {
         method: "POST",
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ puzzle, status }),
       });
@@ -191,6 +193,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/revalidate", {
         method: "POST",
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ date }),
       });

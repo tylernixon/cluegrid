@@ -57,7 +57,7 @@ export default function PuzzleListPage() {
       params.set('limit', String(limit));
       params.set('offset', String(offset));
 
-      const res = await fetch(`/api/admin/puzzles?${params.toString()}`);
+      const res = await fetch(`/api/admin/puzzles?${params.toString()}`, { credentials: 'include' });
       const data = await res.json();
 
       if (!res.ok) {
@@ -96,6 +96,7 @@ export default function PuzzleListPage() {
     try {
       const res = await fetch(`/api/admin/puzzles/${puzzle.id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
       const data = await res.json();
 

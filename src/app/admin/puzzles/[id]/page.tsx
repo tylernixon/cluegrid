@@ -88,7 +88,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
       setError(null);
 
       try {
-        const res = await fetch(`/api/admin/puzzles/${puzzleId}`);
+        const res = await fetch(`/api/admin/puzzles/${puzzleId}`, { credentials: 'include' });
         const data = await res.json();
 
         if (!res.ok) {
@@ -255,6 +255,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     try {
       const res = await fetch('/api/admin/puzzles/generate', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode: 'crossers',
@@ -308,6 +309,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     try {
       const res = await fetch(`/api/admin/puzzles/${puzzleId}/status`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
@@ -386,6 +388,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
 
       const res = await fetch(`/api/admin/puzzles/${puzzleId}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
@@ -413,6 +416,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     try {
       const res = await fetch(`/api/admin/puzzles/${puzzleId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       const data = await res.json();

@@ -82,7 +82,7 @@ export default function PuzzleEditorPage() {
   useEffect(() => {
     const fetchUsedDates = async () => {
       try {
-        const res = await fetch('/api/admin/puzzles?limit=1000');
+        const res = await fetch('/api/admin/puzzles?limit=1000', { credentials: 'include' });
         const data = await res.json();
         if (res.ok && Array.isArray(data.puzzles)) {
           const dates = new Set<string>(data.puzzles.map((p: { date: string }) => p.date));
@@ -224,6 +224,7 @@ export default function PuzzleEditorPage() {
     try {
       const res = await fetch('/api/admin/puzzles/generate', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode: aiMode,
@@ -321,6 +322,7 @@ export default function PuzzleEditorPage() {
 
       const res = await fetch('/api/admin/puzzles', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
