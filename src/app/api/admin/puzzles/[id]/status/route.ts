@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
-import { requireAdmin } from '@/lib/admin-auth';
 
 // Use service role for admin operations
 function getServiceClient() {
@@ -20,9 +19,6 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } },
 ) {
-  const authError = requireAdmin(request);
-  if (authError) return authError;
-
   let body: { status?: string };
   try {
     body = await request.json();

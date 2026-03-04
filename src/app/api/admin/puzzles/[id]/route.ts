@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
-import { requireAdmin } from '@/lib/admin-auth';
 import { UpdatePuzzleSchema } from '@/lib/validation';
 
 // Use service role for admin operations
@@ -18,12 +17,9 @@ function getServiceClient() {
 
 // GET /api/admin/puzzles/[id] -- Get single puzzle with full details (including answers)
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: { id: string } },
 ) {
-  const authError = requireAdmin(request);
-  if (authError) return authError;
-
   const supabase = getServiceClient();
 
   const { data: puzzle, error: puzzleError } = await supabase
@@ -82,9 +78,6 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } },
 ) {
-  const authError = requireAdmin(request);
-  if (authError) return authError;
-
   const supabase = getServiceClient();
 
   // Verify puzzle exists and is editable
@@ -217,12 +210,9 @@ export async function PUT(
 
 // DELETE /api/admin/puzzles/[id] -- Delete draft puzzle only
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: { id: string } },
 ) {
-  const authError = requireAdmin(request);
-  if (authError) return authError;
-
   const supabase = getServiceClient();
 
   // Verify puzzle exists and is a draft, get date for cache revalidation

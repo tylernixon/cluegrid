@@ -3,7 +3,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { validatePuzzleIntersections, checkHorizontalConflicts } from '@/lib/puzzle';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -28,7 +27,6 @@ interface GridCell {
 // ---------------------------------------------------------------------------
 export default function PuzzleEditorPage() {
   const router = useRouter();
-  const { authFetch } = useAdminAuth();
 
   // Form state
   const [date, setDate] = useState(() => {
@@ -84,7 +82,7 @@ export default function PuzzleEditorPage() {
   useEffect(() => {
     const fetchUsedDates = async () => {
       try {
-        const res = await authFetch('/api/admin/puzzles?limit=1000');
+        const res = await fetch('/api/admin/puzzles?limit=1000');
         const data = await res.json();
         if (res.ok && Array.isArray(data.puzzles)) {
           const dates = new Set<string>(data.puzzles.map((p: { date: string }) => p.date));
@@ -95,7 +93,7 @@ export default function PuzzleEditorPage() {
       }
     };
     fetchUsedDates();
-  }, [authFetch]);
+  }, [fetch]);
 
   // Validation
   const validation = useMemo(() => {
@@ -224,7 +222,7 @@ export default function PuzzleEditorPage() {
     setIsGenerating(true);
 
     try {
-      const res = await authFetch('/api/admin/puzzles/generate', {
+      const res = await fetch('/api/admin/puzzles/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -321,7 +319,7 @@ export default function PuzzleEditorPage() {
         })),
       };
 
-      const res = await authFetch('/api/admin/puzzles', {
+      const res = await fetch('/api/admin/puzzles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

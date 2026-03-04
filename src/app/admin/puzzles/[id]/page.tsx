@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { validatePuzzleIntersections, checkHorizontalConflicts } from '@/lib/puzzle';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -49,7 +48,6 @@ interface GridCell {
 export default function EditPuzzlePage({ params }: { params: { id: string } }) {
   const puzzleId = params.id;
   const router = useRouter();
-  const { authFetch } = useAdminAuth();
 
   // Form state
   const [date, setDate] = useState('');
@@ -255,7 +253,7 @@ export default function EditPuzzlePage({ params }: { params: { id: string } }) {
     setIsGenerating(true);
 
     try {
-      const res = await authFetch('/api/admin/puzzles/generate', {
+      const res = await fetch('/api/admin/puzzles/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

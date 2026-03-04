@@ -1,79 +1,44 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+const COOKIE_NAME = 'admin_session';
+
 /**
  * Next.js Edge Middleware - handles admin route authentication.
  *
- * For /admin routes (both pages and API), we check for Basic Auth.
- * On failure, we prompt the browser for credentials.
+ * Checks for admin_session cookie. Redirects to login for pages,
+ * returns 401 for API routes.
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Only protect /admin routes (pages) and /api/admin routes
+  // Only protect /admin and /api/admin routes
   if (!pathname.startsWith('/admin') && !pathname.startsWith('/api/admin')) {
     return NextResponse.next();
   }
 
-  const username = process.env.ADMIN_USERNAME;
-  const password = process.env.ADMIN_PASSWORD;
-
-  // If credentials are not configured, deny access
-  if (!username || !password) {
-    return new NextResponse('Admin credentials not configured', {
-      status: 500,
-    });
+  // Allow login page and auth API without authentication
+  if (pathname === '/admin/login' || pathname === '/api/admin/auth') {
+    return NextResponse.next();
   }
 
-  const authHeader = request.headers.get('authorization');
+  // Check for session cookie
+  const sessionCookie = request.cookies.get(COOKIE_NAME);
 
-  // No auth header - prompt for credentials
-  if (!authHeader || !authHeader.startsWith('Basic ')) {
-    return new NextResponse('Authentication required', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="gist Admin"',
-      },
-    });
+  if (!sessionCookie?.value) {
+    // No valid session - redirect pages to login, return 401 for API
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'UNAUTHORIZED', message: 'Not authenticated' },
+        { status: 401 }
+      );
+    }
+    // Redirect to login
+    const loginUrl = new URL('/admin/login', request.url);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Decode and verify credentials
-  const base64Credentials = authHeader.slice('Basic '.length);
-  let decoded: string;
-  try {
-    decoded = atob(base64Credentials);
-  } catch {
-    return new NextResponse('Invalid credentials encoding', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="gist Admin"',
-      },
-    });
-  }
-
-  const separatorIndex = decoded.indexOf(':');
-  if (separatorIndex === -1) {
-    return new NextResponse('Invalid credentials format', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="gist Admin"',
-      },
-    });
-  }
-
-  const providedUsername = decoded.slice(0, separatorIndex);
-  const providedPassword = decoded.slice(separatorIndex + 1);
-
-  if (providedUsername !== username || providedPassword !== password) {
-    return new NextResponse('Invalid credentials', {
-      status: 401,
-      headers: {
-        'WWW-Authenticate': 'Basic realm="gist Admin"',
-      },
-    });
-  }
-
-  // Authorized - continue
+  // Has session cookie - allow request
   return NextResponse.next();
 }
 

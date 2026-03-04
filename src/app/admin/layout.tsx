@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { LogoutButton } from '@/components/LogoutButton';
 
 export const metadata: Metadata = {
   title: 'Admin | gist',
@@ -40,12 +41,15 @@ export default function AdminLayout({
                 </Link>
               </nav>
             </div>
-            <Link
-              href="/"
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              View Site
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                View Site
+              </Link>
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </header>

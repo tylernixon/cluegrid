@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin-auth';
 import { generatePuzzleWithAI } from '@/lib/puzzleGenerator';
 import type { AIGenerateRequest } from '@/lib/puzzleGenerator';
 
 export async function POST(request: Request) {
-  const authError = requireAdmin(request);
-  if (authError) return authError;
-
   try {
     const body = (await request.json()) as Record<string, unknown>;
 

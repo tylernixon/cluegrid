@@ -40,26 +40,14 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [puzzle, setPuzzle] = useState<GeneratedPuzzle | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [auth, setAuth] = useState<string | null>(null);
   const [scheduledDates, setScheduledDates] = useState<Map<string, string>>(new Map());
   const lastGenerateParams = useRef<{ theme: string; mainWord: string; difficulty: string; crosserCount: string } | null>(null);
-
-  // Load auth from sessionStorage on mount
-  useEffect(() => {
-    const stored = sessionStorage.getItem("admin_auth");
-    if (stored) setAuth(stored);
-  }, []);
 
   // Fetch scheduled puzzle dates
   useEffect(() => {
     const fetchScheduledDates = async () => {
-      const authHeader = sessionStorage.getItem("admin_auth");
-      if (!authHeader) return;
-
       try {
-        const response = await fetch("/api/admin/puzzles?limit=100", {
-          headers: { Authorization: authHeader },
-        });
+        const response = await fetch("/api/admin/puzzles?limit=100");
         if (response.ok) {
           const data = await response.json();
           const dates = new Map<string, string>();
@@ -75,25 +63,11 @@ export default function AdminPage() {
     fetchScheduledDates();
   }, [saveMessage]); // Refetch after saving
 
-  const getAuthHeader = () => {
-    if (auth) return auth;
-    const username = prompt("Admin username:");
-    const password = prompt("Admin password:");
-    if (!username || !password) return null;
-    const header = "Basic " + btoa(`${username}:${password}`);
-    setAuth(header);
-    sessionStorage.setItem("admin_auth", header);
-    return header;
-  };
-
   const handleGenerate = async () => {
     if (!theme.trim()) {
       setError("Theme is required");
       return;
     }
-
-    const authHeader = getAuthHeader();
-    if (!authHeader) return;
 
     setIsGenerating(true);
     setError(null);
@@ -106,10 +80,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authHeader,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           theme: theme.trim(),
           mainWord: mainWord.trim() || undefined,
@@ -190,8 +161,6 @@ export default function AdminPage() {
 
   const handleSave = async (status: "draft" | "published") => {
     if (!puzzle) return;
-    const authHeader = getAuthHeader();
-    if (!authHeader) return;
 
     setIsSaving(true);
     setError(null);
@@ -200,10 +169,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/puzzles", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authHeader,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ puzzle, status }),
       });
 
@@ -218,9 +184,6 @@ export default function AdminPage() {
   };
 
   const handleBustCache = async () => {
-    const authHeader = getAuthHeader();
-    if (!authHeader) return;
-
     setIsBustingCache(true);
     setError(null);
     setSaveMessage(null);
@@ -228,10 +191,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/revalidate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: authHeader,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ date }),
       });
 
