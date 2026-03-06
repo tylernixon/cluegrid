@@ -31,12 +31,15 @@ export async function POST(request: Request) {
 
     // Set the session cookie
     const cookieStore = await cookies();
+    const isProduction = process.env.NODE_ENV === 'production';
     cookieStore.set(COOKIE_NAME, sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: COOKIE_MAX_AGE,
       path: '/',
+      // In production, set domain to work across www and non-www
+      ...(isProduction && { domain: '.gist.ing' }),
     });
 
     return NextResponse.json({ success: true });
