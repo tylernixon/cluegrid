@@ -17,7 +17,7 @@ function getServiceClient() {
 
 // GET - List all puzzles
 export async function GET(request: Request) {
-  if (!isAdminAuthenticated(request)) {
+  if (!(await isAdminAuthenticated(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 
 // POST - Save a new puzzle
 export async function POST(request: Request) {
-  if (!isAdminAuthenticated(request)) {
+  if (!(await isAdminAuthenticated(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -1,17 +1,12 @@
+import { cookies } from "next/headers";
+
 const COOKIE_NAME = "admin_session";
 
-function hasAdminSessionCookie(cookieHeader: string | null): boolean {
-  if (!cookieHeader) return false;
+async function hasAdminSessionCookie(): Promise<boolean> {
+  const cookieStore = await cookies();
+  const sessions = cookieStore.getAll(COOKIE_NAME);
 
-  for (const part of cookieHeader.split(";")) {
-    const trimmed = part.trim();
-    if (!trimmed.startsWith(`${COOKIE_NAME}=`)) continue;
-
-    const value = trimmed.slice(COOKIE_NAME.length + 1);
-    return value.length > 0;
-  }
-
-  return false;
+  return sessions.some((session) => session.value.length > 0);
 }
 
 function hasValidBasicAuth(authHeader: string | null): boolean {
@@ -36,8 +31,8 @@ function hasValidBasicAuth(authHeader: string | null): boolean {
   );
 }
 
-export function isAdminAuthenticated(request: Request): boolean {
-  if (hasAdminSessionCookie(request.headers.get("cookie"))) {
+export async function isAdminAuthenticated(request: Request): Promise<boolean> {
+  if (await hasAdminSessionCookie()) {
     return true;
   }
 

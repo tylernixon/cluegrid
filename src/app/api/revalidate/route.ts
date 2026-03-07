@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { isAdminAuthenticated } from '@/lib/adminAuth';
 
 export async function POST(request: Request) {
-  if (!isAdminAuthenticated(request)) {
+  if (!(await isAdminAuthenticated(request))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
