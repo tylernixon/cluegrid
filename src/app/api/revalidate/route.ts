@@ -1,22 +1,9 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-
-// Simple auth check
-function isAuthenticated(request: Request): boolean {
-  const authHeader = request.headers.get('authorization');
-  if (!authHeader?.startsWith('Basic ')) return false;
-
-  const credentials = atob(authHeader.slice(6));
-  const [username, password] = credentials.split(':');
-
-  return (
-    username === process.env.ADMIN_USERNAME &&
-    password === process.env.ADMIN_PASSWORD
-  );
-}
+import { isAdminAuthenticated } from '@/lib/adminAuth';
 
 export async function POST(request: Request) {
-  if (!isAuthenticated(request)) {
+  if (!isAdminAuthenticated(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
